@@ -350,6 +350,9 @@ Constant QKEY2__KY      = 'q';
 Constant SCORE__TX      = "Score: ";
 Constant MOVES__TX      = "Moves: ";
 Constant TIME__TX       = "Time: ";
+Constant SCORE_S__TX    = "S: ";
+Constant MOVES_S__TX    = "M: ";
+Constant TIME_S__TX     = "T: ";
 Constant CANTGO__TX     = "You can't go that way.";
 Constant FORMER__TX     = "your former self";
 Constant MYFORMER__TX   = "my former self";
@@ -582,10 +585,10 @@ Constant COLON__TX      = ": ";
 [ CSubjectWill obj reportage nocaps;
     if (obj == player) {
         if (player provides narrative_voice) switch (player.narrative_voice) {
-          1:  Tense("I'll", "I would've"); return;
+          1:  Tense("I'll", "I would"); return;
           2:  ! Do nothing.
           3:  CDefart(player);
-              Tense(" will", " would've"); return;
+              Tense(" will", " would"); return;
           default: RunTimeError(16, player.narrative_voice);
         }
         if (nocaps) Tense("you'll", "you'd");
@@ -637,10 +640,22 @@ Constant COLON__TX      = ": ";
         if (caps) print "Y"; else print "y";
         print "our"; return;
     }
-    if (caps) print "H"; else print "h";
-    if (obj has male) { print "is"; return; }
-    if (obj has female) { print "er"; return; }
-    if (caps) print "I"; else { print "i"; print "ts"; return; }
+    if (obj has pluralname) {
+      if (caps) print "T"; else print "t";
+      print "heir"; return;
+    }
+    if (obj has female) {
+      if (caps) print "H"; else print "h";
+      print "er"; return;
+    }
+    if (obj has male or animate) {
+      if (obj hasnt neuter) {
+        if (caps) print "H"; else print "h";
+        print "is"; return;
+      }
+    }
+    if (caps) print "I"; else { print "i"; }
+    print "ts"; return;
 ];
 
 [ PossessiveCaps obj;
@@ -892,9 +907,9 @@ Constant COLON__TX      = ": ";
         1:  print "There ";
             Tense("isn't", "wasn't");
             " anything obvious with which to fill ", (the) x1, ".";
-        2:  print "Filling ", (the) x1, " from ", (the) x2;
-            Tense(" doesn't", " didn't");
-            " make sense.";
+        2:  print "Filling ", (the) x1, " from ", (the) x2, " wouldn't ";
+            Tense("make", "have made");
+            " sense.";
     }
   FullScore: switch (n) {
         1:  if (deadflag) print "The score was "; else print "The score is ";
@@ -917,7 +932,7 @@ Constant COLON__TX      = ": ";
     }
   Go: switch (n) {
         1:  CSubjectWill(actor,true);
-            Tense(" have", " had");
+            Tense(" have", " have had");
                 " to get ", (nop) SupportObj(x1,"off","out of"), " ", (the) x1, " first.";
         2:  CSubjectCant(actor,true); " go that way.";
         3:  CSubjectIs  (actor,true); " unable to climb ", (the) x1, ".";
@@ -934,11 +949,11 @@ Constant COLON__TX      = ": ";
         2:  CSubjectCant(x1,true); " contain things.";
         3:  CSubjectIs  (x1,true); " closed.";
         4:  CSubjectWill(actor,true);
-            Tense(" need", " needed");
+            Tense(" need", " have needed");
             " to take ", (ItOrThem) x1, " off first.";
         5:  CSubjectCant(actor,true); " put something inside itself.";
         6:  "(first taking ", (ItOrThem) x1, " off)";
-        7:  print "There ";
+        7:  print "There";
             Tense(" is", " was");
             " no more room in ", (the) x1, ".";
         8:  "Done.";
@@ -951,16 +966,22 @@ Constant COLON__TX      = ": ";
         4:  ".";
     }
   Jump: CSubjectVerb(actor,false,false,"jump",0,"jumps","jumped"); " on the spot, fruitlessly.";
-  JumpIn:
-        print "Jumping in ", (the) x1, " ";
-        Tense("would achieve", "would have achieved");
-        " nothing here.";
-  JumpOn:
-        print "Jumping upon ", (the) x1, " ";
-        Tense("would achieve", "would have achieved");
-        " nothing here.";
+  JumpIn: switch (n) {
+        1: print "Jumping in ", (the) x1, " ";
+           Tense("would achieve", "would have achieved");
+           " nothing here.";
+        2: DecideAgainst();
+    }
+  JumpOn: switch (n) {
+        1: print "Jumping upon ", (the) x1, " ";
+           Tense("would achieve", "would have achieved");
+           " nothing here.";
+        2: DecideAgainst();
+    }
   JumpOver: switch (n) {
-        1:  CSubjectVerb(actor,true,false,"achieve",0,"achieve","achieved"); " nothing by this.";
+        1: print "Jumping over ", (the) x1, " ";
+           Tense("would achieve", "would have achieved");
+           " nothing here.";
         2:  DecideAgainst();
     }
   Kiss:     "Keep your mind on the game.";
@@ -1215,9 +1236,9 @@ Constant COLON__TX      = ": ";
     }
 ! Push: see Pull
   PushDir: switch (n) {
-        1:  print "That really ";
-            Tense("wouldn't", "didn't");
-            " serve any purpose.";
+        1:  print "That really wouldn't ";
+            Tense("serve", "have served");
+            " any purpose.";
         2:  print "That's ";
             Tense("not", "wasn't");
             " a direction.";
@@ -1402,9 +1423,9 @@ Constant COLON__TX      = ": ";
   Touch: switch (n) {
         1:  DecideAgainst();
         2:  CSubjectVerb(actor,true,false,"feel",0,"feels","felt"); " nothing unexpected.";
-        3:  print "That really ";
-            Tense("wouldn't", "didn't");
-            " serve any purpose.";
+        3:  print "That really wouldn't ";
+            Tense("serve", "have served");
+            " any purpose.";
     }
 ! Turn: see Pull.
   Unlock:  switch (n) {

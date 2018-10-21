@@ -60,11 +60,11 @@ System_file;
 ! ------------------------------------------------------------------------------
 
 #Ifndef VN_1633;
-Message fatalerror "*** Library 6.12.2 needs Inform v6.33 or later to work ***";
+Message fatalerror "*** Library 6.12.3 needs Inform v6.33 or later to work ***";
 #Endif; ! VN_
 
-Constant LibSerial       "180611";
-Constant LibRelease      "6.12.2";
+Constant LibSerial       "180904";
+Constant LibRelease      "6.12.3pre";
 Constant LIBRARY_VERSION  612;
 Constant Grammar__Version 2;
 
@@ -6419,7 +6419,7 @@ Object  InformLibrary "(Inform Library)"
 #Endif; ! TARGET_ZCODE
 
 #Ifndef DrawStatusLine;
-[ DrawStatusLine width posa posb;
+[ DrawStatusLine width posa posb posc;
     #Ifdef TARGET_GLULX;
     ! If we have no status window, we must not try to redraw it.
     if (gg_statuswin == 0)
@@ -6434,7 +6434,9 @@ Object  InformLibrary "(Inform Library)"
     MoveCursor(1, 1);
 
     width = ScreenWidth();
-    posa = width-26; posb = width-13;
+    posa = width-26;
+    posb = width-13;
+    posc = width-5;
     spaces width;
 
     MoveCursor(1, 2);
@@ -6463,12 +6465,22 @@ Object  InformLibrary "(Inform Library)"
             MoveCursor(1, posb);
             print (string) MOVES__TX, sline2;
         }
-        #Ifndef NO_SCORE;
-        if (width > 53 && width <= 66) {
-            MoveCursor(1, posb);
-            print sline1, "/", sline2;
-        }
-        #Endif;
+	if (width > 53 && width <= 66) {
+	    MoveCursor(1, posb);
+	    #Ifdef NO_SCORE;
+	    print (string) MOVES__TX, sline2;
+	    #Ifnot;
+	    print sline1, "/", sline2;
+	    #Endif;
+	}
+	if (width < 53) {
+	   MoveCursor(1, posc);
+	   #Ifdef NO_SCORE;
+	   print (string) MOVES_S__TX, sline2;
+	   #Ifnot;
+	   print sline1, "/", sline2;
+	   #Endif;
+	}
     }
 
     MainWindow(); ! set_window
@@ -6619,10 +6631,8 @@ Object  InformLibrary "(Inform Library)"
     gg_scriptstr = 0;
     gg_savestr = 0;
     gg_statuswin_cursize = 0;
-    #Ifdef DEBUG;
     gg_commandstr = 0;
     gg_command_reading = false;
-    #Endif; ! DEBUG
     ! Also tell the game to clear its object references.
     if (IdentifyGlkObject(0) == false) LibraryExtensions.RunWhile(ext_identifyglkobject, 0, 0);
 
@@ -6631,12 +6641,10 @@ Object  InformLibrary "(Inform Library)"
         switch (gg_arguments-->0) {
             GG_SAVESTR_ROCK: gg_savestr = id;
             GG_SCRIPTSTR_ROCK: gg_scriptstr = id;
-            #Ifdef DEBUG;
             GG_COMMANDWSTR_ROCK: gg_commandstr = id;
                                  gg_command_reading = false;
             GG_COMMANDRSTR_ROCK: gg_commandstr = id;
                                  gg_command_reading = true;
-            #Endif; ! DEBUG
             default: if (IdentifyGlkObject(1, 1, id, gg_arguments-->0) == false)
                          LibraryExtensions.RunWhile(ext_identifyglkobject, false, 1, 1, id, gg_arguments-->0);
         }
