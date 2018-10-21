@@ -1,0 +1,804 @@
+
+! Glk routines
+
+[ InitGlkWindow winrock;
+ switch (winrock) {
+  ! No status window
+  GG_STATUSWIN_ROCK: rtrue;
+ }
+ rfalse; ! leaving out this line will lead to a messy crash!
+];
+
+[ HandleGlkEvent ev context abortres newcmd cmdlen;
+ ! From http://www.firthworks.com/roger/informfaq/tt.html
+ switch (ev-->0) {
+  evtype_Timer:
+   glk_request_timer_events(0);
+   if (context == 1) {
+    glk_cancel_char_event(gg_mainwin);
+    abortres-->0 = 0;
+   } else {
+    ! http://adamcadre.ac/gull/gull-2n.html
+    glk_cancel_line_event(gg_mainwin, 0);
+    newcmd = "flashback";
+    cmdlen = PrintAnyToArray(abortres+WORDSIZE, INPUT_BUFFER_LEN-WORDSIZE, newcmd);
+    abortres-->0 = cmdlen;
+   }
+   return 2;
+ }
+];
+
+[ Pause;
+ glk_request_char_event(gg_mainwin);
+ while(1) {
+  glk_select(gg_event);
+  if (gg_event-->0 == evtype_MouseInput or evtype_CharInput) {
+   if (gg_event-->0 == evtype_MouseInput) glk_cancel_char_event(gg_mainwin);
+   return;
+  }
+  else HandleGlkEvent(gg_event, 1, gg_arguments);
+ }
+];
+
+! If called with no parameter, put the current time into date_array
+! Else put the current time into the specified array
+[ CurrentTime t;
+ glk_current_time(time_array);
+ if (t == nothing) glk_time_to_date_local(time_array, date_array);
+ else glk_time_to_date_local(time_array, t);
+ return date_array;
+];
+
+![ DrawChar zscii row col;
+! ! Characters are offset one pixel to the right since they're left-centred in the images
+! if (gg_grwin ~= nothing) glk_image_draw(gg_grwin, zscii, 10*col+41, 20*row+25);
+!];
+
+![ DrawTime hh mm;
+! if (gg_grwin ~= nothing) {
+!  DrawChar(hh/10+48, 1, 11);
+!  DrawChar(hh%10+48, 1, 12);
+!  DrawChar(58, 1, 13);
+!  DrawChar(mm/10+48, 1, 14);
+!  DrawChar(mm%10+48, 1, 15);
+! }
+!];
+
+![ ClearPhone;
+! if (gg_grwin ~= nothing) glk_window_fill_rect(gg_grwin, $FFFFFF, 50, 45, 201, 355);
+!];
+
+![ OpenWindow;
+! if (gg_secondwin == 0) {
+!  ! Choices are winmethod_Above, winmethod_Below, winmethod_Left, winmethod_Right, winmethod_Fixed, winmethod_Proportional
+!  gg_secondwin = glk_window_open(gg_mainwin, (winmethod_Below+winmethod_Proportional), 20, wintype_TextBuffer, GG_SECONDWIN_ROCK);
+! }
+!];
+
+!! e.g. http://www.eblong.com/zarf/glulx/twocol.inf 2017-02-22 JMS
+!! e.g. http://ginko968.free.fr/jeux/wof.inf
+![ SecondVoice o text;
+! glk($47, glk($2C, gg_secondwin));
+! switch (o) {
+!  britney: glk_set_style(style_BlockQuote);
+!  igor: glk_set_style(style_Note);
+!  default: glk_set_style(style_Preformatted);
+! }
+! print (name) o, " > ", (string)text;
+! glk_set_style(style_Normal);
+! glk($47, glk($2C, gg_mainwin));
+!];
+
+![ CloseWindow;
+! if (gg_secondwin ~= 0) {
+!  glk_window_close(gg_secondwin, 0);
+!  gg_secondwin = 0;
+! }
+!];
+
+! Inform routines
+
+!----------------------------------------------------------------------------
+! Initialise
+!----------------------------------------------------------------------------
+[ Initialise k b v notdone;
+ if (~~(glk_gestalt(gestalt_DateTime, 0)) || ~~(glk_gestalt(gestalt_Timer, 0))) {
+  print "Your browser does not support required time features, try a more recent browser. Thanks for trying to save Fluffy!";
+  quit;
+ }
+ ! Great sample for date/time functions
+ CurrentTime(t0);
+ random(-(t0-->7));
+ k = RandomRoomNumber();
+ notdone = true;
+ while (notdone) {
+  b = RandomRoomNumber();
+  if (b ~= k) notdone = false;
+ }
+ notdone = true;
+ while (notdone) {
+  v = RandomRoomNumber();
+  if ((v ~= k) && (v ~= b))  notdone = false;
+ }
+ notify_mode = false;
+ player = kaitlyn;
+ location = street;
+ #Ifdef DEBUG; move master_key to player; #Endif;
+ smartphone.sms_from = anonymous;
+ smartphone.sms_text = "We have your dog. If you want it back, send us a topless picture of yourself. You have one hour.";
+ SetFlag(SMARTPHONE_LED_BLINKING);
+ Photograph.create(fluffy);
+ #Ifdef DEBUG;
+  ClearScreen();
+  print "k ", k;
+  new_line;
+  print "b ", b;
+  new_line;
+  print "v ", v;
+  new_line;
+ #Endif;
+ ClearScreen();
+ print "^I'll never forget those words...";
+ ! Wait for user to press a key
+ Pause();
+ ClearScreen();
+ print "^~We have your dog.~";
+ ! Wait for user to press a key
+ Pause();
+ ClearScreen();
+ print "^Omigod, someone took my Fluffy! I gotta get her back!!";
+ Pause();
+ ClearScreen();
+ #Ifdef ZARF;
+ print (header) "header
+  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  abcdefghijklmnopqrstuvwxyz
+  `1234567890-=
+  ~!#$%&*()_+
+  []{}|;':<>^";
+ print (subheader) "subheader
+  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  abcdefghijklmnopqrstuvwxyz
+  `1234567890-=
+  ~!#$%&*()_+
+  []{}|;':<>^";
+ print (b) "bold (input)
+  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  abcdefghijklmnopqrstuvwxyz
+  `1234567890-=
+  ~!#$%&*()_+
+  []{}|;':<>^";
+ print (i) "italic (emphasized)
+  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  abcdefghijklmnopqrstuvwxyz
+  `1234567890-=
+  ~!#$%&*()_+
+  []{}|;':<>^";
+ print (blue) "blue (user1)
+  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  abcdefghijklmnopqrstuvwxyz
+  `1234567890-=
+  ~!#$%&*()_+
+  []{}|;':<>^";
+ print (green) "green (user2)
+  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  abcdefghijklmnopqrstuvwxyz
+  `1234567890-=
+  ~!#$%&*()_+
+  []{}|;':<>^";
+ print (pink) "pink (alert)
+  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  abcdefghijklmnopqrstuvwxyz
+  `1234567890-=
+  ~!#$%&*()_+
+  []{}|;':<>^";
+ print (preformatted) "preformatted
+  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  abcdefghijklmnopqrstuvwxyz
+  `1234567890-=
+  ~!#$%&*()_+
+  []{}|;':<>^";
+ print (igorsvoice) "igor (note)
+  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  abcdefghijklmnopqrstuvwxyz
+  `1234567890-=
+  ~!#$%&*()_+
+  []{}|;':<>^";
+ print (britneysvoice) "britney (blockquote)
+  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  abcdefghijklmnopqrstuvwxyz
+  `1234567890-=
+  ~!#$%&*()_+
+  []{}|;':<>^";
+ glk_set_style(style_Preformatted);
+ for (i=1040 : i<=1071 : i++) print (char)i;
+ print "^";
+ for (i=1072 : i<=1103 : i++) print (char)i;
+ print "^";
+ glk_set_style(style_Normal);
+ #Endif;
+ print "^This is the story of the scariest thing that ever happened to me, it all started
+  with a text message from some Russian thugs, saying they had taken my cute little dog, Fluffy.
+  But I'm getting ahead of myself, let me start at the beginning...^";
+ banner();
+ print "^My name's Kaitlyn, I'm 23 and people tell me I'm quite pretty, but I just feel like a regular small-town girl.
+  I've come to Vegas with my best friend, Britney, to show my Fluffy ", (char)heart, " at the Silver State Kennel Club Dog Show.
+  We arrived an hour ago and I just left him in my hotel room, ", k, ", while I ran out for something to eat. Britney stayed in her room, ", b, ", to get settled in.^^";
+ k = FindRoomNumber(k);
+ move pink_shirt to k;
+ k_key.key_to_room = k;
+ b = FindRoomNumber(b);
+ move britney to b;
+ move green_shirt to b;
+ b_key.key_to_room = b;
+ v = FindRoomNumber(v);
+ move computer to v;
+ return 2;
+ ! Story continues with street.initial()
+];
+
+[ MyPrompt hh mm;
+ print "^";
+ CurrentTime();
+ hh = date_array-->4;
+ mm = date_array-->5;
+ !if (OnPhone()) print "(on the phone with ", (name)call_person, ")";
+ !else LanguageTimeOfDay(hh, mm);
+ LanguageTimeOfDay(hh, mm);
+ print " > ";
+ !print "^ > ";
+ !if ((gg_grwin ~= nothing) && (smartphone.mode ~= MODE_OFF)) DrawTime(hh, mm);
+];
+
+![ GamePreRoutine;
+! ClearFlag(AUTOMATICALLY_UNLOCKED_DOOR);
+! ClearFlag(AUTOMATICALLY_OPENED_DOOR);
+! rfalse;
+!];
+
+[ DeathMessage;
+ switch (deadflag) {
+  2: print "We rescued Fluffy, was he ever happy to see me! Plus, we had all the evidence we needed to put the Russians in jail for a long, long time.
+   Fluffy didn't do very well in the dog show, but after what happened to us that weekend, it didn't matter!";
+  3: print "After sending my topless photo to the Russians, they returned Fluffy and immediately posted the photo online.
+   I always wanted to be famous, so this wasn't such a bad ending!";
+ }
+];
+
+! Pronoun routines
+
+[ PronounAcc i;
+ if (i hasnt animate || i has neuter) print "it";
+ else { if (i has female) print "her"; else print "him"; }
+];
+![ PronounNom i;
+! if (i hasnt animate || i has neuter) print "it";
+! else { if (i has female) print "she"; else print "he"; }
+!];
+[ CPronounNom i;
+ if (i hasnt animate || i has neuter) print "It";
+ else { if (i has female) print "She"; else print "He"; }
+];
+
+#Ifdef ZARF;
+! Printing styles
+
+[ header text;
+ glk_set_style(style_Header);
+ print (string)text;
+ glk_set_style(style_Normal);
+];
+
+[ subheader text;
+ glk_set_style(style_Subheader);
+ print (string)text;
+ glk_set_style(style_Normal);
+];
+
+[ b text;
+ glk_set_style(style_Input);
+ print (string)text;
+ glk_set_style(style_Normal);
+];
+
+[ i text;
+ glk_set_style(style_Emphasized);
+ print (string)text;
+ glk_set_style(style_Normal);
+];
+
+[ blue text;
+ glk_set_style(style_User1);
+ print (string)text;
+ glk_set_style(style_Normal);
+];
+
+[ green text;
+ glk_set_style(style_User2);
+ print (string)text;
+ glk_set_style(style_Normal);
+];
+
+[ pink text;
+ glk_set_style(style_Alert);
+ print (string)text;
+ glk_set_style(style_Normal);
+];
+#Endif;
+
+[ preformatted text;
+ glk_set_style(style_Preformatted);
+ print (string)text;
+ glk_set_style(style_Normal);
+];
+
+[ IgorsVoice text;
+ glk_set_style(style_Note);
+ print (string)text;
+ glk_set_style(style_Normal);
+];
+
+[ BritneysVoice text;
+ glk_set_style(style_BlockQuote);
+ print (string)text;
+ glk_set_style(style_Normal);
+];
+
+! Debugging routines
+
+#Ifdef DEBUG_TRACEACTIONS;
+ ! d = description - string
+ ! ar = actor
+ ! an = action - string
+ ! n = noun
+ ! s = second
+ [ TraceActions d ar an n s;
+  print (string)d, " actor ";
+  PrintObject(ar);
+  print " action ", (string)an, " noun ";
+  PrintObject(n);
+  if (s ~= nothing) {
+   print " second ";
+   PrintObject(s);
+  }
+  new_line;
+ ];
+
+ [ PrintObject o;
+  if (o == nothing) print "nothing";
+  else print (name)o;
+ ];
+#Endif;
+
+! Utility routines
+
+! player moving to the 'n'th floor of the hotel, can be 0 through 6 but only 2 through 5 are where the rooms are
+![ MovePlayerToFloor n o;
+! player_floor = n;
+! #Ifdef DEBUG_MOVEMENT; print "DEBUG player_floor ", player_floor, "^"; #Endif;
+! if (elevator_floor == player_floor) give elevator_doors open;
+! else give elevator_doors ~open;
+! if ((n >= 2) && (n <= 5)) {
+!  ! Hide/show the General_Objects on hotel room floors
+!  objectloop(o ofclass General_Object or Person) {
+!   ! Ignore objects the player is carrying, objects in the elevator and objects not on the hotel room floors
+!   if ((parent(o) ~= player) && (parent(o) ~= elevator) && (o.on_floor >= 2) && (o.on_floor <= 5)) {
+!    if (o.on_floor == player_floor) {
+!     if (parent(o) == ponderosa) {
+!      move o to o.in_room;
+!      #Ifdef DEBUG_MOVEMENT; print "DEBUG o ", (name)o, " moved back^"; #Endif;
+!     }
+!    }
+!    else {
+!     if (parent(o) ~= ponderosa) {
+!      move o to ponderosa;
+!      #Ifdef DEBUG_MOVEMENT; print "DEBUG o ", (name)o, " moved to Ponderosa^"; #Endif;
+!     }
+!    }
+!   }
+!  }
+!  ! Renumber the hotel room doors when player is going to one of those floors
+!  ! Extremely kludgy but I don't have forever to figure it out
+!  #Ifdef DEBUG_MOVEMENT; print "DEBUG renumbering rooms to floor ", n, "^"; #Endif;
+!  switch (n) {
+!   2: door1.&name-->0 = '201';
+!   door2.&name-->0 = '202';
+!   door3.&name-->0 = '203';
+!   door4.&name-->0 = '204';
+!   door5.&name-->0 = '205';
+!   door6.&name-->0 = '206';
+!   door7.&name-->0 = '207';
+!   3: door1.&name-->0 = '301';
+!   door2.&name-->0 = '302';
+!   door3.&name-->0 = '303';
+!   door4.&name-->0 = '304';
+!   door5.&name-->0 = '305';
+!   door6.&name-->0 = '306';
+!   door7.&name-->0 = '307';
+!   4: door1.&name-->0 = '401';
+!   door2.&name-->0 = '402';
+!   door3.&name-->0 = '403';
+!   door4.&name-->0 = '404';
+!   door5.&name-->0 = '405';
+!   door6.&name-->0 = '406';
+!   door7.&name-->0 = '407';
+!   5: door1.&name-->0 = '501';
+!   door2.&name-->0 = '502';
+!   door3.&name-->0 = '503';
+!   door4.&name-->0 = '504';
+!   door5.&name-->0 = '505';
+!   door6.&name-->0 = '506';
+!   door7.&name-->0 = '507';
+!  }
+! }
+!];
+
+[ RandomRoomNumber;
+ return ((random(4)+1)*100+random(7));
+];
+
+[ FindRoomNumber n o;
+ objectloop (o ofclass Hotel_Room) {
+  if (o.room_number == n) return o;
+ }
+];
+
+[ ActorHasKeyForDoor a d o;
+ !#Ifdef DEBUG; print "DEBUG ActorHasKeyForDoor actor ", (name)a, " door ", (name)d; new_line; #Endif;
+ if (master_key in a) rtrue;;
+ objectloop (o ofclass Room_Key) {
+  if (o in a) {
+   if (o.key_to_room == d.to_room) rtrue;
+  }
+ }
+ rfalse;
+];
+
+[ NewRoom o;
+ #Ifdef DEBUG_MOVEMENT; print "DEBUG NewRoom^"; #Endif;
+ if (britney.is_following) {
+  move britney to location;
+  #Ifdef DEBUG_MOVEMENT; print "DEBUG moved britney^"; #Endif;
+ }
+ ! And person you're on the smartphone with follows you
+ if (call_person ~= nothing) {
+  move call_person to location;
+  #Ifdef DEBUG_MOVEMENT; print "DEBUG moved ", (name)call_person, "^"; #Endif;
+ }
+ if (((location == elevator_vestibule) && (elevator.floor_number == 1)) || ((location == second_floor) && (elevator.floor_number == 2)) || ((location == third_floor) && (elevator.floor_number == 3)) || ((location == fourth_floor) && (elevator.floor_number == 4)) || ((location == fifth_floor) && (elevator.floor_number == 5))) give elevator_doors open;
+ else if (((location == elevator_vestibule) && (elevator.floor_number ~= 1)) || ((location == second_floor) && (elevator.floor_number ~= 2)) || ((location == third_floor) && (elevator.floor_number ~= 3)) || ((location == fourth_floor) && (elevator.floor_number ~= 4)) || ((location == fifth_floor) && (elevator.floor_number ~= 5))) give elevator_doors ~open;
+ ! When you move to a new room, all Disappearing_Objects with 'general', i.e. have been dropped in a Public_Room disappear
+ objectloop(o ofclass Disappearing_Object) {
+  if (o has general) {
+   if (parent(o) ofclass Public_Room) {
+    #Ifdef DEBUG_DAEMONS; print "DEBUG starting timer for ", (name)o, "^"; #Endif;
+    StartTimer(o, 5);
+    give o ~general;
+   }
+  }
+ }
+];
+
+[ DisrobeTop actor noun;
+ #Ifdef DEBUG_CLOTHES; print "DEBUG DisrobeTop ", (name)actor, " noun ", (name)noun, "^"; #Endif;
+ if (actor.wearing_top == noun) {
+  actor.wearing_top = nothing;
+  give noun ~worn;
+  move actor.bra to actor;
+  give actor.bra worn;
+  if (actor == player) print "I take";
+  else print "Britney takes";
+  " off the ", (name)noun, ".";
+ }
+ if (actor == player) print "I'm";
+ else print "Britney's";
+ " not wearing the ", (name)noun, ".";
+];
+
+[ DisrobePants actor noun;
+ #Ifdef DEBUG_CLOTHES; print "DEBUG DisrobePants ", (name)actor, " noun ", (name)noun, "^"; #Endif;
+ if (actor.wearing_pants == noun) {
+  actor.wearing_pants = nothing;
+  give noun ~worn;
+  move actor.panties to actor;
+  give actor.panties worn;
+  if (actor == player) print "I take";
+  else print "Britney takes";
+  " off the ", (name)noun, ".";
+ }
+ if (actor == player) print "I'm";
+ else print "Britney's";
+ " not wearing the ", (name)noun, ".";
+];
+
+[ WearTop actor noun;
+ #Ifdef DEBUG_CLOTHES; print "DEBUG WearTop ", (name)actor, " noun ", (name)noun, "^"; #Endif;
+ if (actor.wearing_top == nothing) {
+  remove actor.bra;
+  give actor.bra ~worn;
+  actor.wearing_top = noun;
+  give noun worn;
+  if (actor == player) print "I put";
+  else print "Britney puts";
+  " on the ", (name)noun, ".";
+ }
+ if (actor == player) print "I'm";
+ else print "Britney's";
+ " already wearing the ", (name)actor.wearing_top, ".";
+];
+
+[ WearPants actor noun;
+ #Ifdef DEBUG_CLOTHES; print "DEBUG WearPants ", (name)actor, " noun ", (name)noun, "^"; #Endif;
+ if (actor.wearing_pants == nothing) {
+  remove actor.panties;
+  give actor.panties ~worn;
+  actor.wearing_pants = noun;
+  give noun worn;
+  if (actor == player) print "I put";
+  else print "Britney puts";
+  " on the ", (name)noun, ".";
+ }
+ if (actor == player) print "I'm";
+ else print "Britney's";
+ " already wearing the ", (name)actor.wearing_pants, ".";
+];
+
+! Used for parsing grammar
+
+[ Anything o;
+ if (scope_stage == 1) rfalse;
+ if (scope_stage == 2) {
+  objectloop (o ofclass Object) PlaceInScope(o); rtrue;
+ }
+ "No such in game.";
+];
+
+[ Anybody o;
+ if (scope_stage == 1) rfalse;
+ if (scope_stage == 2) {
+  objectloop (o ofclass Person) PlaceInScope(o); rtrue;
+ }
+ "No person with that name.";
+];
+
+[ AnyContact o;
+ if (scope_stage == 1) rfalse;
+ if (scope_stage == 2) {
+  objectloop (o ofclass Contact) PlaceInScope(o); rtrue;
+ }
+ "No contact with that name.";
+];
+
+! Originally from DM4, modified to return an integer
+[ PhoneNumber at length dialed dialed_already i;
+ dialed_number = 0;
+ do {
+  if (wn > num_words) jump number_ended;
+  at = WordAddress(wn); length = WordLength(wn);
+  for (i=0: i<length: i++) {
+   switch (at->i) {
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
+     if (dialed++ < MAX_PHONE_LENGTH) dialed_number = dialed_number*10 + (at->i - '0');
+    '-': ;
+    default: jump number_ended;
+   }
+  }
+  wn++;
+  dialed_already = dialed;
+ } until (false);
+ .number_ended;
+ if (dialed_already == 0) return GPR_FAIL;
+ return GPR_PREPOSITION;
+];
+
+! Doesn't need debug output because gameplay should always make it clear
+[ EndCall o;
+ give o ~concealed;
+ move o to call_room;
+ call_room = nothing;
+ call_person = nothing;
+ ! If hanging up house phone
+ if (telephone has general) give telephone ~general;
+ ! Else hanging up smartphone
+ else give o.contact_icon ~concealed;
+];
+
+! o is optional object to to determine if you're on the phone with that person
+[ OnPhone o;
+ if (o ~= nothing) return ((call_room ~= nothing) && (call_person == o));
+ else return ((call_room ~= nothing) && (call_person ~= nothing));
+];
+
+! Verb routines
+
+[ CallContactSub noun;
+ #Ifdef DEBUG; print "DEBUG actor ", (name)actor, " second ", (name)second, "^"; #Endif;
+ noun.press();
+ !if (OnPhone()) "I'm currently on the phone with ", (name)call_person, ".";
+ !if ((smartphone notin player) || (smartphone.mode ~= MODE_CONTACTS)) "With what?";
+ !if (noun ~= britney) "You don't know ", (name)noun, "'s number.";
+ !if (player in parent(noun)) {
+ ! print (CPronounNom)noun, "'s standing right in front of me!";
+ ! rtrue;
+ !}
+ !smartphone.interact();
+ !call_room = parent(noun);
+ !call_person = noun;
+ !give noun concealed;
+ !move noun to location;
+ !!OpenWindow();
+ !!SecondVoice(noun, "I wonder who this is?^");
+ !!"The phone rings and I hear, ~Hey, what's up?~";
+ !!print_ret (BritneysVoice)"Hey Kaitlyn, what's up?";
+];
+
+[ CallNumberSub hundreds tens ones r;
+ if (OnPhone()) "I'm currently on the phone with ", (name)call_person, ".";
+ ! If player isn't holding the telephone, terminate
+ if (telephone notin player) "With what?";
+ ! 0 = Lobby
+ if (dialed_number == 0) {
+  ! If that's where you are, terminate
+  if (player in lobby) "Doh! Busy signal.";
+  give telephone general;
+  call_room = lobby;
+  call_person = igor;
+  give igor concealed;
+  move igor to player;
+  !OpenWindow();
+  !SecondVoice(igor, "Oh man, I wonder what this loser is gonna go on about...^");
+  !"After a few rings, I hear, ~Hello, Front Desk?~";
+  print_ret (IgorsVoice)"Hello, Front Desk?";
+ }
+ ! 411 and 911
+ if (dialed_number == 411 or 911) {
+  SetFlag(PLAYER_TRIED_911);
+  print_ret (preformatted)"External calls are not allowed.";
+ }
+ ! ToDo 867-5309 Jenny
+ ! Three-digits
+ if ((dialed_number > 0) && (dialed_number <= 999)) {
+  hundreds = dialed_number/100;
+  tens = (dialed_number%100)/10;
+  ones = dialed_number%10;
+  if ((hundreds == 2 or 3 or 4 or 5) && (tens == 0) && (ones == 1 or 2 or 3 or 4 or 5 or 6 or 7)) {
+   ! It's a valid room number, find the room
+   objectloop (r ofclass Hotel_Room) {
+    if (r.room_number == dialed_number) {
+     ! If you dialed the room you're in, terminate
+     if (player in r) "Doh! Busy signal.";
+     ! Found the room, is Britney in it?
+     if (britney in r) {
+      give telephone general;
+      call_room = r;
+      call_person = britney;
+      give britney concealed;
+      move britney to location;
+      print_ret (BritneysVoice)"Hello?";
+     }
+     break;
+    }
+   }
+   "The phone rings and rings until I hang up.";
+  }
+ }
+ print_ret (preformatted)"Please try again.";
+];
+
+[ ComeHereSub;
+ #Ifdef DEBUG; print "DEBUG actor ", (name)actor, "^"; #Endif;
+ if (actor == player) rfalse;
+];
+
+[ FollowMeSub;
+ #Ifdef DEBUG; print "DEBUG actor ", (name)actor, "^"; #Endif;
+ if (actor == player) rfalse;
+];
+
+! End following
+[ StayHereSub;
+ #Ifdef DEBUG; print "DEBUG actor ", (name)actor, "^"; #Endif;
+ if (actor == player) rfalse;
+];
+
+[ HangUpSub o;
+ if (~~(OnPhone())) "No call active at the moment.";
+ o = call_person;
+ !CloseWindow();
+ EndCall(o);
+ "~Bye, ", (name)o, ".~";
+];
+
+[ KnockSub;
+ if (~~(noun ofclass Door)) "That doesn't really make sense.";
+];
+
+[ PhotographSub o;
+ !if (OnPhone(noun)) "How should I photograph ", (name)noun, "when I'm on the phone with ", (PronounAcc)noun, "?";
+ if ((smartphone notin player) || (smartphone.mode ~= MODE_CAMERA)) "With what?";
+ smartphone.interact();
+ o = Photograph.create(noun);
+ if (o == nothing) "Crap, SD card is full.";
+ if (noun == player) "I take a selfie.";
+ "I take a photograph of ", (name)noun,".";
+];
+
+! Previous
+[ SwipeRightSub;
+ if ((smartphone notin player) || (smartphone.mode ~= MODE_GALLERY)) "With what?";
+ smartphone.interact();
+ if (current_photo > 1) current_photo--;
+ else "Nothing happens.";
+];
+
+! Next
+[ SwipeLeftSub;
+ if ((smartphone notin player) || (smartphone.mode ~= MODE_GALLERY)) "With what?";
+ smartphone.interact();
+ if (current_photo < (MAX_PHOTOGRAPHS - Photograph.remaining())) current_photo++;
+ else "Nothing happens.";
+];
+
+[ ShareSub o f;
+ f = false;
+ if ((smartphone notin player) || (smartphone.mode ~= MODE_GALLERY)) "Share what?";
+ smartphone.interact();
+ ! Find current photo
+ objectloop(o ofclass Photograph) {
+  if (o.number == current_photo) {
+   switch (o.subject) {
+    fluffy: print "fluffy^";
+    igor: print "igor";
+    britney: print "britney^";
+    kaitlyn:
+     print "kaitlyn^";
+     if (o.wearing_top == nothing) {
+      f = true;
+      print " topless.^";
+     } else print ".^";
+    computer: print "computer^";
+    default: print "something else^";
+   }
+   break;
+  }
+ }
+ print (name)noun;
+ switch (noun) {
+  igor: "You don't know Igor's phone number.";
+  britney: "Britney will like this photo.";
+  anonymous:
+   if (f) deadflag = 3;
+   "Sending photo to Russians.";
+  kaitlyn: "I can't send to myself.";
+  default: "I missed programming ", (name)noun, ".";
+ }
+];
+
+[ TriggerFlashback;
+ #Ifdef DEBUG_DAEMONS; print "DEBUG starting timer^"; #Endif;
+ glk_request_timer_events(5000);
+];
+
+[ FlashbackSub;
+ ! 1: Has player had flashback?
+ SetFlag(PLAYER_HAD_FLASHBACK);
+ "Hey, I just remembered, when I was in the elevator after checking in, there were two guys checking me out.
+  It was definitely not cool, it was really creepy. I could hear them talking some eastern European language and laughing at me and Fluffy.
+  I heard one guy call the other one Vlad. Maybe Igor can tell me something about them.";
+];
+
+! Hints
+[ XyzzySub;
+ if (FlagOff(PLAYER_TOOK_TOPLESS_PHOTO)) {
+  if (FlagOn(SMARTPHONE_LED_BLINKING)) "Check your smartphone for text messages.";
+  if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) "Igor will be helpful once he knows Fluffy's been dognapped.";
+  if (FlagOff(IGOR_HAS_REVEALED_407)) "Maybe Igor would tell you what room the Russians are in.";
+  if (FlagOff(IGOR_HAS_HINTED_KEY)) "Igor might have additional ideas to help you.";
+  if (master_key notin player) "You need a master key to get into the Russians' room.";
+  if (FlagOff(PLAYER_HAS_SEEN_MESSAGE)) "There's information in the Russians' room.";
+  if (FlagOff(PLAYER_HAS_PHOTOGRAPHED_MESSAGE)) "You need a way to record what the message says.";
+  if (FlagOff(PLAYER_KNOWS_MESSAGE)) "Igor's Ukrainian, maybe he can translate the message.";
+ } else {
+  "You just have to send the photo.";
+ }
+];

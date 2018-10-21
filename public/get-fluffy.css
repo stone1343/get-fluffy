@@ -1,0 +1,138 @@
+/* Preformatted */
+@font-face {
+    font-family: 'DejaVuSansMono';
+    src: url('fonts/DejaVuSansMono.eot');
+    src: url('fonts/DejaVuSansMono.eot') format('embedded-opentype'),
+         url('fonts/DejaVuSansMono.woff2') format('woff2'),
+         url('fonts/DejaVuSansMono.woff') format('woff'),
+         url('fonts/DejaVuSansMono.ttf') format('truetype'),
+         url('fonts/DejaVuSansMono.svg#DejaVuSansMono') format('svg');
+}
+/* Igor */
+@font-face {
+    font-family: 'Snake';
+    src: url('fonts/Snake.eot');
+    src: url('fonts/Snake.eot') format('embedded-opentype'),
+         url('fonts/Snake.woff2') format('woff2'),
+         url('fonts/Snake.woff') format('woff'),
+         url('fonts/Snake.ttf') format('truetype'),
+         url('fonts/Snake.svg#Snake') format('svg');
+}
+/* Kaitlyn */
+@font-face {
+    font-family: 'get-fluffy';
+    src: url('fonts/get-fluffy.eot');
+    src: url('fonts/get-fluffy.eot') format('embedded-opentype'),
+         url('fonts/get-fluffy.woff2') format('woff2'),
+         url('fonts/get-fluffy.woff') format('woff'),
+         url('fonts/get-fluffy.ttf') format('truetype'),
+         url('fonts/get-fluffy.svg#getfluffy') format('svg');
+}
+/* Britney */
+@font-face {
+    font-family: 'gooddogplain';
+    src: url('fonts/gooddogplain_regular.eot');
+    src: url('fonts/gooddogplain_regular.eot') format('embedded-opentype'),
+         url('fonts/gooddogplain_regular.woff2') format('woff2'),
+         url('fonts/gooddogplain_regular.woff') format('woff'),
+         url('fonts/gooddogplain_regular.ttf') format('truetype'),
+         url('fonts/gooddogplain_regular.svg#gooddogplain_regular') format('svg');
+}
+
+#windowport {
+  color: #AA11DD;
+}
+
+.WindowFrame {
+  background: #FFFFFF;
+}
+
+.BufferWindow {
+  font-family: get-fluffy, Palatino, Georgia, serif;
+  font-size: 14px;
+}
+
+.GridWindow {
+  background: #FFFFFF;
+  color: #888888;
+}
+
+.MorePrompt {
+  background: #AA11DD;
+  color: #FFFFFF;
+}
+
+.Input {
+  font-weight: 900;
+  color: #AA11DD;
+}
+
+.BufferWindow .Input {
+  font-family: get-fluffy, serif;
+}
+
+.Style_preformatted {
+  font-family: DejaVuSansMono, monospace;
+  font-size: 18px;
+  color: black;
+}
+
+.Style_header {
+  font-weight: 900;
+  color: #AA11DD;
+}
+
+.BufferWindow .Style_header {
+  font-size: 20px;
+}
+
+.Style_subheader {
+  font-size: 16px;
+  color: #AA11DD;
+}
+
+/* pink, was teal #22CCCC */
+.Style_alert {
+  font-weight: bold;
+  color: #FF66AA;
+}
+
+/* Igor, was pink #FF66AA */
+.Style_note {
+  font-family: Snake, serif;
+  font-style: normal;
+  font-size: 32px;
+  color: black;
+  background: white;
+}
+
+/*
+.Style_blockquote {
+  background: #FFFFBB;
+  font-style: italic;
+}
+*/
+/* Britney */
+.Style_blockquote {
+  font-family: gooddogplain, serif;
+  font-size: 26px;
+  color: blue;
+  background: white;
+}
+
+.Style_input {
+  font-weight: 900;
+  color: #AA11DD;
+}
+
+/* blue */
+.Style_user1 {
+  font-weight: bold;
+  color: #1111FF;
+}
+
+/* green */
+.Style_user2 {
+  font-weight: bold;
+  color: #11CC11;
+}

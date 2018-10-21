@@ -1,0 +1,471 @@
+
+Class Person
+ with
+  list_together 1,
+ has animate proper;
+
+Class Girl
+ class Person
+ has female ~male;
+
+Class Guy
+ class Person
+ has male ~female;
+
+Class General_Object
+ with
+  list_together 2;
+!  on_floor,
+!  in_room;
+  !invent [;
+  ! print (name)self;
+  ! rtrue;
+  !],
+!  after [;
+!   Drop:
+!    self.on_floor = player_floor;
+!    self.in_room = location;
+!  ];
+
+! Objects Britney can interact with
+Class Britney_Object
+ class General_Object;
+
+Class Clothes
+ class Britney_Object
+ with
+  !list_together 2,
+  initial [;
+   print_ret (string)self.article, " ", (name)self, " is here.";
+  ]
+  !invent [;
+  ! print (name)self;
+  ! if (self has worn) print " (being worn)";
+  ! rtrue;
+  !],
+!  react_before [;
+!   Disrobe:
+!    #Ifdef DEBUG_CLOTHES; print "DEBUG Clothes react_before Disrobe actor ", (name)actor, " noun ", (name)noun; new_line; #Endif;
+!    if ((noun == self) && ~~(location ofclass Hotel_Room)) "I realize I can't undress here.";
+!   Wear:
+!    #Ifdef DEBUG_CLOTHES; print "DEBUG Clothes react_before Wear actor ", (name)actor, " noun ", (name)noun; new_line; #Endif;
+!  ]
+!  before [;
+!   Disrobe:
+!    #Ifdef DEBUG_CLOTHES; print "DEBUG Clothes before Disrobe actor ", (name)actor, " noun ", (name)noun; new_line; #Endif;
+!   Wear:
+!    #Ifdef DEBUG_CLOTHES; print "DEBUG Clothes before Wear actor ", (name)actor, " noun ", (name)noun; new_line; #Endif;
+!  ],
+!  orders [;
+!   Disrobe:
+!    #Ifdef DEBUG_CLOTHES; print "DEBUG Clothes orders Disrobe actor ", (name)actor, " noun ", (name)noun; new_line; #Endif;
+!   Wear:
+!    #Ifdef DEBUG_CLOTHES; print "DEBUG Clothes orders Wear actor ", (name)actor, " noun ", (name)noun; new_line; #Endif;
+!  ],
+!  after [;
+!   Disrobe:
+!    #Ifdef DEBUG_CLOTHES; print "DEBUG Clothes after Disrobe actor ", (name)actor, " noun ", (name)noun; new_line; #Endif;
+!   Wear:
+!    #Ifdef DEBUG_CLOTHES; print "DEBUG Clothes after Wear actor ", (name)actor, " noun ", (name)noun; new_line; #Endif;
+!  ]
+ has clothing;
+
+Class Top
+ class Clothes
+ with
+  before [;
+   ! actor == player, for britney it goes through her orders
+   Disrobe:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(TOP_BEFORE, actor, DISROBE_ACTION, noun, second); #Endif;
+    if (~~(location ofclass Hotel_Room)) "I can't undress in public!";
+    DisrobeTop(actor, noun);
+    rtrue;
+   Wear:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(TOP_BEFORE, actor, WEAR_ACTION, noun, second); #Endif;
+    WearTop(actor, noun);
+    rtrue;
+  ];
+
+Class Pants
+ class Clothes
+ with
+  before [;
+   ! actor == player, for britney it goes through her orders
+   Disrobe:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(PANTS_BEFORE, actor, DISROBE_ACTION, noun, second); #Endif;
+    if (~~(location ofclass Hotel_Room)) "I can't undress in public!";
+    DisrobePants(actor, noun);
+    rtrue;
+   Wear:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(PANTS_BEFORE, actor, WEAR_ACTION, noun, second); #Endif;
+    WearPants(actor, noun);
+    rtrue;
+  ];
+
+Class Underwear
+ class Clothes
+ with
+  before [;
+   Disrobe: "Keep it PG-13!";
+  ];
+
+! A Disappearing_Object is a special kind of object which disappears if you leave it in a Public_Room
+! Putting it down in Public_room sets general, which starts the timer when player moves to a new room
+Class Disappearing_Object
+ class General_Object
+ with
+  after [;
+   Drop:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(DISAPPEARING_OBJECT_AFTER, actor, DROP_ACTION, noun, second); #Endif;
+    ! ToDo something about putting the smartphone down carefully
+    if (location ofclass Public_Room) {
+     ! ToDo, can I use (alert) here?
+     ! Timer is started in NewRoom for Disappearing_Objects which have general
+     give self general;
+     "Ok, but if you leave ", (the)self, " here, it may not be here when you return.";
+    }
+   Take:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(DISAPPEARING_OBJECT_AFTER, actor, TAKE_ACTION, noun, second); #Endif;
+    give self ~general;
+    StopTimer(self);
+  ],
+  time_left,
+  time_out [;
+   #Ifdef DEBUG_DAEMONS; print "DEBUG time_out for ", (name)self, ", removed^"; #Endif;
+   give self ~general;
+   remove self;
+  ];
+
+Class Icon
+ with
+  mode,
+  before [;
+   Push, Touch:
+    smartphone.change_mode(self.mode);
+    "I selected ", (address)self.&name-->0, ".";
+  ];
+
+Class Contact
+ with
+  contact_noun,
+  before [;
+   Push, Touch:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(CONTACT_BEFORE, actor, PUSH_ACTION, noun, second); #Endif;
+    self.press();
+    rtrue;
+  ],
+  press [ o;
+   if (OnPhone()) "I'm currently on the phone with ", (name)call_person, ".";
+   if ((smartphone notin actor) || (smartphone.mode ~= MODE_CONTACTS)) "With what?";
+   o = self.contact_noun;
+   if (player in parent(o)) {
+    print (CPronounNom)o, "'s standing right in front of me!";
+    rtrue;
+   }
+   smartphone.interact();
+   call_room = parent(o);
+   call_person = o;
+   give o concealed;
+   move o to location;
+   give self concealed;
+   !OpenWindow();
+   !SecondVoice(noun, "I wonder who this is?^");
+   !"The phone rings and I hear, ~Hey, what's up?~";
+   !print_ret (BritneysVoice)"Hey Kaitlyn, what's up?";
+   print_ret (name)o;
+  ];
+
+Class AI
+ with
+  description [;
+   "You do realize ", (name)self, " is not actually a person, right?";
+  ],
+  life [;
+   Ask: "Ask AI";
+   Order: "Order AI";
+   Tell: "Tell AI";
+  ]
+ has talkable proper concealed;
+
+! Dynamically created photos
+Class Photograph(MAX_PHOTOGRAPHS)
+ with
+  number,
+  subject,
+  wearing_top,
+  wearing_pants,
+  description [;
+   switch (self.subject) {
+    fluffy: "It's Fluffy, he's s-o-o-o cute I love him so much!!!";
+    igor: "It's a photo of Igor.";
+    britney:
+     print "It's a picture of Britney in a ";
+     if (self.wearing_top) print (name)self.wearing_top;
+     else print "bra";
+     print " and ";
+     if (self.wearing_pants) print_ret (name)self.wearing_pants, ".";
+     else "panties.";
+    computer:
+     if (FlagOn(PLAYER_KNOWS_MESSAGE)) "It's the computer message saying that Fluffy is in the basement.";
+     else "The computer has a message that I can't understand.";
+    kaitlyn:
+     print "It's a picture of me in a ";
+     if (self.wearing_top) print (name)self.wearing_top;
+     else print "bra";
+     print " and ";
+     if (self.wearing_pants) print (name)self.wearing_pants, ".";
+     else print "panties.";
+     if ((self.wearing_top == nothing)) {
+      if ((self.wearing_pants == nothing)) " Yeah, I look pretty good in my underwear.";
+      else " I like how my boobs look in this bra.";
+     } else " It's a cute outfit, isn't it?";
+   }
+  ],
+  create [ o;
+   self.number = MAX_PHOTOGRAPHS - Photograph.remaining();
+   self.subject = o;
+   if (o == player or britney) {
+    self.wearing_top = o.wearing_top;
+    if (self.wearing_top == nothing) SetFlag(PLAYER_TOOK_TOPLESS_PHOTO);
+    self.wearing_pants = o.wearing_pants;
+   }
+   if (Photograph.remaining() <= 3) print Photograph.remaining(), " photo(s) remaining.^";
+  ];
+
+Class Button
+ with
+  before [;
+   Push, Touch: "It beeps quietly when you push it.";
+   !Take: "That would be vandalism and you're not that kind of person, are you?";
+  ],
+ has scenery;
+
+Class Elevator_Button
+ class Button
+ with
+  before [ ;
+   Push, Touch:
+    if (elevator.floor_number == self.destination_floor) "Nothing happens.";
+    ! The elevator buttons don't get listed from now on because you've probably figured the elevator out
+    give elevator_buttons scenery;
+    elevator.floor_number = self.destination_floor;
+    "The doors close, you feel the elevator moving for a few seconds and the doors open again.";
+  ],
+  destination_floor
+ has scenery;
+
+Class Bunch_Of_Buttons
+ with
+  before [;
+   Push, Touch: "You can't push them all.";
+   !Take: "That would be vandalism and you're not that kind of person, are you?";
+  ]
+ has transparent static;
+
+Class Basic_Door
+ with
+  description [;
+   print "It is ";
+   if (self hasnt open) "closed.";
+   "open.";
+  ],
+  before [;
+   Enter:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(BASIC_DOOR_BEFORE, actor, ENTER_ACTION, noun, second); #Endif;
+   Exit:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(BASIC_DOOR_BEFORE, actor, EXIT_ACTION, noun, second); #Endif;
+   Go:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(BASIC_DOOR_BEFORE, actor, GO_ACTION, noun, second); #Endif;
+   Knock:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(BASIC_DOOR_BEFORE, actor, KNOCK_ACTION, noun, second); #Endif;
+    "You knock on the door, but nothing happens.";
+  ],
+ has static scenery door openable lockable;
+
+! A door which is always locked from the outside and shuts when you go through it
+Class Hotel_Room_Door
+ class Basic_Door
+ with
+  when_closed [;
+   if (location ofclass Hall) "It's a normal hotel room door.";
+   "It has a floor plan including fire escape plan.";
+  ],
+  when_open [;
+   if (location ofclass Hall) "The door to the room is open.";
+   "The door to the hall is open.";
+  ],
+  door_to [;
+   #Ifdef DEBUG_TRACEACTIONS; print "Hotel_Room_Door door_to^"; #Endif;
+   if (location ofclass Hall) return self.to_room;
+   return self.to_hall;
+  ],
+  to_room,
+  to_hall,
+  door_dir [;
+   #Ifdef DEBUG_TRACEACTIONS; print "Hotel_Room_Door door_dir^"; #Endif;
+   if (location == self.to_hall) return self.dir_in;
+   return self.dir_out;
+  ],
+  dir_in,
+  dir_out,
+  with_key [ o;
+   objectloop (o ofclass Room_Key) {
+    if (o in player) {
+     if (o.key_to_room == self.to_room) return o;
+    }
+   }
+   return master_key;
+  ],
+  before [ o;
+   Knock:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(HOTEL_ROOM_DOOR_BEFORE, actor, KNOCK_ACTION, noun, second); #Endif;
+    if (location ofclass Hall) {
+     objectloop(o ofclass Person) {
+      if (parent(o) == self.to_room) {
+       give self ~locked open;
+       StartTimer(self, 1);
+       "From inside the room, you hear ~Coming!~, then the door swings open.";
+      }
+     }
+     "I knock on the door, but nothing happens.";
+    }
+    ! If knocking on the door from the inside...
+    "I kind of pointlessly knock on the door.";
+   Unlock:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(HOTEL_ROOM_DOOR_BEFORE, actor, UNLOCK_ACTION, noun, second); #Endif;
+    if (location ofclass Hall) {
+     print "I ";
+     if (~~(second == master_key || ((second provides key_to_room) && (second.key_to_room == self.to_room)))) "can't unlock the door with this.";
+     give self ~locked;
+    ! Restart the timer
+    StopTimer(self);
+    StartTimer(self, 1);
+     "insert the key in the door lock thingy, and a green light clicks on.";
+    }
+   Open:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(HOTEL_ROOM_DOOR_BEFORE, actor, OPEN_ACTION, noun, second); #Endif;
+    print "I ";
+    if (location ofclass Hall) {
+     if (self has locked) {
+      if (~~ActorHasKeyForDoor(player, self)) "can't open the door without a key.";
+      print "unlock and ";
+      give self ~locked;
+     }
+    }
+    give self open;
+    ! Restart the timer
+    StopTimer(self);
+    StartTimer(self, 1);
+    "open the door.";
+   Enter:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(HOTEL_ROOM_DOOR_BEFORE, actor, ENTER_ACTION, noun, second); #Endif;
+   Exit:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(HOTEL_ROOM_DOOR_BEFORE, actor, EXIT_ACTION, noun, second); #Endif;
+   Go:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(HOTEL_ROOM_DOOR_BEFORE, actor, GO_ACTION, noun, second); #Endif;
+    print "I ";
+    if (self has locked) {
+     if (~~ActorHasKeyForDoor(player, self)) "can't enter the room without a key.";
+     give self ~locked;
+     print "insert the key, ";
+    }
+    if (self hasnt open) {
+     give self open;
+     print "open the door and ";
+    }
+    if (location ofclass hall) print "enter";
+    else print "exit";
+    print" the room.";
+    ! Must not return true, because that stops everything, which we really can't do for this action!
+  ],
+  after [;
+   Enter:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(HOTEL_ROOM_DOOR_AFTER, actor, ENTER_ACTION, noun, second); #Endif;
+   Exit:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(HOTEL_ROOM_DOOR_AFTER, actor, EXIT_ACTION, noun, second); #Endif;
+   Go:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(HOTEL_ROOM_DOOR_AFTER, actor, GO_ACTION, noun, second); #Endif;
+    StopTimer(self);
+    give self ~open;
+    print " The door swings shut behind me.^";
+    if (location ofclass Hall) give self locked;
+  ],
+  time_left,
+  time_out [;
+   #Ifdef DEBUG_DAEMONS; print "DEBUG Hotel_Room_Door time_out^"; #Endif;
+   if (location ofclass Hall) {
+    if (self has open) {
+     give self locked ~open;
+     print "The door to ", (name)self.to_room, " swings shut.^";
+    } else {
+     give self locked;
+     print "The green light on the door to ", (name)self.to_room, " clicks off.^";
+    }
+   } else {
+    if (self has open) {
+     give self ~open;
+     print "The door swings shut.^";
+    }
+   }
+  ]
+ has ~open locked proper;
+
+Class Room_Key
+ class Disappearing_Object
+ with
+  key_to_room;
+
+Class Room
+ with
+  cant_go [; SmartCantGo(); ]
+ has light;
+
+Class Public_Room
+ class Room;
+
+Class Hall
+ class Public_Room
+ with
+  description [;
+   "I see doors numbered ", self.floor_number, "01 through ", self.floor_number, "07.";
+  ],
+  floor_number,
+  e_to [;
+   if (elevator_doors hasnt open) "The elevator must be at a different floor.";
+   return elevator;
+  ],
+  before [;
+   Enter:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(HALL_BEFORE, actor, ENTER_ACTION, noun, second); #Endif;
+   Exit:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(HALL_BEFORE, actor, EXIT_ACTION, noun, second); #Endif;
+   Go:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(HALL_BEFORE, actor, GO_ACTION, noun, second); #Endif;
+  ];
+
+Class Hotel_Room
+ class Room
+ with
+  description [;
+   print "According to the floor plan on the back of the door, I'm in ", (name)self, ".^";
+  ],
+  door_out,
+  floor_number,
+  room_number,
+  before [;
+   Drop:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(HOTEL_ROOM_BEFORE, actor, DROP_ACTION, noun, second); #Endif;
+    if ((noun == master_key) || (noun ofclass Room_Key)) "I think about leaving the key here, but realize I may need it later.";
+   Exit:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(HOTEL_ROOM_BEFORE, actor, EXIT_ACTION, noun, second); #Endif;
+    <<Enter self.door_out>>;
+   Enter:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(HOTEL_ROOM_BEFORE, actor, ENTER_ACTION, noun, second); #Endif;
+   Go:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(HOTEL_ROOM_BEFORE, actor, GO_ACTION, noun, second); #Endif;
+    if (telephone in player) "I'm still holding the telephone, it's one of those old-fashioned ones with a cord.";
+    if ((player.wearing_top == nothing) || (player.wearing_pants == nothing)) "I should get dressed first.";
+    if ((britney in location) && (britney.is_following) && ((britney.wearing_top == nothing) || (britney.wearing_pants == nothing))) print_ret (BritneysVoice)"Hang on, I'm not walking out of here dressed like this!";
+    if (self.door_out hasnt open) give self.door_out open;
+  ]
+ has scenery proper;

@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+
+# Using Firefox because I can set it to clear cache on close so I always get the current .js
+
+function pause() {
+  read -p "$*"
+}
+
+done=0
+while (( !done )); do
+  clear
+  options=(make-all get-fluffy get-fluffy-debug public/get-fluffy public/get-fluffy-debug make-clean cancel)
+  select opt in "${options[@]}"; do
+    case $opt in
+      make-all)
+        if make; then
+          pause 'Made successfully'
+        else
+          pause 'Correct error(s)'
+        fi
+        break
+        ;;
+      get-fluffy)
+        if make $opt.ulx; then
+          glulxe $opt.ulx
+        else
+          pause 'Correct error(s)'
+        fi
+        break
+        ;;
+      get-fluffy-debug)
+        if make $opt.ulx; then
+          glulxe $opt.ulx
+        else
+          pause 'Correct error(s)'
+        fi
+        break
+        ;;
+      public/get-fluffy)
+        if make $opt.ulx.js; then
+          firefox file://$PWD/public/get-fluffy.html
+        else
+          pause 'Correct error(s)'
+        fi
+        break
+        ;;
+      public/get-fluffy-debug)
+        if make $opt.ulx.js; then
+          firefox file://$PWD/public/get-fluffy-debug.html
+        else
+          pause 'Correct error(s)'
+        fi
+        break
+        ;;
+      make-clean)
+        if make clean; then
+          pause 'Cleaned'
+        fi
+        break
+        ;;
+      cancel)
+        done=1
+        break
+        ;;
+      *) echo invalid option;;
+    esac
+  done
+done
