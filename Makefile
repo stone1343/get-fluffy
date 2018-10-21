@@ -12,9 +12,9 @@ all: $(ULX) $(JS) $(ZIP)
 # Glulx version
 #  Removed +include_path=/home/jeff/inform_library-6.12.1,/home/jeff/inform_includes from inform commands
 get-fluffy.ulx: get-fluffy.inf fluffy-classes.inf fluffy-objects.inf fluffy-routines.inf
-	$(INFORM) -~SG  get-fluffy.inf
+	$(INFORM) -~SG +include_path=/usr/share/inform6/library/,./ get-fluffy.inf
 get-fluffy-debug.ulx: get-fluffy.inf fluffy-classes.inf fluffy-objects.inf fluffy-routines.inf
-	$(INFORM) -SDG get-fluffy.inf get-fluffy-debug.ulx
+	$(INFORM) -SDG +include_path=/usr/share/inform6/library/,./ get-fluffy.inf get-fluffy-debug.ulx
 
 # Quixe
 public/get-fluffy.ulx.js: get-fluffy.ulx
