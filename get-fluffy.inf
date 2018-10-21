@@ -172,7 +172,7 @@ Statusline time;
 Replace LanguageTimeOfDay;
 Replace DrawStatusLine;
 
-Include "parser";
+Include ">parser.h";
 
 !----------------------------------------------------------------------------
 ! If overriding library messages, LibraryMessages object should go between Parser and Verblib
@@ -199,7 +199,7 @@ Object LibraryMessages
     rtrue;
   ];
 
-Include "verblib";
+Include ">verblib.h";
 
 Include ">smartcantgo.h";
 Include ">newflags.h";
@@ -232,7 +232,7 @@ Include ">fluffy-objects.inf";
 ! The rest of the routines...
 Include ">fluffy-routines.inf";
 
-Include "grammar";
+Include ">grammar.h";
 
 !----------------------------------------------------------------------------
 ! Extend and Verb directives, and action routines for new verbs
