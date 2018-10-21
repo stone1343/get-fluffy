@@ -10,7 +10,6 @@ ZIP = get-fluffy.zip
 all: $(ULX) $(JS) $(ZIP)
 
 # Glulx version
-#  Removed +include_path=/home/jeff/inform_library-6.12.1,/home/jeff/inform_includes from inform commands
 get-fluffy.ulx: get-fluffy.inf fluffy-classes.inf fluffy-objects.inf fluffy-routines.inf
 	$(INFORM) -~SG +include_path=./ get-fluffy.inf
 get-fluffy-debug.ulx: get-fluffy.inf fluffy-classes.inf fluffy-objects.inf fluffy-routines.inf

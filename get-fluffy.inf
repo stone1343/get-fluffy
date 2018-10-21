@@ -172,7 +172,7 @@ Statusline time;
 Replace LanguageTimeOfDay;
 Replace DrawStatusLine;
 
-Include ">parser.h";
+Include "parser";
 
 !----------------------------------------------------------------------------
 ! If overriding library messages, LibraryMessages object should go between Parser and Verblib
@@ -199,10 +199,10 @@ Object LibraryMessages
     rtrue;
   ];
 
-Include ">verblib.h";
+Include "verblib";
 
-Include ">smartcantgo.h";
-Include ">newflags.h";
+Include "smartcantgo";
+Include "newflags";
 
 !----------------------------------------------------------------------------
 ! Attributes, global variables
@@ -224,15 +224,15 @@ Global current_photo;
 !Global gg_secondwin = 0;
 
 ! Classes
-Include ">fluffy-classes.inf";
+Include "fluffy-classes.inf";
 
 ! The rooms, the people and objects in them
-Include ">fluffy-objects.inf";
+Include "fluffy-objects.inf";
 
 ! The rest of the routines...
-Include ">fluffy-routines.inf";
+Include "fluffy-routines.inf";
 
-Include ">grammar.h";
+Include "grammar";
 
 !----------------------------------------------------------------------------
 ! Extend and Verb directives, and action routines for new verbs
