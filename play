@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # Using Firefox because I can set it to clear cache on close so I always get the current .js
 
