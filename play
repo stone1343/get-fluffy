@@ -21,7 +21,7 @@ while (( !done )); do
         break
         ;;
       get-fluffy)
-        if make inform6lib-6.12.3/English.h $opt.ulx; then
+        if make $opt.ulx; then
           glulxe $opt.ulx
         else
           pause 'Correct error(s)'
@@ -29,7 +29,7 @@ while (( !done )); do
         break
         ;;
       get-fluffy-debug)
-        if make inform6lib-6.12.3/English.h $opt.ulx; then
+        if make $opt.ulx; then
           glulxe $opt.ulx
         else
           pause 'Correct error(s)'
@@ -37,7 +37,7 @@ while (( !done )); do
         break
         ;;
       official-game)
-        if make inform6lib-6.12.3/English.h public/get-fluffy.ulx.js; then
+        if make public/get-fluffy.ulx.js; then
           firefox file://$PWD/public/index.html
         else
           pause 'Correct error(s)'
@@ -45,7 +45,7 @@ while (( !done )); do
         break
         ;;
       public/get-fluffy)
-        if make inform6lib-6.12.3/English.h $opt.ulx.js; then
+        if make  $opt.ulx.js; then
           firefox file://$PWD/public/get-fluffy.html
         else
           pause 'Correct error(s)'
@@ -53,7 +53,7 @@ while (( !done )); do
         break
         ;;
       public/get-fluffy-debug)
-        if make inform6lib-6.12.3/English.h $opt.ulx.js; then
+        if make $opt.ulx.js; then
           firefox file://$PWD/public/get-fluffy-debug.html
         else
           pause 'Correct error(s)'
@@ -66,7 +66,7 @@ while (( !done )); do
         fi
         break
         ;;
-      cancel)
+      exit)
         done=1
         break
         ;;
