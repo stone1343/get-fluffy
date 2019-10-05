@@ -9,7 +9,7 @@ function pause() {
 done=0
 while (( !done )); do
   clear
-  options=(make-all get-fluffy get-fluffy-debug public/get-fluffy public/get-fluffy-debug make-clean cancel)
+  options=(make-all get-fluffy get-fluffy-debug public/index.html public/get-fluffy public/get-fluffy-debug make-clean exit)
   select opt in "${options[@]}"; do
     case $opt in
       make-all)
@@ -31,6 +31,14 @@ while (( !done )); do
       get-fluffy-debug)
         if make $opt.ulx; then
           glulxe $opt.ulx
+        else
+          pause 'Correct error(s)'
+        fi
+        break
+        ;;
+      public/index.html)
+        if make $opt.ulx.js; then
+          firefox file://$PWD/public/index.html
         else
           pause 'Correct error(s)'
         fi
