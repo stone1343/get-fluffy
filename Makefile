@@ -5,7 +5,10 @@ LUA = lua
 ULX = get-fluffy.ulx get-fluffy-debug.ulx
 JS = public/get-fluffy.ulx.js public/get-fluffy-debug.ulx.js
 
-all: $(ULX) $(JS)
+all: inform6lib-6.12.3/English.h $(ULX) $(JS)
+
+inform6lib-6.12.3/English.h:
+	ln inform6lib-6.12.3/english.h inform6lib-6.12.3/English.h
 
 # Glulx version
 get-fluffy.ulx: get-fluffy.inf fluffy-classes.inf fluffy-objects.inf fluffy-routines.inf
@@ -20,4 +23,4 @@ public/get-fluffy-debug.ulx.js: get-fluffy-debug.ulx
 	$(LUA) game2js.lua get-fluffy-debug.ulx >public/get-fluffy-debug.ulx.js
 
 clean:
-	rm -f get-fluffy.ulx get-fluffy-debug.ulx public/get-fluffy.ulx.js public/get-fluffy-debug.ulx.js
+	rm -f inform6lib-6.12.3/English.h get-fluffy.ulx get-fluffy-debug.ulx public/get-fluffy.ulx.js public/get-fluffy-debug.ulx.js
