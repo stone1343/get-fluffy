@@ -37,7 +37,7 @@ while (( !done )); do
         break
         ;;
       public/index.html)
-        if make $opt.ulx.js; then
+        if make public/get-fluffy.ulx.js; then
           firefox file://$PWD/public/index.html
         else
           pause 'Correct error(s)'
