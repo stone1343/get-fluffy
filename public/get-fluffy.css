@@ -10,33 +10,33 @@
 }
 /* Igor */
 @font-face {
-    font-family: 'Snake';
-    src: url('fonts/Snake.eot');
-    src: url('fonts/Snake.eot') format('embedded-opentype'),
-         url('fonts/Snake.woff2') format('woff2'),
-         url('fonts/Snake.woff') format('woff'),
-         url('fonts/Snake.ttf') format('truetype'),
-         url('fonts/Snake.svg#Snake') format('svg');
+    font-family: 'NATS';
+    src: url('fonts/NATS.eot');
+    src: url('fonts/NATS.eot') format('embedded-opentype'),
+         url('fonts/NATS.woff2') format('woff2'),
+         url('fonts/NATS.woff') format('woff'),
+         url('fonts/NATS.ttf') format('truetype'),
+         url('fonts/NATS.svg#NATS') format('svg');
 }
 /* Kaitlyn */
 @font-face {
-    font-family: 'get-fluffy';
-    src: url('fonts/get-fluffy.eot');
-    src: url('fonts/get-fluffy.eot') format('embedded-opentype'),
-         url('fonts/get-fluffy.woff2') format('woff2'),
-         url('fonts/get-fluffy.woff') format('woff'),
-         url('fonts/get-fluffy.ttf') format('truetype'),
-         url('fonts/get-fluffy.svg#getfluffy') format('svg');
+    font-family: 'JMS';
+    src: url('fonts/JMS.eot');
+    src: url('fonts/JMS.eot') format('embedded-opentype'),
+         url('fonts/JMS.woff2') format('woff2'),
+         url('fonts/JMS.woff') format('woff'),
+         url('fonts/JMS.ttf') format('truetype'),
+         url('fonts/JMS.svg#JMS') format('svg');
 }
 /* Britney */
 @font-face {
-    font-family: 'gooddogplain';
-    src: url('fonts/gooddogplain_regular.eot');
-    src: url('fonts/gooddogplain_regular.eot') format('embedded-opentype'),
-         url('fonts/gooddogplain_regular.woff2') format('woff2'),
-         url('fonts/gooddogplain_regular.woff') format('woff'),
-         url('fonts/gooddogplain_regular.ttf') format('truetype'),
-         url('fonts/gooddogplain_regular.svg#gooddogplain_regular') format('svg');
+    font-family: 'AMS';
+    src: url('fonts/AMS.eot');
+    src: url('fonts/AMS.eot') format('embedded-opentype'),
+         url('fonts/AMS.woff2') format('woff2'),
+         url('fonts/AMS.woff') format('woff'),
+         url('fonts/AMS.ttf') format('truetype'),
+         url('fonts/AMS.svg#AMS') format('svg');
 }
 
 #windowport {
@@ -48,7 +48,7 @@
 }
 
 .BufferWindow {
-  font-family: get-fluffy, Palatino, Georgia, serif;
+  font-family: JMS, Palatino, Georgia, serif;
   font-size: 14px;
 }
 
@@ -68,7 +68,7 @@
 }
 
 .BufferWindow .Input {
-  font-family: get-fluffy, serif;
+  font-family: JMS, serif;
 }
 
 .Style_preformatted {
@@ -99,7 +99,7 @@
 
 /* Igor, was pink #FF66AA */
 .Style_note {
-  font-family: Snake, serif;
+  font-family: NATS, serif;
   font-style: normal;
   font-size: 32px;
   color: black;
@@ -114,7 +114,7 @@
 */
 /* Britney */
 .Style_blockquote {
-  font-family: gooddogplain, serif;
+  font-family: AMS, serif;
   font-size: 26px;
   color: blue;
   background: white;
