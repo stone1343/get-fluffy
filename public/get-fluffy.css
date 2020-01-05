@@ -28,16 +28,6 @@
          url('fonts/AMS.ttf') format('truetype'),
          url('fonts/AMS.svg#AMS') format('svg');
 }
-/* Igor */
-@font-face {
-    font-family: 'ID';
-    src: url('fonts/ID.eot');
-    src: url('fonts/ID.eot') format('embedded-opentype'),
-         url('fonts/ID.woff2') format('woff2'),
-         url('fonts/ID.woff') format('woff'),
-         url('fonts/ID.ttf') format('truetype'),
-         url('fonts/ID.svg#ID') format('svg');
-}
 /* Hacker */
 @font-face {
     font-family: 'NATS';
@@ -47,6 +37,16 @@
          url('fonts/NATS.woff') format('woff'),
          url('fonts/NATS.ttf') format('truetype'),
          url('fonts/NATS.svg#NATS') format('svg');
+}
+/* Igor */
+@font-face {
+    font-family: 'ID';
+    src: url('fonts/ID.eot');
+    src: url('fonts/ID.eot') format('embedded-opentype'),
+         url('fonts/ID.woff2') format('woff2'),
+         url('fonts/ID.woff') format('woff'),
+         url('fonts/ID.ttf') format('truetype'),
+         url('fonts/ID.svg#ID') format('svg');
 }
 
 #windowport {
@@ -83,7 +83,7 @@
 
 .Style_preformatted {
   font-family: DejaVuSansMono, monospace;
-  font-size: 18px;
+  font-size: 14px;
   color: black;
 }
 
@@ -114,6 +114,13 @@
   background: white;
 }
 
+/* Hacker */
+.Style_user2 {
+  font-family: NATS, serif;
+  font-size: 20px;
+  color: black;
+}
+
 /* Igor */
 .Style_note {
   font-family: ID, serif;
@@ -122,20 +129,13 @@
   color: gray;
 }
 
-/* Hacker */
-.Style_user2 {
-  font-family: NATS, serif;
-  font-size: 20px;
-  color: black;
-}
-
 /* blue */
 .Style_user1 {
   font-weight: bold;
   color: #1111FF;
 }
 
-/* pink, was teal #22CCCC */
+/* pink */
 .Style_alert {
   font-weight: bold;
   color: #FF66AA;

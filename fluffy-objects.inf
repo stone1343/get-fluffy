@@ -1001,8 +1001,11 @@ Object screen "screen" smartphone
     MODE_TEXT:
      ClearFlag(SMARTPHONE_LED_BLINKING);
      if ((smartphone.sms_from ~= nothing) && (smartphone.sms_text ~= nothing)) {
+      glk_set_style(style_Preformatted);
+      print "Text from ", (name)smartphone.sms_from, ": ~", (string)smartphone.sms_text, "~^";
+      glk_set_style(style_Normal);
       if (smartphone.sms_from == anonymous) SetFlag(PLAYER_KNOWS_ABOUT_FLUFFY);
-      "Text from ", (name)smartphone.sms_from, ": ~", (string)smartphone.sms_text, "~";
+      return;
      }
      "Ready to send a text message.";
     MODE_CAMERA: "Ready to take a photo.";
