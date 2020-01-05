@@ -8,16 +8,6 @@
          url('fonts/DejaVuSansMono.ttf') format('truetype'),
          url('fonts/DejaVuSansMono.svg#DejaVuSansMono') format('svg');
 }
-/* Igor */
-@font-face {
-    font-family: 'NATS';
-    src: url('fonts/NATS.eot');
-    src: url('fonts/NATS.eot') format('embedded-opentype'),
-         url('fonts/NATS.woff2') format('woff2'),
-         url('fonts/NATS.woff') format('woff'),
-         url('fonts/NATS.ttf') format('truetype'),
-         url('fonts/NATS.svg#NATS') format('svg');
-}
 /* Kaitlyn */
 @font-face {
     font-family: 'JMS';
@@ -37,6 +27,26 @@
          url('fonts/AMS.woff') format('woff'),
          url('fonts/AMS.ttf') format('truetype'),
          url('fonts/AMS.svg#AMS') format('svg');
+}
+/* Igor */
+@font-face {
+    font-family: 'ID';
+    src: url('fonts/ID.eot');
+    src: url('fonts/ID.eot') format('embedded-opentype'),
+         url('fonts/ID.woff2') format('woff2'),
+         url('fonts/ID.woff') format('woff'),
+         url('fonts/ID.ttf') format('truetype'),
+         url('fonts/ID.svg#ID') format('svg');
+}
+/* Hacker */
+@font-face {
+    font-family: 'NATS';
+    src: url('fonts/NATS.eot');
+    src: url('fonts/NATS.eot') format('embedded-opentype'),
+         url('fonts/NATS.woff2') format('woff2'),
+         url('fonts/NATS.woff') format('woff'),
+         url('fonts/NATS.ttf') format('truetype'),
+         url('fonts/NATS.svg#NATS') format('svg');
 }
 
 #windowport {
@@ -91,38 +101,32 @@
   color: #AA11DD;
 }
 
-/* pink, was teal #22CCCC */
-.Style_alert {
-  font-weight: bold;
-  color: #FF66AA;
-}
-
-/* Igor, was pink #FF66AA */
-.Style_note {
-  font-family: NATS, serif;
-  font-style: normal;
-  font-size: 32px;
-  color: black;
-  background: white;
-}
-
-/*
-.Style_blockquote {
-  background: #FFFFBB;
-  font-style: italic;
-}
-*/
-/* Britney */
-.Style_blockquote {
-  font-family: AMS, serif;
-  font-size: 26px;
-  color: blue;
-  background: white;
-}
-
 .Style_input {
   font-weight: 900;
   color: #AA11DD;
+}
+
+/* Britney */
+.Style_blockquote {
+  font-family: AMS, serif;
+  font-size: 20px;
+  color: green;
+  background: white;
+}
+
+/* Igor */
+.Style_note {
+  font-family: ID, serif;
+  font-style: normal;
+  font-size: 16px;
+  color: gray;
+}
+
+/* Hacker */
+.Style_user2 {
+  font-family: NATS, serif;
+  font-size: 20px;
+  color: black;
 }
 
 /* blue */
@@ -131,8 +135,8 @@
   color: #1111FF;
 }
 
-/* green */
-.Style_user2 {
+/* pink, was teal #22CCCC */
+.Style_alert {
   font-weight: bold;
-  color: #11CC11;
+  color: #FF66AA;
 }

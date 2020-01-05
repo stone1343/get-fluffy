@@ -149,19 +149,19 @@
  print "^Omigod, someone took my Fluffy! I gotta get her back!!";
  Pause();
  ClearScreen();
- #Ifdef ZARF;
- print (header) "header
-  ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  abcdefghijklmnopqrstuvwxyz
-  `1234567890-=
-  ~!#$%&*()_+
-  []{}|;':<>^";
- print (subheader) "subheader
-  ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  abcdefghijklmnopqrstuvwxyz
-  `1234567890-=
-  ~!#$%&*()_+
-  []{}|;':<>^";
+ !#Ifdef ZARF;
+ !print (header) "header
+ ! ABCDEFGHIJKLMNOPQRSTUVWXYZ
+ ! abcdefghijklmnopqrstuvwxyz
+ ! `1234567890-=
+ ! ~!#$%&*()_+
+ ! []{}|;':<>^";
+ !print (subheader) "subheader
+ ! ABCDEFGHIJKLMNOPQRSTUVWXYZ
+ ! abcdefghijklmnopqrstuvwxyz
+ ! `1234567890-=
+ ! ~!#$%&*()_+
+ ! []{}|;':<>^";
  print (b) "bold (input)
   ABCDEFGHIJKLMNOPQRSTUVWXYZ
   abcdefghijklmnopqrstuvwxyz
@@ -174,19 +174,13 @@
   `1234567890-=
   ~!#$%&*()_+
   []{}|;':<>^";
- print (blue) "blue (user1)
+ print (blue) "blue
   ABCDEFGHIJKLMNOPQRSTUVWXYZ
   abcdefghijklmnopqrstuvwxyz
   `1234567890-=
   ~!#$%&*()_+
   []{}|;':<>^";
- print (green) "green (user2)
-  ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  abcdefghijklmnopqrstuvwxyz
-  `1234567890-=
-  ~!#$%&*()_+
-  []{}|;':<>^";
- print (pink) "pink (alert)
+ print (pink) "pink
   ABCDEFGHIJKLMNOPQRSTUVWXYZ
   abcdefghijklmnopqrstuvwxyz
   `1234567890-=
@@ -198,25 +192,43 @@
   `1234567890-=
   ~!#$%&*()_+
   []{}|;':<>^";
- print (igorsvoice) "igor (note)
+ print (IgorsVoice) "Igor
   ABCDEFGHIJKLMNOPQRSTUVWXYZ
   abcdefghijklmnopqrstuvwxyz
   `1234567890-=
   ~!#$%&*()_+
   []{}|;':<>^";
- print (britneysvoice) "britney (blockquote)
+ print (BritneysVoice) "Britney
   ABCDEFGHIJKLMNOPQRSTUVWXYZ
   abcdefghijklmnopqrstuvwxyz
   `1234567890-=
   ~!#$%&*()_+
   []{}|;':<>^";
- glk_set_style(style_Preformatted);
- for (i=1040 : i<=1071 : i++) print (char)i;
- print "^";
- for (i=1072 : i<=1103 : i++) print (char)i;
- print "^";
+ print (HackersVoice) "Hacker
+  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  abcdefghijklmnopqrstuvwxyz
+  `1234567890-=
+  ~!#$%&*()_+
+  []{}|;':<>^";
+ print (header) "header
+  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  abcdefghijklmnopqrstuvwxyz
+  `1234567890-=
+  ~!#$%&*()_+
+  []{}|;':<>^";
+ print (subheader) "subheader
+  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  abcdefghijklmnopqrstuvwxyz
+  `1234567890-=
+  ~!#$%&*()_+
+  []{}|;':<>^";
+ !glk_set_style(style_Preformatted);
+ !for (i=1040 : i<=1071 : i++) print (char)i;
+ !print "^";
+ !for (i=1072 : i<=1103 : i++) print (char)i;
+ !print "^";
  glk_set_style(style_Normal);
- #Endif;
+ !#Endif;
  print "^This is the story of the scariest thing that ever happened to me, it all started
   with a text message from some Russian thugs, saying they had taken my cute little dog, Fluffy.
   But I'm getting ahead of myself, let me start at the beginning...^";
@@ -280,7 +292,6 @@
  else { if (i has female) print "She"; else print "He"; }
 ];
 
-#Ifdef ZARF;
 ! Printing styles
 
 [ header text;
@@ -313,21 +324,20 @@
  glk_set_style(style_Normal);
 ];
 
-[ green text;
- glk_set_style(style_User2);
- print (string)text;
- glk_set_style(style_Normal);
-];
-
 [ pink text;
  glk_set_style(style_Alert);
  print (string)text;
  glk_set_style(style_Normal);
 ];
-#Endif;
 
 [ preformatted text;
  glk_set_style(style_Preformatted);
+ print (string)text;
+ glk_set_style(style_Normal);
+];
+
+[ BritneysVoice text;
+ glk_set_style(style_BlockQuote);
  print (string)text;
  glk_set_style(style_Normal);
 ];
@@ -338,8 +348,8 @@
  glk_set_style(style_Normal);
 ];
 
-[ BritneysVoice text;
- glk_set_style(style_BlockQuote);
+[ HackersVoice text;
+ glk_set_style(style_User2);
  print (string)text;
  glk_set_style(style_Normal);
 ];
