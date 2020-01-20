@@ -101,42 +101,24 @@
 !----------------------------------------------------------------------------
 ! Initialise
 !----------------------------------------------------------------------------
-[ Initialise i k b v notdone;
+[ Initialise i;
  if (~~(glk_gestalt(gestalt_DateTime, 0)) || ~~(glk_gestalt(gestalt_Timer, 0))) {
   print "Your browser does not support required time features, try a more recent browser. Thanks for trying to save Fluffy!";
   quit;
  }
  ! Great sample for date/time functions
  CurrentTime(t0);
- random(-(t0-->7));
- k = RandomRoomNumber();
- notdone = true;
- while (notdone) {
-  b = RandomRoomNumber();
-  if (b ~= k) notdone = false;
- }
- notdone = true;
- while (notdone) {
-  v = RandomRoomNumber();
-  if ((v ~= k) && (v ~= b))  notdone = false;
- }
  notify_mode = false;
  player = kaitlyn;
- location = street;
- #Ifdef DEBUG; move master_key to player; #Endif;
+
+ ! ToDo, remove these 2 lines
+ move master_key to player;
+ location = room_403;
+
  smartphone.sms_from = anonymous;
  smartphone.sms_text = "We have your dog. If you want it back, send us a topless picture of yourself. You have one hour.";
  SetFlag(SMARTPHONE_LED_BLINKING);
  Photograph.create(fluffy);
- #Ifdef DEBUG;
-  ClearScreen();
-  print "k ", k;
-  new_line;
-  print "b ", b;
-  new_line;
-  print "v ", v;
-  new_line;
- #Endif;
  ClearScreen();
  print "^I'll never forget those words...";
  ! Wait for user to press a key
@@ -146,93 +128,93 @@
  ! Wait for user to press a key
  Pause();
  ClearScreen();
- print "^Omigod, someone took my Fluffy! I gotta get her back!!";
+ print "^Omigod, someone took my Fluffy! I gotta get her back!!^";
+ #Ifdef DEBUG;
+  Pause();
+  ClearScreen();
+  print (header) "header
+   ABCDEFGHIJKLMNOPQRSTUVWXYZ
+   abcdefghijklmnopqrstuvwxyz
+   `1234567890-=
+   ~!#$%&*()_+
+   []{}|;':<>^";
+  print (subheader) "subheader
+   ABCDEFGHIJKLMNOPQRSTUVWXYZ
+   abcdefghijklmnopqrstuvwxyz
+   `1234567890-=
+   ~!#$%&*()_+
+   []{}|;':<>^";
+  print (b) "bold (input)
+   ABCDEFGHIJKLMNOPQRSTUVWXYZ
+   abcdefghijklmnopqrstuvwxyz
+   `1234567890-=
+   ~!#$%&*()_+
+   []{}|;':<>^";
+  print (i) "italic (emphasized)
+   ABCDEFGHIJKLMNOPQRSTUVWXYZ
+   abcdefghijklmnopqrstuvwxyz
+   `1234567890-=
+   ~!#$%&*()_+
+   []{}|;':<>^";
+  print (preformatted) "preformatted
+   ABCDEFGHIJKLMNOPQRSTUVWXYZ
+   abcdefghijklmnopqrstuvwxyz
+   `1234567890-=
+   ~!#$%&*()_+
+   []{}|;':<>^";
+  print (BritneysVoice) "Britney
+   ABCDEFGHIJKLMNOPQRSTUVWXYZ
+   abcdefghijklmnopqrstuvwxyz
+   `1234567890-=
+   ~!#$%&*()_+
+   []{}|;':<>^";
+  print (HackersVoice) "Hacker
+   ABCDEFGHIJKLMNOPQRSTUVWXYZ
+   abcdefghijklmnopqrstuvwxyz
+   `1234567890-=
+   ~!#$%&*()_+
+   []{}|;':<>^";
+  print (IgorsVoice) "Igor
+   ABCDEFGHIJKLMNOPQRSTUVWXYZ
+   abcdefghijklmnopqrstuvwxyz
+   `1234567890-=
+   ~!#$%&*()_+
+   []{}|;':<>^";
+  print (blue) "blue
+   ABCDEFGHIJKLMNOPQRSTUVWXYZ
+   abcdefghijklmnopqrstuvwxyz
+   `1234567890-=
+   ~!#$%&*()_+
+   []{}|;':<>^";
+  print (pink) "pink
+   ABCDEFGHIJKLMNOPQRSTUVWXYZ
+   abcdefghijklmnopqrstuvwxyz
+   `1234567890-=
+   ~!#$%&*()_+
+   []{}|;':<>^";
+  glk_set_style(style_Preformatted);
+  print (char)ucA, (char)ucBe, (char)ucVe, (char)ucGe, (char)ucDe, (char)ucYe, (char)ucYo, (char)ucZhe, (char)ucZe, (char)ucI, (char)ucY, (char)ucKa, (char)ucEl, (char)ucEm, (char)ucEn, (char)ucO, (char)ucPe, (char)ucEr, (char)ucEs, (char)ucTe, (char)ucU, (char)ucF, (char)ucKha, (char)ucTse, (char)ucChe, (char)ucSh, (char)ucShch, (char)ucHard, (char)ucBI, (char)ucSoft, (char)ucE, (char)ucYu, (char)ucYa, "^";
+  print (char)lcA, (char)lcBe, (char)lcVe, (char)lcGe, (char)lcDe, (char)lcYe, (char)lcYo, (char)lcZhe, (char)lcZe, (char)lcI, (char)lcY, (char)lcKa, (char)lcEl, (char)lcEm, (char)lcEn, (char)lcO, (char)lcPe, (char)lcEr, (char)lcEs, (char)lcTe, (char)lcU, (char)lcF, (char)lcKha, (char)lcTse, (char)lcChe, (char)lcSh, (char)lcShch, (char)lcHard, (char)lcBI, (char)lcSoft, (char)lcE, (char)lcYu, (char)lcYa, "^";
+  glk_set_style(style_Normal);
+ #Endif;
  Pause();
  ClearScreen();
- print (header) "header
-  ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  abcdefghijklmnopqrstuvwxyz
-  `1234567890-=
-  ~!#$%&*()_+
-  []{}|;':<>^";
- print (subheader) "subheader
-  ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  abcdefghijklmnopqrstuvwxyz
-  `1234567890-=
-  ~!#$%&*()_+
-  []{}|;':<>^";
- print (b) "bold (input)
-  ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  abcdefghijklmnopqrstuvwxyz
-  `1234567890-=
-  ~!#$%&*()_+
-  []{}|;':<>^";
- print (i) "italic (emphasized)
-  ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  abcdefghijklmnopqrstuvwxyz
-  `1234567890-=
-  ~!#$%&*()_+
-  []{}|;':<>^";
- print (preformatted) "preformatted
-  ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  abcdefghijklmnopqrstuvwxyz
-  `1234567890-=
-  ~!#$%&*()_+
-  []{}|;':<>^";
- print (BritneysVoice) "Britney
-  ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  abcdefghijklmnopqrstuvwxyz
-  `1234567890-=
-  ~!#$%&*()_+
-  []{}|;':<>^";
- print (HackersVoice) "Hacker
-  ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  abcdefghijklmnopqrstuvwxyz
-  `1234567890-=
-  ~!#$%&*()_+
-  []{}|;':<>^";
- print (IgorsVoice) "Igor
-  ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  abcdefghijklmnopqrstuvwxyz
-  `1234567890-=
-  ~!#$%&*()_+
-  []{}|;':<>^";
- print (blue) "blue
-  ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  abcdefghijklmnopqrstuvwxyz
-  `1234567890-=
-  ~!#$%&*()_+
-  []{}|;':<>^";
- print (pink) "pink
-  ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  abcdefghijklmnopqrstuvwxyz
-  `1234567890-=
-  ~!#$%&*()_+
-  []{}|;':<>^";
-
- glk_set_style(style_Preformatted);
- for (i=1040 : i<=1071 : i++) print (char)i;
- print "^";
- for (i=1072 : i<=1103 : i++) print (char)i;
- print "^";
- glk_set_style(style_Normal);
-
  print "^This is the story of the scariest thing that ever happened to me, it all started
   with a text message from some Russian thugs, saying they had taken my cute little dog, Fluffy.
   But I'm getting ahead of myself, let me start at the beginning...^";
  banner();
  print "^My name's Kaitlyn, I'm 23 and people tell me I'm quite pretty, but I just feel like a regular small-town girl.
   I've come to Vegas with my best friend, Britney, to show my Fluffy ", (char)heart, " at the Silver State Kennel Club Dog Show.
-  We arrived an hour ago and I just left him in my hotel room, ", k, ", while I ran out for something to eat. Britney stayed in her room, ", b, ", to get settled in.^^";
- k = FindRoomNumber(k);
- move pink_shirt to k;
- k_key.key_to_room = k;
- b = FindRoomNumber(b);
- move britney to b;
- move green_shirt to b;
- b_key.key_to_room = b;
- v = FindRoomNumber(v);
- move computer to v;
+  We arrived an hour ago and I just left him in my hotel room, 402, while I ran out for something to eat. Britney stayed in her room, right next to mine, to get settled in.^^";
+ !k = FindRoomNumber(k);
+ !move pink_shirt to room_402;
+ k_key.key_to_room = room_402;
+ !b = FindRoomNumber(b);
+ !move britney to room_403;
+ !move green_shirt to room_403;
+ b_key.key_to_room = room_403;
+ !v = FindRoomNumber(v);
+ !move computer to room_202;
  return 2;
  ! Story continues with street.initial()
 ];
@@ -242,19 +224,9 @@
  CurrentTime();
  hh = date_array-->4;
  mm = date_array-->5;
- !if (OnPhone()) print "(on the phone with ", (name)call_person, ")";
- !else LanguageTimeOfDay(hh, mm);
  LanguageTimeOfDay(hh, mm);
  print " > ";
- !print "^ > ";
- !if ((gg_grwin ~= nothing) && (smartphone.mode ~= MODE_OFF)) DrawTime(hh, mm);
 ];
-
-![ GamePreRoutine;
-! ClearFlag(AUTOMATICALLY_UNLOCKED_DOOR);
-! ClearFlag(AUTOMATICALLY_OPENED_DOOR);
-! rfalse;
-!];
 
 [ DeathMessage;
  switch (deadflag) {
@@ -282,6 +254,7 @@
 
 ! Printing styles
 
+#Ifdef DEBUG;
 [ header text;
  glk_set_style(style_Header);
  print (string)text;
@@ -306,26 +279,8 @@
  glk_set_style(style_Normal);
 ];
 
-[ preformatted text;
- glk_set_style(style_Preformatted);
- print (string)text;
- glk_set_style(style_Normal);
-];
-
-[ BritneysVoice text;
- glk_set_style(style_BlockQuote);
- print (string)text;
- glk_set_style(style_Normal);
-];
-
 [ HackersVoice text;
  glk_set_style(style_User2);
- print (string)text;
- glk_set_style(style_Normal);
-];
-
-[ IgorsVoice text;
- glk_set_style(style_Note);
  print (string)text;
  glk_set_style(style_Normal);
 ];
@@ -338,6 +293,25 @@
 
 [ pink text;
  glk_set_style(style_Alert);
+ print (string)text;
+ glk_set_style(style_Normal);
+];
+#Endif;
+
+[ BritneysVoice text;
+ glk_set_style(style_BlockQuote);
+ print (string)text;
+ glk_set_style(style_Normal);
+];
+
+[ IgorsVoice text;
+ glk_set_style(style_Note);
+ print (string)text;
+ glk_set_style(style_Normal);
+];
+
+[ preformatted text;
+ glk_set_style(style_Preformatted);
  print (string)text;
  glk_set_style(style_Normal);
 ];
@@ -369,77 +343,6 @@
 #Endif;
 
 ! Utility routines
-
-! player moving to the 'n'th floor of the hotel, can be 0 through 6 but only 2 through 5 are where the rooms are
-![ MovePlayerToFloor n o;
-! player_floor = n;
-! #Ifdef DEBUG_MOVEMENT; print "DEBUG player_floor ", player_floor, "^"; #Endif;
-! if (elevator_floor == player_floor) give elevator_doors open;
-! else give elevator_doors ~open;
-! if ((n >= 2) && (n <= 5)) {
-!  ! Hide/show the General_Objects on hotel room floors
-!  objectloop(o ofclass General_Object or Person) {
-!   ! Ignore objects the player is carrying, objects in the elevator and objects not on the hotel room floors
-!   if ((parent(o) ~= player) && (parent(o) ~= elevator) && (o.on_floor >= 2) && (o.on_floor <= 5)) {
-!    if (o.on_floor == player_floor) {
-!     if (parent(o) == ponderosa) {
-!      move o to o.in_room;
-!      #Ifdef DEBUG_MOVEMENT; print "DEBUG o ", (name)o, " moved back^"; #Endif;
-!     }
-!    }
-!    else {
-!     if (parent(o) ~= ponderosa) {
-!      move o to ponderosa;
-!      #Ifdef DEBUG_MOVEMENT; print "DEBUG o ", (name)o, " moved to Ponderosa^"; #Endif;
-!     }
-!    }
-!   }
-!  }
-!  ! Renumber the hotel room doors when player is going to one of those floors
-!  ! Extremely kludgy but I don't have forever to figure it out
-!  #Ifdef DEBUG_MOVEMENT; print "DEBUG renumbering rooms to floor ", n, "^"; #Endif;
-!  switch (n) {
-!   2: door1.&name-->0 = '201';
-!   door2.&name-->0 = '202';
-!   door3.&name-->0 = '203';
-!   door4.&name-->0 = '204';
-!   door5.&name-->0 = '205';
-!   door6.&name-->0 = '206';
-!   door7.&name-->0 = '207';
-!   3: door1.&name-->0 = '301';
-!   door2.&name-->0 = '302';
-!   door3.&name-->0 = '303';
-!   door4.&name-->0 = '304';
-!   door5.&name-->0 = '305';
-!   door6.&name-->0 = '306';
-!   door7.&name-->0 = '307';
-!   4: door1.&name-->0 = '401';
-!   door2.&name-->0 = '402';
-!   door3.&name-->0 = '403';
-!   door4.&name-->0 = '404';
-!   door5.&name-->0 = '405';
-!   door6.&name-->0 = '406';
-!   door7.&name-->0 = '407';
-!   5: door1.&name-->0 = '501';
-!   door2.&name-->0 = '502';
-!   door3.&name-->0 = '503';
-!   door4.&name-->0 = '504';
-!   door5.&name-->0 = '505';
-!   door6.&name-->0 = '506';
-!   door7.&name-->0 = '507';
-!  }
-! }
-!];
-
-[ RandomRoomNumber;
- return ((random(4)+1)*100+random(7));
-];
-
-[ FindRoomNumber n o;
- objectloop (o ofclass Hotel_Room) {
-  if (o.room_number == n) return o;
- }
-];
 
 [ ActorHasKeyForDoor a d o;
  !#Ifdef DEBUG; print "DEBUG ActorHasKeyForDoor actor ", (name)a, " door ", (name)d; new_line; #Endif;
@@ -781,22 +684,23 @@
  ! 1: Has player had flashback?
  SetFlag(PLAYER_HAD_FLASHBACK);
  "Hey, I just remembered, when I was in the elevator after checking in, there were two guys checking me out.
-  It was definitely not cool, it was really creepy. I could hear them talking some eastern European language and laughing at me and Fluffy.
-  I heard one guy call the other one Vlad. Maybe Igor can tell me something about them.";
+  It was definitely not cool, it was really creepy. They were speaking some eastern European language and laughing at me and Fluffy.
+  I think I heard one guy call the other one Vlad. Maybe Igor can tell me something about them.";
 ];
 
 ! Hints
-[ XyzzySub;
- if (FlagOff(PLAYER_TOOK_TOPLESS_PHOTO)) {
-  if (FlagOn(SMARTPHONE_LED_BLINKING)) "Check your smartphone for text messages.";
-  if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) "Igor will be helpful once he knows Fluffy's been dognapped.";
-  if (FlagOff(IGOR_HAS_REVEALED_407)) "Maybe Igor would tell you what room the Russians are in.";
-  if (FlagOff(IGOR_HAS_HINTED_KEY)) "Igor might have additional ideas to help you.";
-  if (master_key notin player) "You need a master key to get into the Russians' room.";
-  if (FlagOff(PLAYER_HAS_SEEN_MESSAGE)) "There's information in the Russians' room.";
-  if (FlagOff(PLAYER_HAS_PHOTOGRAPHED_MESSAGE)) "You need a way to record what the message says.";
-  if (FlagOff(PLAYER_KNOWS_MESSAGE)) "Igor's Ukrainian, maybe he can translate the message.";
- } else {
-  "You just have to send the photo.";
- }
+[ ThinkSub;
+ if (FlagOn(SMARTPHONE_LED_BLINKING)) "Check your smartphone for text messages.";
+ if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) "Igor will be helpful once he knows Fluffy's been dognapped.";
+ if (FlagOff(IGOR_HAS_REVEALED_202)) "Maybe Igor would tell you what room the Russians are in.";
+ if (FlagOff(IGOR_HAS_HINTED_KEY)) "Igor might have additional ideas to help you.";
+ if (master_key notin player) "You need a master key to get into the Russians' room.";
+ if (FlagOff(PLAYER_HAS_SEEN_MESSAGE)) "There's information in the Russians' room.";
+ if (FlagOff(PLAYER_HAS_PHOTOGRAPHED_MESSAGE)) "You need a way to record what the message says.";
+ if (FlagOff(PLAYER_KNOWS_MESSAGE)) "Igor's Ukrainian, maybe he can translate the message.";
+ if (FlagOn(PLAYER_TOOK_TOPLESS_PHOTO)) "You just have to send the photo.";
+];
+
+[ AboutSub;
+ "Sometimes if you think carefully, the answer might come to you.";
 ];

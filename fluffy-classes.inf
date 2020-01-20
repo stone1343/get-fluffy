@@ -15,59 +15,43 @@ Class Guy
 Class General_Object
  with
   list_together 2;
-!  on_floor,
-!  in_room;
-  !invent [;
-  ! print (name)self;
-  ! rtrue;
-  !],
-!  after [;
-!   Drop:
-!    self.on_floor = player_floor;
-!    self.in_room = location;
-!  ];
+
+Class Ownable_Object
+ class General_Object
+ with
+  owner,
+  initial [;
+   if (self.owner == kaitlyn) print "My ";
+   else print "Britney's ";
+   print (name)self;
+   if (location ofclass Hotel_Room) " is lying on the bed.";
+   else " is here.";
+  ],
+  ! Clothing that's being worn is not listed in inventory
+  invent [;
+   if (self.owner == kaitlyn) print "my ";
+   else print "Britney's ";
+   print (name)self;
+   if (self has worn) print " (being worn)";
+   rtrue;
+  ];
 
 ! Objects Britney can interact with
 Class Britney_Object
  class General_Object;
 
+! Objects Igor can interact with
+Class Igor_Object
+ class General_Object;
+
 Class Clothes
- class Britney_Object
+ class Ownable_Object Britney_Object
  with
-  !list_together 2,
-  initial [;
-   print_ret (string)self.article, " ", (name)self, " is here.";
-  ]
-  !invent [;
-  ! print (name)self;
-  ! if (self has worn) print " (being worn)";
-  ! rtrue;
-  !],
-!  react_before [;
-!   Disrobe:
-!    #Ifdef DEBUG_CLOTHES; print "DEBUG Clothes react_before Disrobe actor ", (name)actor, " noun ", (name)noun; new_line; #Endif;
-!    if ((noun == self) && ~~(location ofclass Hotel_Room)) "I realize I can't undress here.";
-!   Wear:
-!    #Ifdef DEBUG_CLOTHES; print "DEBUG Clothes react_before Wear actor ", (name)actor, " noun ", (name)noun; new_line; #Endif;
-!  ]
-!  before [;
-!   Disrobe:
-!    #Ifdef DEBUG_CLOTHES; print "DEBUG Clothes before Disrobe actor ", (name)actor, " noun ", (name)noun; new_line; #Endif;
-!   Wear:
-!    #Ifdef DEBUG_CLOTHES; print "DEBUG Clothes before Wear actor ", (name)actor, " noun ", (name)noun; new_line; #Endif;
-!  ],
-!  orders [;
-!   Disrobe:
-!    #Ifdef DEBUG_CLOTHES; print "DEBUG Clothes orders Disrobe actor ", (name)actor, " noun ", (name)noun; new_line; #Endif;
-!   Wear:
-!    #Ifdef DEBUG_CLOTHES; print "DEBUG Clothes orders Wear actor ", (name)actor, " noun ", (name)noun; new_line; #Endif;
-!  ],
-!  after [;
-!   Disrobe:
-!    #Ifdef DEBUG_CLOTHES; print "DEBUG Clothes after Disrobe actor ", (name)actor, " noun ", (name)noun; new_line; #Endif;
-!   Wear:
-!    #Ifdef DEBUG_CLOTHES; print "DEBUG Clothes after Wear actor ", (name)actor, " noun ", (name)noun; new_line; #Endif;
-!  ]
+  before [;
+   ! actor == player, for britney it goes through her orders
+   Disrobe:
+    if (~~(location ofclass Hotel_Room)) "I can't undress in public!";
+  ],
  has clothing;
 
 Class Top
@@ -77,7 +61,6 @@ Class Top
    ! actor == player, for britney it goes through her orders
    Disrobe:
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(TOP_BEFORE, actor, DISROBE_ACTION, noun, second); #Endif;
-    if (~~(location ofclass Hotel_Room)) "I can't undress in public!";
     DisrobeTop(actor, noun);
     rtrue;
    Wear:
@@ -93,7 +76,6 @@ Class Pants
    ! actor == player, for britney it goes through her orders
    Disrobe:
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(PANTS_BEFORE, actor, DISROBE_ACTION, noun, second); #Endif;
-    if (~~(location ofclass Hotel_Room)) "I can't undress in public!";
     DisrobePants(actor, noun);
     rtrue;
    Wear:
@@ -174,18 +156,6 @@ Class Contact
    !print_ret (BritneysVoice)"Hey Kaitlyn, what's up?";
    print_ret (name)o;
   ];
-
-Class AI
- with
-  description [;
-   "You do realize ", (name)self, " is not actually a person, right?";
-  ],
-  life [;
-   Ask: "Ask AI";
-   Order: "Order AI";
-   Tell: "Tell AI";
-  ]
- has talkable proper concealed;
 
 ! Dynamically created photos
 Class Photograph(MAX_PHOTOGRAPHS)
@@ -364,18 +334,20 @@ Class Hotel_Room_Door
    Go:
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(HOTEL_ROOM_DOOR_BEFORE, actor, GO_ACTION, noun, second); #Endif;
     print "I ";
-    if (self has locked) {
-     if (~~ActorHasKeyForDoor(player, self)) "can't enter the room without a key.";
-     give self ~locked;
-     print "insert the key, ";
-    }
     if (self hasnt open) {
+     if (location ofclass hall) {
+      if (self has locked) {
+       if (~~ActorHasKeyForDoor(player, self)) "can't enter the room without a key.";
+       give self ~locked;
+       print "insert the key, ";
+      }
+     }
      give self open;
      print "open the door and ";
     }
     if (location ofclass hall) print "enter";
     else print "exit";
-    print" the room.";
+    print" the room.^";
     ! Must not return true, because that stops everything, which we really can't do for this action!
   ],
   after [;
@@ -387,7 +359,7 @@ Class Hotel_Room_Door
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(HOTEL_ROOM_DOOR_AFTER, actor, GO_ACTION, noun, second); #Endif;
     StopTimer(self);
     give self ~open;
-    print " The door swings shut behind me.^";
+    print "The door swings shut behind me.^";
     if (location ofclass Hall) give self locked;
   ],
   time_left,
@@ -411,7 +383,7 @@ Class Hotel_Room_Door
  has ~open locked proper;
 
 Class Room_Key
- class Disappearing_Object
+ class Disappearing_Object Ownable_Object Britney_Object
  with
   key_to_room;
 
@@ -447,7 +419,7 @@ Class Hotel_Room
  class Room
  with
   description [;
-   print "According to the floor plan on the back of the door, I'm in ", (name)self, ".^";
+   if (self hasnt visited) print "According to the floor plan on the back of the door, I'm in ", (name)self, ".^";
   ],
   door_out,
   floor_number,
@@ -467,5 +439,15 @@ Class Hotel_Room
     if ((player.wearing_top == nothing) || (player.wearing_pants == nothing)) "I should get dressed first.";
     if ((britney in location) && (britney.is_following) && ((britney.wearing_top == nothing) || (britney.wearing_pants == nothing))) print_ret (BritneysVoice)"Hang on, I'm not walking out of here dressed like this!";
     if (self.door_out hasnt open) give self.door_out open;
+  ],
+  after [ o;
+   Look:
+    ! ToDo: Print list of clothes lying on the bed
+    objectloop (o ofclass Clothes) {
+     if (o in self) {
+      print (name)o;
+     }
+    }
+
   ]
  has scenery proper;

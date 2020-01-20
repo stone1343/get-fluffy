@@ -15,7 +15,7 @@ Public_Room street "Las Vegas Blvd."
   ],
   description [;
    if (self hasnt visited) "The Timbuktu Resort and Casino is just south of me.";
-   else "The Timbuktu is to the south.";
+   rtrue;
   ],
   s_to lobby;
 
@@ -27,7 +27,7 @@ Public_Room lobby "Lobby"
   ],
   description [;
    if (self hasnt visited) "I can go north back to the street, west to the gift shop and south to the elevator vestibule.";
-   "Back to the street is north, the gift shop is west and the elevator is south.";
+   rtrue;
   ],
   n_to street,
   w_to gift_shop,
@@ -41,7 +41,7 @@ Public_Room gift_shop "Gift Shop"
   ],
   description [;
    if (self hasnt visited) "From here, I can go east back to the lobby, south-east to the elevator or south to the casino.";
-   "East back to the lobby, south-east to the elevator or south to the casino.";
+   rtrue;
   ],
   e_to lobby,
   s_to casino,
@@ -50,12 +50,12 @@ Public_Room gift_shop "Gift Shop"
 Public_Room casino "Casino"
  with
   initial [;
-   if (self hasnt visited) "Wow, this could be the worst ~casino~ in the world. There's one slot machine and nothing else I'm interested in!";
+   if (self hasnt visited) "Wow, this could be the worst ~casino~ in the world. There's only one slot machine!";
    rtrue;
   ],
   description [;
-   if (self hasnt visited) print "It's dimly lit with lots of people very intent on what they're doing. ";
-   "The gift shop is north, elevator vestibule is east, restaurant is south.";
+   if (self hasnt visited) print "The gift shop is north, elevator vestibule is east, restaurant is south.";
+   rtrue;
   ],
   n_to gift_shop,
   e_to elevator_vestibule,
@@ -64,10 +64,13 @@ Public_Room casino "Casino"
 Public_Room restaurant "Restaurant"
  with
   initial [;
-   if (self hasnt visited) "It looks like a rather nice restaurant.";
+   if (self hasnt visited) "It actually looks like a rather nice restaurant, lots of people enjoying their meals, but nothing very interesting for me right now.";
    rtrue;
   ],
-  description "North to the casino, north-east to the elevator vestibule, east to the nightclub.",
+  description [;
+   if (self hasnt visited) print "North to the casino, north-east to the elevator vestibule, east to the nightclub.";
+   rtrue;
+  ],
   n_to casino,
   ne_to elevator_vestibule,
   e_to nightclub;
@@ -78,7 +81,10 @@ Public_Room nightclub "Nightclub"
    if (self hasnt visited) "It's loud and crowded with all kinds of seedy people, my favourite kind of place.";
    rtrue;
   ],
-  description " The elevator vestibule is north and the restaurant is west.",
+  description [;
+   if (self hasnt visited) print "The elevator vestibule is north and the restaurant is west.";
+   rtrue;
+  ],
   n_to elevator_vestibule,
   w_to restaurant;
 
@@ -88,7 +94,10 @@ Public_Room elevator_vestibule "Elevator Vestibule"
    if (self hasnt visited) "The elevator vestibule is the hub of the hotel, from here I can get to any other room on the ground floor.";
    rtrue;
   ],
-  description "I'm in the elevator vestibule, the elevator itself is just to the east.",
+  description [;
+   if (self hasnt visited) print "^I'm in the elevator vestibule.^";
+   rtrue;
+  ],
   e_to [;
    if (elevator_doors hasnt open) "The elevator must be at a different floor.";
    return elevator;
@@ -112,9 +121,9 @@ Public_Room elevator_vestibule "Elevator Vestibule"
    return basement;
   ];
 
-Button call_elevator_button "elevator button"
+Button call_elevator_button "button" elevator_vestibule
  with
-  name 'arrow' 'up' 'down' 'button',
+  name 'button' 'up' 'down',
   description "The button has a picture of arrows going up and down.",
   found_in elevator_vestibule second_floor third_floor fourth_floor fifth_floor,
   before [;
@@ -159,13 +168,13 @@ Object elevator "Elevator" class Public_Room
   name 'elevator',
   description [;
    if (FlagOn(PLAYER_KNOWS_ABOUT_FLUFFY) && FlagOff(PLAYER_HAD_FLASHBACK)) TriggerFlashback();
-   print "I'm in the hotel's main elevator, which seems to be ";
+   print "I'm in the hotel's main elevator, on the ";
    switch (self.floor_number) {
-    1: print "at the ground";
-    2: print "on the second";
-    3: print "on the third";
-    4: print "on the fourth";
-    5: print "on the fifth";
+    1: print "ground";
+    2: print "second";
+    3: print "third";
+    4: print "fourth";
+    5: print "fifth";
    }
    " floor.";
   ],
@@ -188,7 +197,7 @@ Bunch_Of_Buttons elevator_buttons "buttons" elevator
  with
   name 'buttons' 'panel',
   initial "There is a panel with several buttons.",
-  description "The buttons are labelled 'G', '2', '3', '4' and '5'.";
+  description "The buttons are labelled G, 2, 3, 4 and 5.";
 
 Elevator_Button ground_button "ground button" elevator_buttons
  with
@@ -827,60 +836,44 @@ Object kaitlyn "Kaitlyn"
    Give:
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(KAITLYN_BEFORE, actor, GIVE_ACTION, noun, second); #Endif;
     if (OnPhone(self)) "It'd be hard to give something to ", (name)self, " when I'm on the phone with ", (PronounAcc)self, "!";
-   !Disrobe:
-   ! #Ifdef DEBUG_CLOTHES; print "DEBUG Kaitlyn before Disrobe actor ", (name)actor, " noun ", (name)noun; new_line; #Endif;
-   ! if ((noun == self) && ~~(location ofclass Hotel_Room)) "I realize I can't undress here.";
-   ! if (noun ofclass Top) {
-   !  DisrobeTop(actor, noun);
-   !  rtrue;
-   ! }
-   ! if (noun ofclass Pants) {
-   !  DisrobePants(actor, noun);
-   !  rtrue;
-   ! }
-   !Wear:
-   ! #Ifdef DEBUG_CLOTHES; print "DEBUG Kaitlyn before Wear actor ", (name)actor, " noun ", (name)noun; new_line; #Endif;
-   ! if (noun ofclass Top) {
-   !  WearTop(actor, noun);
-   !  rtrue;
-   ! }
-   ! if (noun ofclass Pants) {
-   !  WearPants(actor, noun);
-   !  rtrue;
-   ! }
   ]
  has animate ~male female concealed proper transparent;
 
 Room_Key k_key "room key" kaitlyn
- class Britney_Object
+ class Britney_Object Ownable_Object
  with
   name 'room' 'key',
   description "It has the hotel's logo, but no room number.",
-  article "my";
+  article "my",
+  owner kaitlyn;
 
 Top yellow_shirt "yellow t-shirt" kaitlyn
  with
   name 'yellow' 'shirt' 'top' 't-shirt',
-  article "my"
+  article "my",
+  owner kaitlyn
  has worn;
 
 Pants skinny_jeans "skinny jeans" kaitlyn
  with
   name 'skinny' 'jeans' 'pants',
-  article "my"
+  article "my",
+  owner kaitlyn
  has worn pluralname;
 
 ! Clothes that are initially hidden
 Underwear k_bra "bra"
  with
   name 'bra',
-  article "my"
+  article "my",
+  owner kaitlyn
  has ~worn;
 
 Underwear k_panties "panties"
  with
   name 'panties',
-  article "my"
+  article "my",
+  owner kaitlyn
  has ~worn pluralname;
 
 ! Might expect 'has talkable' for a phone, but this phone is basically a teleporter ;-)
@@ -888,6 +881,7 @@ Disappearing_Object smartphone "smartphone" kaitlyn
  with
   ! Because the first one is the same as Phone mode, will remove it when in Home mode
   ! Glulx wordsize = 4, so #name is 20
+  owner kaitlyn,
   name 'phone' 'smartphone' 'cell' 'cellular' 'mobile' 'screen' 'display',
   initial "~Hey, there's my smartphone!~",
   description [;
@@ -910,35 +904,22 @@ Disappearing_Object smartphone "smartphone" kaitlyn
   ],
   change_mode [new_mode o;
    ! Switching out of Text mode, clear existing conversation
-   !if (self.mode == MODE_TEXT) {
-   ! self.sms_from = nothing;
-   ! self.sms_text = nothing;
-   !}
    self.mode = new_mode;
    if (self.mode ~= MODE_OFF) self.interact();
    if (self.mode == MODE_HOME) {
-    !self.&name-->0 = 'zarf';
-    objectloop(o ofclass Icon or AI) {
+    objectloop(o ofclass Icon) {
      move o to screen;
     }
-!    objectloop(o ofclass AI) {
-!     move o to location;
-!    }
    } else {
-    !self.&name-->0 = 'phone';
-    objectloop(o ofclass Icon or AI) {
+    objectloop(o ofclass Icon) {
      remove o;
     }
-!    objectloop(o ofclass AI) {
-!     remove o;
-!    }
    }
    if (self.mode == MODE_CONTACTS) {
     objectloop(o ofclass Contact) {
      move o to screen;
     }
    } else {
-    !self.&name-->0 = 'phone';
     objectloop(o ofclass Contact) {
      remove o;
     }
@@ -961,8 +942,6 @@ Disappearing_Object smartphone "smartphone" kaitlyn
      print "My smartphone times out and turns off.^";
      self.change_mode(MODE_OFF);
      StopDaemon(self);
-     !if (gg_grwin ~= nothing) glk_window_close(gg_grwin, 0);
-     !gg_grwin = nothing;
     }
    } else {
     #Ifdef DEBUG_PHONES; print "DEBUG On smartphone call_person ", (name)call_person, "call_room ", (name)call_room; new_line; #Endif;
@@ -974,16 +953,6 @@ Object screen "screen" smartphone
  with
   !name 'screen' 'display',
   description [ o;
-   !glk_window_fill_rect(gg_grwin, $C0C0FF, 50, 45, 201, 355);
-   !DrawTime(t0-->4, t0-->5);
-   !DrawChar(48, 2, 1);
-   !DrawChar(50, 2, 20);
-   !DrawChar(51, 5, 1);
-   !DrawChar(53, 5, 20);
-   !DrawChar(54, 10, 1);
-   !DrawChar(55, 10, 20);
-   !DrawChar(56, 17, 1);
-   !DrawChar(57, 17, 20);
    switch (parent(self).mode) {
     MODE_OFF: "It's off.";
     MODE_HOME: "It's got four icons, labelled Contacts, Text, Camera and Gallery.";
@@ -1082,22 +1051,7 @@ Contact contact_mom
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(CONTACT_MOM_BEFORE, actor, PUSH_ACTION, noun, second); #Endif;
   ];
 
-AI google "Google"
- with name 'google';
-
-AI siri "Siri"
- with name 'siri';
-
-AI alexa "Alexa"
- with name 'alexa';
-
-AI samantha "Samantha"
- with name 'samantha';
-
-AI eliza "Eliza"
- with name 'eliza';
-
-Girl britney "Britney"
+Girl britney "Britney" room_403
  with
   name 'Britney',
   wearing_top blue_shirt,
@@ -1112,7 +1066,7 @@ Girl britney "Britney"
    #Ifdef DEBUG_DAEMONS; print "DEBUG britney daemon stop^"; #Endif;
    StopDaemon(self);
    if (britney.is_following) rtrue;
-   "I see Britney here.";
+   "Britney, my BFF, is here.";
   ],
   description [ o n i;
    if (OnPhone(britney)) "Britney has a nice voice on the phone.";
@@ -1129,7 +1083,9 @@ Girl britney "Britney"
        default: if (i < n) print ", ";
         else print " and ";
       };
-      print (the)o;
+      if (o.owner == kaitlyn) print "my ";
+      else print "her ";
+      print (name)o;
      }
     }
    } else print "Britney's a brunette, she's slim and athletic like me";
@@ -1376,36 +1332,41 @@ Girl britney "Britney"
   ];
 
 Room_Key b_key "room key" britney
- class Britney_Object
+ class Britney_Object Ownable_Object
  with
   name 'room' 'key',
   description "It has the hotel's logo, but no room number.",
-  article "Britney's";
+  article "Britney's",
+  owner britney;
 
 ! Clothes that Britney's wearing
 Top blue_shirt "blue t-shirt" britney
  with
   name 'blue' 'shirt' 'top' 't-shirt',
-  article "Britney's"
+  article "Britney's",
+  owner britney
  has worn;
 
 Pants yoga_pants "yoga pants" britney
  with
   name 'yoga' 'pants',
-  article "Britney's"
+  article "Britney's",
+  owner britney
  has worn pluralname;
 
 ! Clothes that is initially hidden
 Underwear b_bra "bra"
  with
   name 'bra',
-  article "Britney's"
+  article "Britney's",
+  owner britney
  has ~worn;
 
 Underwear b_panties "panties"
  with
   name 'panties',
-  article "Britney's"
+  article "Britney's",
+  owner britney
  has ~worn pluralname;
 
 ! Igor's in the lobby
@@ -1477,14 +1438,14 @@ Guy igor "Igor" lobby
    Ask:
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(IGOR_LIFE, actor, ASK_ACTION, noun, second); #Endif;
     if (second == 'russians' or 'vlad' or 'vladimir') {
-     if (FlagOff(IGOR_HAS_REVEALED_407)) {
+     if (FlagOff(IGOR_HAS_REVEALED_202)) {
       print "I asked him if he knew anything about ";
       if (second == 'russians') print "any Russians";
       else print "someone named Vlad or Vladimir";
       print ", he said he ";
       if (FlagOn(IGOR_KNOWS_ABOUT_FLUFFY)) {
-       SetFlag(IGOR_HAS_REVEALED_407);
-       "could get in trouble for telling me this, but there are two big Russian guys named Vladimir and Sergei in room 407.";
+       SetFlag(IGOR_HAS_REVEALED_202);
+       "could get in trouble for telling me this, but there are two big Russian guys named Vladimir and Sergei in room 202.";
       } else "can't talk about guests.";
      } else {
       if (FlagOff(IGOR_HAS_HINTED_KEY)) {
@@ -1520,7 +1481,7 @@ Guy igor "Igor" lobby
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(IGOR_ORDERS, actor, GIVE_ACTION, noun, second); #Endif;
     !if (call_person == self) "It'd be hard for ", (name)self, " to give you anything when I'm on the phone with ", (PronounAcc)self, "!";
     if ((noun in self) && (noun == master_key) && (second == player)) {
-     if (FlagOn(IGOR_HAS_REVEALED_407)) {
+     if (FlagOn(IGOR_HAS_REVEALED_202)) {
       move noun to second;
       print_ret (IgorsVoice)"Well, you really need to get your dog back, here you go.";
      } else print_ret (IgorsVoice)"Sorry, I'd get in big trouble if I did that.";
@@ -1537,34 +1498,41 @@ Guy igor "Igor" lobby
 
 ! Igor has the master key
 Disappearing_Object master_key "master key" igor
- class Britney_Object
+ class Igor_Object
  with
   name 'master' 'key',
   description "It has the hotel's logo, but no room number.",
   article "Igor's";
 
 ! Objects in hotel rooms
-Top pink_shirt "pink shirt"
+Top pink_shirt "pink shirt" room_402
  with
   name 'pink' 'shirt' 'top' 't-shirt',
-  article "my"
+  article "my",
+  owner kaitlyn
  has ~worn;
 
-Top green_shirt "green t-shirt"
+Top green_shirt "green t-shirt" room_403
  with
   name 'green' 'shirt' 'top' 't-shirt',
   article "Britney's"
+  owner britney
  has ~worn;
 
-General_Object computer "computer" room_407
+General_Object computer "computer" room_202
  with
   name 'computer',
   initial "There's a computer here and it's on!",
   description [;
    SetFlag(PLAYER_HAS_SEEN_MESSAGE);
-   print "There's something on the computer that I can't understand! It reads: ~";
-   print (char)ucVe, (char)lcEl, (char)lcA, (char)lcDe, ", ", (char)lcShch, (char)lcYe, (char)lcEn, (char)lcO, (char)lcKa;
-   print " ", (char)lcVe, " ", (char)lcPe, (char)lcO, (char)lcDe, (char)lcVe, (char)lcA, (char)lcEl, (char)lcYe, "~.^";
+   print "There's something on the computer that I can't understand! It reads:^";
+   glk_set_style(style_Preformatted);
+   print (char)ucVe, (char)lcEl, (char)lcA, (char)lcDe, ", ";
+   print (char)lcShch, (char)lcYe, (char)lcEn, (char)lcO, (char)lcKa, " ";
+   print (char)lcVe, " ";
+   print (char)lcPe, (char)lcO, (char)lcDe, (char)lcVe, (char)lcA, (char)lcEl, (char)lcYe, ".^";
+   print (char)ucEs, (char)lcYe, (char)lcEr, (char)lcGe, (char)lcYe, (char)lcY, "^";
+   glk_set_style(style_Normal);
   ]
  has static;
 
