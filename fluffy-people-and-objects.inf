@@ -1,819 +1,4 @@
 
-Public_Room street "Las Vegas Blvd."
- with
-  ! This is the starting location
-  initial [ hh;
-   CurrentTime();
-   hh = date_array-->4;
-   print "It's a ";
-   if ((hh >= 6) && (hh < 12)) print "beautiful morning";
-   else if ((hh >= 12) && (hh < 18)) print "hot afternoon";
-   else if ((hh >= 18) && (hh < 21)) print "warm evening";
-   else print "cool night";
-   if (FlagOff(PLAYER_KNOWS_ABOUT_FLUFFY)) " and I'm in the middle of Las Vegas! I look up and down the street and think to myself how exciting it is to be here.";
-   else " but I need to focus on getting Fluffy!";
-  ],
-  description [;
-   if (self hasnt visited) "The Timbuktu Resort and Casino is just south of me.";
-   rtrue;
-  ],
-  s_to lobby;
-
-Public_Room lobby "Lobby"
- with
-  initial [;
-   if (self hasnt visited) "This is the lobby of the Timbuktu, the nicest place I could afford, it's really not that bad, but it's so-o-o Las Vegas.";
-   rtrue;
-  ],
-  description [;
-   if (self hasnt visited) "I can go north back to the street, west to the gift shop and south to the elevator vestibule.";
-   rtrue;
-  ],
-  n_to street,
-  w_to gift_shop,
-  s_to elevator_vestibule;
-
-Public_Room gift_shop "Gift Shop"
- with
-  initial [;
-    if (self hasnt visited) "This is the gift shop, full of tacky, over-priced dust collectors.";
-    rtrue;
-  ],
-  description [;
-   if (self hasnt visited) "From here, I can go east back to the lobby, south-east to the elevator or south to the casino.";
-   rtrue;
-  ],
-  e_to lobby,
-  s_to casino,
-  se_to elevator_vestibule;
-
-Public_Room casino "Casino"
- with
-  initial [;
-   if (self hasnt visited) "Wow, this could be the worst ~casino~ in the world. There's only one slot machine!";
-   rtrue;
-  ],
-  description [;
-   if (self hasnt visited) print "The gift shop is north, elevator vestibule is east, restaurant is south.";
-   rtrue;
-  ],
-  n_to gift_shop,
-  e_to elevator_vestibule,
-  s_to restaurant;
-
-Public_Room restaurant "Restaurant"
- with
-  initial [;
-   if (self hasnt visited) "It actually looks like a rather nice restaurant, lots of people enjoying their meals, but nothing very interesting for me right now.";
-   rtrue;
-  ],
-  description [;
-   if (self hasnt visited) print "North to the casino, north-east to the elevator vestibule, east to the nightclub.";
-   rtrue;
-  ],
-  n_to casino,
-  ne_to elevator_vestibule,
-  e_to nightclub;
-
-Public_Room nightclub "Nightclub"
- with
-  initial [;
-   if (self hasnt visited) "It's loud and crowded with all kinds of seedy people, my favourite kind of place.";
-   rtrue;
-  ],
-  description [;
-   if (self hasnt visited) print "The elevator vestibule is north and the restaurant is west.";
-   rtrue;
-  ],
-  n_to elevator_vestibule,
-  w_to restaurant;
-
-Public_Room elevator_vestibule "Elevator Vestibule"
- with
-  initial [;
-   if (self hasnt visited) "The elevator vestibule is the hub of the hotel, from here I can get to any other room on the ground floor.";
-   rtrue;
-  ],
-  description [;
-   if (self hasnt visited) print "^I'm in the elevator vestibule.^";
-   rtrue;
-  ],
-  e_to [;
-   if (elevator_doors hasnt open) "The elevator must be at a different floor.";
-   return elevator;
-  ],
-  floor_number 1,
-  n_to lobby,
-  nw_to gift_shop,
-  w_to casino,
-  sw_to restaurant,
-  s_to nightclub,
-  u_to [;
-   print "I decide to save the environment and take the stairs.^";
-   return second_floor;
-  ],
-  d_to [;
-   if (master_key notin player) {
-    print "The door says it's for authorized hotel staff only";
-    if (FlagOn(PLAYER_KNOWS_MESSAGE)) ". If I had some sort of master key, maybe I could get down there and rescue Fluffy!";
-    else ".";
-   }
-   return basement;
-  ];
-
-Button call_elevator_button "button" elevator_vestibule
- with
-  name 'button' 'up' 'down',
-  description "The button has a picture of arrows going up and down.",
-  found_in elevator_vestibule second_floor third_floor fourth_floor fifth_floor,
-  before [;
-   ! Call the elevator
-   Push, Touch:
-    if (elevator.floor_number == parent(player).floor_number) "Nothing happens.";
-    elevator.floor_number = parent(player).floor_number;
-    give elevator_doors open;
-  ];
-
-Object elevator_doors "elevator doors"
- with
-  name 'elevator' 'doors',
-  initial [;
-   if (location ~= elevator) "To the east is an elevator.";
-   "The elevator is ready.";
-  ],
-  description [;
-   print "The elevator doors are ";
-   if (self has open) "open.";
-   "closed. Next to the elevator, you see a button.";
-  ],
-  found_in elevator_vestibule second_floor third_floor fourth_floor fifth_floor elevator,
-  door_to [;
-   if (location ofclass Hall) return elevator;
-   switch (elevator.floor_number) {
-    1: return elevator_vestibule;
-    2: return second_floor;
-    3: return third_floor;
-    4: return fourth_floor;
-    5: return fifth_floor;
-   }
-  ],
-  door_dir [;
-   if (location ofclass Hall) return e_to;
-   return w_to;
-  ]
- has static door ~open;
-
-Object elevator "Elevator" class Public_Room
- with
-  name 'elevator',
-  description [;
-   if (FlagOn(PLAYER_KNOWS_ABOUT_FLUFFY) && FlagOff(PLAYER_HAD_FLASHBACK)) TriggerFlashback();
-   print "I'm in the hotel's main elevator, on the ";
-   switch (self.floor_number) {
-    1: print "ground";
-    2: print "second";
-    3: print "third";
-    4: print "fourth";
-    5: print "fifth";
-   }
-   " floor.";
-  ],
-  floor_number 3,
-  before [;
-   Exit: <<Go w_obj>>;
-  ],
-  w_to [;
-   switch (self.floor_number) {
-    1: return elevator_vestibule;
-    2: return second_floor;
-    3: return third_floor;
-    4: return fourth_floor;
-    5: return fifth_floor;
-   }
-  ]
- has enterable;
-
-Bunch_Of_Buttons elevator_buttons "buttons" elevator
- with
-  name 'buttons' 'panel',
-  initial "There is a panel with several buttons.",
-  description "The buttons are labelled G, 2, 3, 4 and 5.";
-
-Elevator_Button ground_button "ground button" elevator_buttons
- with
-  name 'g//' 'ground' 'button',
-  destination_floor 1;
-
-Elevator_Button button2 "second floor button" elevator_buttons
- with
-  name '2//' 'button',
-  destination_floor 2;
-
-Elevator_Button button3 "third floor button" elevator_buttons
- with
-  name '3//' 'button',
-  destination_floor 3;
-
-Elevator_Button button4 "fourth floor button" elevator_buttons
- with
-  name '4//' 'button',
-  destination_floor 4;
-
-Elevator_Button button5 "fifth floor button" elevator_buttons
- with
-  name '5//' 'button',
-  destination_floor 5;
-
-Object stairs "stairs"
- with
-  name 'stairs',
-  initial "I see a set of stairs.",
-  description [;
-   print "The stairs go ";
-   if (location == basement) "up.";
-   if (location == roof) "down.";
-   "up and down.";
-  ],
-  found_in basement elevator_vestibule second_floor third_floor fourth_floor fifth_floor roof
- has static pluralname;
-
-Hall second_floor "Second Floor"
- with
-  name 'second' 'floor' 'hall',
-  floor_number 2,
-  se_to door_201,
-  s_to door_202,
-  sw_to door_203,
-  w_to door_204,
-  nw_to door_205,
-  n_to door_206,
-  ne_to door_207,
-  u_to [;
-   print "Good idea, take the stairs.^";
-   return third_floor;
-  ],
-  d_to [;
-   print "Good idea, take the stairs.^";
-   return elevator_vestibule;
-  ];
-
-Hotel_Room_Door door_201 "Door 201"
- with
-  name '201' 'room' 'door' '1//',
-  found_in second_floor room_201,
-  to_room room_201,
-  to_hall second_floor,
-  dir_in se_to,
-  dir_out nw_to;
-
-Hotel_Room room_201 "Room 201"
- with
-  nw_to door_201,
-  door_out door_201,
-  floor_number 2,
-  room_number 201;
-
-Hotel_Room_Door door_202 "Door 202"
- with
-  name '202' 'room' 'door' '2//',
-  found_in second_floor room_202,
-  to_room room_202,
-  to_hall second_floor,
-  dir_in s_to,
-  dir_out n_to;
-
-Hotel_Room room_202 "Room 202"
- with
-  n_to door_202,
-  door_out door_202,
-  floor_number 2,
-  room_number 202;
-
-Hotel_Room_Door door_203 "Door 203"
- with
-  name '203' 'room' 'door' '3//',
-  found_in second_floor room_203,
-  to_room room_203,
-  to_hall second_floor,
-  dir_in sw_to,
-  dir_out ne_to;
-
-Hotel_Room room_203 "Room 203"
- with
-  ne_to door_203,
-  door_out door_203,
-  floor_number 2,
-  room_number 203;
-
-Hotel_Room_Door door_204 "Door 204"
- with
-  name '204' 'room' 'door' '4//',
-  found_in second_floor room_204,
-  to_room room_204,
-  to_hall second_floor,
-  dir_in w_to,
-  dir_out e_to;
-
-Hotel_Room room_204 "Room 204"
- with
-  e_to door_204,
-  door_out door_204,
-  floor_number 2,
-  room_number 204;
-
-Hotel_Room_Door door_205 "Door 205"
- with
-  name '205' 'room' 'door' '5//',
-  found_in second_floor room_205,
-  to_room room_205,
-  to_hall second_floor,
-  dir_in nw_to,
-  dir_out se_to;
-
-Hotel_Room room_205 "Room 205"
- with
-  se_to door_205,
-  door_out door_205,
-  floor_number 2,
-  room_number 205;
-
-Hotel_Room_Door door_206 "Door 206"
- with
-  name '206' 'room' 'door' '6//',
-  found_in second_floor room_206,
-  to_room room_206,
-  to_hall second_floor,
-  dir_in n_to,
-  dir_out s_to;
-
-Hotel_Room room_206 "Room 206"
- with
-  s_to door_206,
-  door_out door_206,
-  floor_number 2,
-  room_number 206;
-
-Hotel_Room_Door door_207 "Door 207"
- with
-  name '207' 'room' 'door' '7//',
-  found_in second_floor room_207,
-  to_room room_207,
-  to_hall second_floor,
-  dir_in ne_to,
-  dir_out sw_to;
-
-Hotel_Room room_207 "Room 207"
- with
-  sw_to door_207,
-  door_out door_207,
-  floor_number 2,
-  room_number 207;
-
-Hall third_floor "Third Floor"
- with
-  name 'third' 'floor' 'hall',
-  floor_number 3,
-  se_to door_301,
-  s_to door_302,
-  sw_to door_303,
-  w_to door_304,
-  nw_to door_305,
-  n_to door_306,
-  ne_to door_307,
-  u_to [;
-   print "Good idea, take the stairs.^";
-   return fourth_floor;
-  ],
-  d_to [;
-   print "Good idea, take the stairs.^";
-   return second_floor;
-  ];
-
-Hotel_Room_Door door_301 "Door 301"
- with
-  name '301' 'room' 'door' '1//',
-  found_in third_floor room_301,
-  to_room room_301,
-  to_hall third_floor,
-  dir_in se_to,
-  dir_out nw_to;
-
-Hotel_Room room_301 "Room 301"
- with
-  nw_to door_301,
-  door_out door_301,
-  floor_number 3,
-  room_number 301;
-
-Hotel_Room_Door door_302 "Door 302"
- with
-  name '302' 'room' 'door' '2//',
-  found_in third_floor room_302,
-  to_room room_302,
-  to_hall third_floor,
-  dir_in s_to,
-  dir_out n_to;
-
-Hotel_Room room_302 "Room 302"
- with
-  n_to door_302,
-  door_out door_302,
-  floor_number 3,
-  room_number 302;
-
-Hotel_Room_Door door_303 "Door 303"
- with
-  name '303' 'room' 'door' '3//',
-  found_in third_floor room_303,
-  to_room room_303,
-  to_hall third_floor,
-  dir_in sw_to,
-  dir_out ne_to;
-
-Hotel_Room room_303 "Room 303"
- with
-  ne_to door_303,
-  door_out door_303,
-  floor_number 3,
-  room_number 303;
-
-Hotel_Room_Door door_304 "Door 304"
- with
-  name '304' 'room' 'door' '4//',
-  found_in third_floor room_304,
-  to_room room_304,
-  to_hall third_floor,
-  dir_in w_to,
-  dir_out e_to;
-
-Hotel_Room room_304 "Room 304"
- with
-  e_to door_304,
-  door_out door_304,
-  floor_number 3,
-  room_number 304;
-
-Hotel_Room_Door door_305 "Door 305"
- with
-  name '305' 'room' 'door' '5//',
-  found_in third_floor room_305,
-  to_room room_305,
-  to_hall third_floor,
-  dir_in nw_to,
-  dir_out se_to;
-
-Hotel_Room room_305 "Room 305"
- with
-  se_to door_305,
-  door_out door_305,
-  floor_number 3,
-  room_number 305;
-
-Hotel_Room_Door door_306 "Door 306"
- with
-  name '306' 'room' 'door' '6//',
-  found_in third_floor room_306,
-  to_room room_306,
-  to_hall third_floor,
-  dir_in n_to,
-  dir_out s_to;
-
-Hotel_Room room_306 "Room 306"
- with
-  s_to door_306,
-  door_out door_306,
-  floor_number 3,
-  room_number 306;
-
-Hotel_Room_Door door_307 "Door 307"
- with
-  name '307' 'room' 'door' '7//',
-  found_in third_floor room_307,
-  to_room room_307,
-  to_hall third_floor,
-  dir_in ne_to,
-  dir_out sw_to;
-
-Hotel_Room room_307 "Room 307"
- with
-  sw_to door_307,
-  door_out door_307,
-  floor_number 3,
-  room_number 307;
-
-Hall fourth_floor "Fourth Floor"
- with
-  name 'fourth' 'floor' 'hall',
-  floor_number 4,
-  se_to door_401,
-  s_to door_402,
-  sw_to door_403,
-  w_to door_404,
-  nw_to door_405,
-  n_to door_406,
-  ne_to door_407,
-  u_to [;
-   print "Good idea, take the stairs.^";
-   return fifth_floor;
-  ],
-  d_to [;
-   print "Good idea, take the stairs.^";
-   return third_floor;
-  ];
-
-Hotel_Room_Door door_401 "Door 401"
- with
-  name '401' 'room' 'door' '1//',
-  found_in fourth_floor room_401,
-  to_room room_401,
-  to_hall fourth_floor,
-  dir_in se_to,
-  dir_out nw_to;
-
-Hotel_Room room_401 "Room 401"
- with
-  nw_to door_401,
-  door_out door_401,
-  floor_number 4,
-  room_number 401;
-
-Hotel_Room_Door door_402 "Door 402"
- with
-  name '402' 'room' 'door' '2//',
-  found_in fourth_floor room_402,
-  to_room room_402,
-  to_hall fourth_floor,
-  dir_in s_to,
-  dir_out n_to;
-
-Hotel_Room room_402 "Room 402"
- with
-  n_to door_402,
-  door_out door_402,
-  floor_number 4,
-  room_number 402;
-
-Hotel_Room_Door door_403 "Door 403"
- with
-  name '403' 'room' 'door' '3//',
-  found_in fourth_floor room_403,
-  to_room room_403,
-  to_hall fourth_floor,
-  dir_in sw_to,
-  dir_out ne_to;
-
-Hotel_Room room_403 "Room 403"
- with
-  ne_to door_403,
-  door_out door_403,
-  floor_number 4,
-  room_number 403;
-
-Hotel_Room_Door door_404 "Door 404"
- with
-  name '404' 'room' 'door' '4//',
-  found_in fourth_floor room_404,
-  to_room room_404,
-  to_hall fourth_floor,
-  dir_in w_to,
-  dir_out e_to;
-
-Hotel_Room room_404 "Room 404"
- with
-  e_to door_404,
-  door_out door_404,
-  floor_number 4,
-  room_number 404;
-
-Hotel_Room_Door door_405 "Door 405"
- with
-  name '405' 'room' 'door' '5//',
-  found_in fourth_floor room_405,
-  to_room room_405,
-  to_hall fourth_floor,
-  dir_in nw_to,
-  dir_out se_to;
-
-Hotel_Room room_405 "Room 405"
- with
-  se_to door_405,
-  door_out door_405,
-  floor_number 4,
-  room_number 405;
-
-Hotel_Room_Door door_406 "Door 406"
- with
-  name '406' 'room' 'door' '6//',
-  found_in fourth_floor room_406,
-  to_room room_406,
-  to_hall fourth_floor,
-  dir_in n_to,
-  dir_out s_to;
-
-Hotel_Room room_406 "Room 406"
- with
-  s_to door_406,
-  door_out door_406,
-  floor_number 4,
-  room_number 406;
-
-Hotel_Room_Door door_407 "Door 407"
- with
-  name '407' 'room' 'door' '7//',
-  found_in fourth_floor room_407,
-  to_room room_407,
-  to_hall fourth_floor,
-  dir_in ne_to,
-  dir_out sw_to;
-
-Hotel_Room room_407 "Room 407"
- with
-  sw_to door_407,
-  door_out door_407,
-  floor_number 4,
-  room_number 407;
-
-Hall fifth_floor "Fifth Floor"
- with
-  name 'fifth' 'floor' 'hall',
-  floor_number 5,
-  se_to door_501,
-  s_to door_502,
-  sw_to door_503,
-  w_to door_504,
-  nw_to door_505,
-  n_to door_506,
-  ne_to door_507,
-  u_to [;
-   if (master_key notin player) "It's for authorized hotel staff only.";
-   print "Great idea, take the stairs.^";
-   return roof;
-  ],
-  d_to [;
-   print "Good idea, take the stairs.^";
-   return fourth_floor;
-  ];
-
-Hotel_Room_Door door_501 "Door 501"
- with
-  name '501' 'room' 'door' '1//',
-  found_in fifth_floor room_501,
-  to_room room_501,
-  to_hall fifth_floor,
-  dir_in se_to,
-  dir_out nw_to;
-
-Hotel_Room room_501 "Room 501"
- with
-  nw_to door_501,
-  door_out door_501,
-  floor_number 5,
-  room_number 501;
-
-Hotel_Room_Door door_502 "Door 502"
- with
-  name '502' 'room' 'door' '2//',
-  found_in fifth_floor room_502,
-  to_room room_502,
-  to_hall fifth_floor,
-  dir_in s_to,
-  dir_out n_to;
-
-Hotel_Room room_502 "Room 502"
- with
-  n_to door_502,
-  door_out door_502,
-  floor_number 5,
-  room_number 502;
-
-Hotel_Room_Door door_503 "Door 503"
- with
-  name '503' 'room' 'door' '3//',
-  found_in fifth_floor room_503,
-  to_room room_503,
-  to_hall fifth_floor,
-  dir_in sw_to,
-  dir_out ne_to;
-
-Hotel_Room room_503 "Room 503"
- with
-  ne_to door_503,
-  door_out door_503,
-  floor_number 5,
-  room_number 503;
-
-Hotel_Room_Door door_504 "Door 504"
- with
-  name '504' 'room' 'door' '4//',
-  found_in fifth_floor room_504,
-  to_room room_504,
-  to_hall fifth_floor,
-  dir_in w_to,
-  dir_out e_to;
-
-Hotel_Room room_504 "Room 504"
- with
-  e_to door_504,
-  door_out door_504,
-  floor_number 5,
-  room_number 504;
-
-Hotel_Room_Door door_505 "Door 505"
- with
-  name '505' 'room' 'door' '5//',
-  found_in fifth_floor room_505,
-  to_room room_505,
-  to_hall fifth_floor,
-  dir_in nw_to,
-  dir_out se_to;
-
-Hotel_Room room_505 "Room 505"
- with
-  se_to door_505,
-  door_out door_505,
-  floor_number 5,
-  room_number 505;
-
-Hotel_Room_Door door_506 "Door 506"
- with
-  name '506' 'room' 'door' '6//',
-  found_in fifth_floor room_506,
-  to_room room_506,
-  to_hall fifth_floor,
-  dir_in n_to,
-  dir_out s_to;
-
-Hotel_Room room_506 "Room 506"
- with
-  s_to door_506,
-  door_out door_506,
-  floor_number 5,
-  room_number 506;
-
-Hotel_Room_Door door_507 "Door 507"
- with
-  name '507' 'room' 'door' '7//',
-  found_in fifth_floor room_507,
-  to_room room_507,
-  to_hall fifth_floor,
-  dir_in ne_to,
-  dir_out sw_to;
-
-Hotel_Room room_507 "Room 507"
- with
-  sw_to door_507,
-  door_out door_507,
-  floor_number 5,
-  room_number 507;
-
-Room basement "Basement"
- with
-  description [;
-   if (FlagOn(PLAYER_KNOWS_MESSAGE)) {
-    print "For now, knowing the message and going to the basement is enough.";
-    deadflag = 2;
-   }
-   "I'm in the basement.";
-  ],
-  u_to elevator_vestibule;
-
-Disappearing_Object -> token "token"
- with
-  name 'token' 'coin',
-  initial "There's a token here.",
-  description "It's a token, silly.";
-
-Room roof "Roof"
- with
-  initial [;
-   print "Being on the roof of the hotel reminds me of that scene from The Hangover! But my weekend is not gonna be like that!";
-  ],
-  description [ hh;
-   CurrentTime();
-   hh = date_array-->4;
-   print "It's a ";
-   if ((hh >= 6) && (hh < 12)) print "beautiful morning";
-   else if ((hh >= 12) && (hh < 18)) print "hot afternoon";
-   else if ((hh >= 18) && (hh < 21)) print "warm evening";
-   else print "cool night";
-   ", and I'm on the roof of the hotel.";
-  ],
-  d_to fifth_floor;
-
-! Might expect 'has talkable' for a phone, but this phone is basically a teleporter ;-)
-! Telephone's general means call active
-Object telephone "telephone"
- with
-  name 'telephone' 'house' 'phone',
-  description "It's the hotel's house phone.",
-  found_in lobby room_201 room_202 room_203 room_204 room_205 room_206 room_207 room_301 room_302 room_303 room_304 room_305 room_306 room_307 room_401 room_402 room_403 room_404 room_405 room_406 room_407 room_501 room_502 room_503 room_504 room_505 room_506 room_507,
-  before [;
-   Drop: if (OnPhone()) "Don't be rude, you need to hang up first.";
-  ],
-  after [;
-   Take: "I pick up the house phone and hear a dial tone.";
-  ];
-
 Object kaitlyn "Kaitlyn"
  with
   name 'kaitlyn',
@@ -836,7 +21,7 @@ Object kaitlyn "Kaitlyn"
    Give:
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(KAITLYN_BEFORE, actor, GIVE_ACTION, noun, second); #Endif;
     if (OnPhone(self)) "It'd be hard to give something to ", (name)self, " when I'm on the phone with ", (PronounAcc)self, "!";
-  ]
+  ],
  has animate ~male female concealed proper transparent;
 
 Room_Key k_key "room key" kaitlyn
@@ -845,7 +30,8 @@ Room_Key k_key "room key" kaitlyn
   name 'room' 'key',
   description "It has the hotel's logo, but no room number.",
   article "my",
-  owner kaitlyn;
+  owner kaitlyn,
+  key_to_room room_402;
 
 Top yellow_shirt "yellow t-shirt" kaitlyn
  with
@@ -864,10 +50,15 @@ Pants skinny_jeans "skinny jeans" kaitlyn
 ! Clothes that are initially hidden
 Underwear k_bra "bra"
  with
-  name 'bra',
+  name 'bra' 'tits' 'boobs' 'breasts',
+  description "I like how my boobs look in this bra.",
   article "my",
-  owner kaitlyn
- has ~worn;
+  owner kaitlyn,
+  before [;
+   Touch, Kiss:
+    "This is not that kind of game.";
+  ],
+ has ~worn animate pluralname; ! Animate so I can kiss them!
 
 Underwear k_panties "panties"
  with
@@ -893,6 +84,7 @@ Disappearing_Object smartphone "smartphone" kaitlyn
    rtrue;
   ],
   invent "my smartphone", ! So inventory doesn't list the screen, buttons, icons, etc
+  article "my",
   mode MODE_OFF,
   sms_from,
   sms_text,
@@ -900,7 +92,10 @@ Disappearing_Object smartphone "smartphone" kaitlyn
    Push, Touch:
     !if (self.mode == MODE_HOME) <<Push call_icon>>;
     "You'll have to be more specific.";
-   Drop: if ((OnPhone()) && (telephone hasnt general)) "Don't be rude, you need to hang up first.";
+   Drop:
+    if ((OnPhone()) && (telephone hasnt general)) "Don't be rude, you need to hang up first.";
+    move self to location;
+    "I put my smartphone down carefully.";
   ],
   change_mode [new_mode o;
    ! Switching out of Text mode, clear existing conversation
@@ -924,7 +119,7 @@ Disappearing_Object smartphone "smartphone" kaitlyn
      remove o;
     }
    }
-   if (self.mode == MODE_GALLERY) {
+   if (self.mode == MODE_PHOTOS) {
     current_photo = MAX_PHOTOGRAPHS - Photograph.remaining();
    }
   ],
@@ -939,7 +134,6 @@ Disappearing_Object smartphone "smartphone" kaitlyn
     self.move_counter--;
     #Ifdef DEBUG_PHONES; print "DEBUG daemon smartphone.move_counter ", self.move_counter; new_line; #Endif;
     if (self.move_counter == 0) {
-     print "My smartphone times out and turns off.^";
      self.change_mode(MODE_OFF);
      StopDaemon(self);
     }
@@ -951,12 +145,11 @@ Disappearing_Object smartphone "smartphone" kaitlyn
 
 Object screen "screen" smartphone
  with
-  !name 'screen' 'display',
   description [ o;
    switch (parent(self).mode) {
     MODE_OFF: "It's off.";
-    MODE_HOME: "It's got four icons, labelled Contacts, Text, Camera and Gallery.";
-    ! ToDo: Contacts has Mom and Britney, and is for outgoing calls by name only
+    MODE_HOME: "The screen's got four icons, labelled Contacts, Messages, Camera and Photos.";
+    ! Contacts is for outgoing calls to Britney
     MODE_CONTACTS:
      if (call_person == nothing) {
       print "Contacts:";
@@ -966,19 +159,19 @@ Object screen "screen" smartphone
       new_line;
       rtrue;
      } else "It has a picture of ", (name)call_person, " and a Hang Up button.";
-    ! Text mode is "receive only"
-    MODE_TEXT:
+    ! Text mode is only to receive the ransom message from anonymous
+    MODE_MESSAGES:
      ClearFlag(SMARTPHONE_LED_BLINKING);
      if ((smartphone.sms_from ~= nothing) && (smartphone.sms_text ~= nothing)) {
       glk_set_style(style_Preformatted);
-      print "Text from ", (name)smartphone.sms_from, ": ~", (string)smartphone.sms_text, "~^";
+      print "Message from ", (name)smartphone.sms_from, ": ~", (string)smartphone.sms_text, "~^";
       glk_set_style(style_Normal);
       if (smartphone.sms_from == anonymous) SetFlag(PLAYER_KNOWS_ABOUT_FLUFFY);
       return;
      }
      "Ready to send a text message.";
     MODE_CAMERA: "Ready to take a photo.";
-    MODE_GALLERY:
+    MODE_PHOTOS:
      !if (Photograph.remaining() == MAX_PHOTOGRAPHS) "I haven't taken any photos yet.";
      !print "It shows the photo of ";
      objectloop(o ofclass Photograph) {
@@ -996,11 +189,12 @@ Object screen "screen" smartphone
   ]
  has container transparent;
 
-Object home_button "button" smartphone
+Object home_button "home" smartphone
  with
-  name 'home' 'button',
+  name 'home',
   before [;
    Push, Touch:
+    if (smartphone notin player) move smartphone to player;
     switch (smartphone.mode) {
      MODE_OFF: print "I pressed the home button and entered my PIN.^";
      MODE_HOME: print "Nothing happens.^";
@@ -1008,29 +202,29 @@ Object home_button "button" smartphone
     }
     smartphone.change_mode(MODE_HOME);
     rtrue;
-   Take: "Taking Home button would be vandalism and you're not that kind of person, are you?";
-  ];
+  ]
+ has static;
 
 ! The icons have to be moved to the screen when in MODE_HOME, otherwise removed so you can't interact with them
 Icon contacts_icon "contacts"
  with
   mode MODE_CONTACTS,
-  name 'Contacts' 'icon';
+  name 'Contacts';
 
-Icon text_icon "text"
+Icon messages_icon "messages"
  with
-  mode MODE_TEXT,
-  name 'Text' 'icon';
+  mode MODE_MESSAGES,
+  name 'Messages';
 
 Icon camera_icon "camera"
  with
   mode MODE_CAMERA,
-  name 'Camera' 'icon';
+  name 'Camera';
 
-Icon gallery_icon "gallery"
+Icon photos_icon "photos"
  with
-  mode MODE_GALLERY,
-  name 'Gallery' 'icon';
+  mode MODE_PHOTOS,
+  name 'Photos';
 
 ! Contacts
 Contact contact_britney
@@ -1042,18 +236,9 @@ Contact contact_britney
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(CONTACT_BRITNEY_BEFORE, actor, PUSH_ACTION, noun, second); #Endif;
   ];
 
-Contact contact_mom
- with
-  contact_noun mom,
-  name 'Mom',
-  before [;
-   Push, Touch:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(CONTACT_MOM_BEFORE, actor, PUSH_ACTION, noun, second); #Endif;
-  ];
-
 Girl britney "Britney" room_403
  with
-  name 'Britney',
+  name 'Britney' 'Brit',
   wearing_top blue_shirt,
   wearing_pants yoga_pants,
   bra b_bra,
@@ -1081,7 +266,7 @@ Girl britney "Britney" room_403
       switch (++i) {
        1: print "Britney's carrying ";
        default: if (i < n) print ", ";
-        else print " and ";
+       else print " and ";
       };
       if (o.owner == kaitlyn) print "my ";
       else print "her ";
@@ -1116,7 +301,7 @@ Girl britney "Britney" room_403
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(BRITNEY_LIFE, actor, SHOW_ACTION, noun, second); #Endif;
     ! if (call_person == self) "It's hard to show something to ", (name)self, " when I'm on the phone with ", (PronounAcc)self, "!";
     if (noun == smartphone) {
-     if (smartphone.mode == MODE_GALLERY) {
+     if (smartphone.mode == MODE_PHOTOS) {
       ! Find current photo
       objectloop(o ofclass Photograph) {
        if (o.number == current_photo) {
@@ -1140,7 +325,7 @@ Girl britney "Britney" room_403
        }
       }
      }
-     if (smartphone.mode == MODE_TEXT) {
+     if (smartphone.mode == MODE_MESSAGES) {
       if (smartphone.sms_from == anonymous) {
        if (FlagOff(BRITNEY_KNOWS_ABOUT_FLUFFY)) {
         SetFlag(BRITNEY_KNOWS_ABOUT_FLUFFY);
@@ -1168,10 +353,16 @@ Girl britney "Britney" room_403
      } else print_ret (BritneysVoice)"OMG, Kaitlyn, I know you love your dog!";
     }
     "She doesn't seem interested.";
+   Ask:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(BRITNEY_LIFE, actor, ASK_ACTION, noun, second); #Endif;
+   Kiss:
+    print_ret (BritneysVoice)"I love you, Kaitlyn, but not that way.";
   ],
   orders [;
    Give:
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(BRITNEY_ORDERS, actor, GIVE_ACTION, noun, second); #Endif;
+    move noun to player;
+    print_ret (BritneysVoice)"ok ", (name)noun;
    Drop:
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(BRITNEY_ORDERS, actor, DROP_ACTION, noun, second); #Endif;
     if ((noun ofclass Britney_Object) && (noun in britney)) {
@@ -1319,7 +510,6 @@ Girl britney "Britney" room_403
     move self to to_room;
     if (player in to_room) {
      self.destination_room = to_room;
-     ! ToDo Knock, but you have to let her in
      if (parent(player) ofclass Hotel_Room) print "I heard a knock on the door and let Britney in.";
      else print "^Just then, Britney arrived.";
     }
@@ -1332,12 +522,13 @@ Girl britney "Britney" room_403
   ];
 
 Room_Key b_key "room key" britney
- class Britney_Object Ownable_Object
+ class Britney_Object Ownable_Object General_Object
  with
   name 'room' 'key',
   description "It has the hotel's logo, but no room number.",
   article "Britney's",
-  owner britney;
+  owner britney,
+  key_to_room room_403;
 
 ! Clothes that Britney's wearing
 Top blue_shirt "blue t-shirt" britney
@@ -1354,7 +545,7 @@ Pants yoga_pants "yoga pants" britney
   owner britney
  has worn pluralname;
 
-! Clothes that is initially hidden
+! Clothes that are initially hidden
 Underwear b_bra "bra"
  with
   name 'bra',
@@ -1369,19 +560,25 @@ Underwear b_panties "panties"
   owner britney
  has ~worn pluralname;
 
+Object b_tits "Britney's tits" thedark
+ with	
+  name 'tits' 'boobs' 'breasts',
+  description "They're smaller than mine, but still awesome.",
+  article "Britney's",
+  before [;
+   Touch, Kiss:
+    if (OnPhone(britney)) "Can't exactly feel her up over the phone!";
+    "Focus on the game.";
+  ],
+ has scenery static pluralname proper animate; ! Animate so you can try to kiss them!
+
 ! Igor's in the lobby
 Guy igor "Igor" lobby
  with
-  name 'Igor',
-  initial [;
-   print "The man behind the front desk says, ~Welcome to the Timbuktu Resort and Casino!~";
-   if(location hasnt visited) " While I was checking in, I chatted with him and found out his name is Igor and he's Ukrainian.";
-   new_line;
-   rtrue;
-  ],
+  name 'Igor' 'man',
   description [;
    if (OnPhone(self)) "Over the phone, you notice his accent more.";
-   "He's wearing a hotel uniform.";
+   "Igor's wearing a hotel uniform.";
   ],
   before [;
    Give:
@@ -1404,13 +601,13 @@ Guy igor "Igor" lobby
     ! Showing to Igor...
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(IGOR_LIFE, actor, SHOW_ACTION, noun, second); #Endif;
     if (noun == smartphone) {
-     if (smartphone.mode == MODE_GALLERY) {
+     if (smartphone.mode == MODE_PHOTOS) {
       ! Find current photo
       objectloop(o ofclass Photograph) {
        if (o.number == current_photo) {
         switch (o.subject) {
          fluffy: print_ret (IgorsVoice)"Oh, that's your dog? He's really cute!";
-         igor: print_ret (IgorsVoice)"I look ok in that picture.";
+         igor: print_ret (IgorsVoice)"Hey, that's me!";
          britney: print_ret (IgorsVoice)"Yes, that's your friend, how could I forget her?";
          kaitlyn:
           print (IgorsVoice)"That's an awesome photo of you";
@@ -1425,12 +622,12 @@ Guy igor "Igor" lobby
        }
       }
      }
-     if (smartphone.mode == MODE_TEXT) {
+     if (smartphone.mode == MODE_MESSAGES) {
       if (smartphone.sms_from == anonymous) {
        if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) {
         SetFlag(IGOR_KNOWS_ABOUT_FLUFFY);
-        print_ret (IgorsVoice)"Oh no, someone took your dog? If there's anything I can do to help, let me know.";
-       } print_ret (IgorsVoice)"I don't what else I can tell you to help.";
+        print_ret (IgorsVoice)"I'm so sorry someone took your dog, if there's anything I can do to help, let me know, I'm always here.";
+       } print_ret (IgorsVoice)"I don't know what else I can tell you to help.";
       } else print_ret (IgorsVoice)"Why are you showing me your text messages?";
      }
     print_ret (IgorsVoice)"Is that supposed to be interesting?";
@@ -1438,52 +635,56 @@ Guy igor "Igor" lobby
    Ask:
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(IGOR_LIFE, actor, ASK_ACTION, noun, second); #Endif;
     if (second == 'russians' or 'vlad' or 'vladimir') {
-     if (FlagOff(IGOR_HAS_REVEALED_202)) {
-      print "I asked him if he knew anything about ";
-      if (second == 'russians') print "any Russians";
-      else print "someone named Vlad or Vladimir";
-      print ", he said he ";
-      if (FlagOn(IGOR_KNOWS_ABOUT_FLUFFY)) {
+     if (FlagOn(PLAYER_KNOWS_ABOUT_FLUFFY) && FlagOn(IGOR_KNOWS_ABOUT_FLUFFY)) {
+      if (FlagOff(IGOR_HAS_REVEALED_202)) {
        SetFlag(IGOR_HAS_REVEALED_202);
-       "could get in trouble for telling me this, but there are two big Russian guys named Vladimir and Sergei in room 202.";
-      } else "can't talk about guests.";
-     } else {
-      if (FlagOff(IGOR_HAS_HINTED_KEY)) {
-       SetFlag(IGOR_HAS_HINTED_KEY);
-       print_ret (IgorsVoice)"I'll *really* get in trouble for this, but if you had a master key, maybe you could find something in their room.";
-      } else "He said he didn't know anything else about Russians that could help me.";
+       print_ret (IgorsVoice)"I could get in trouble for telling you this, but there's two big Russian guys named Vladimir and Sergei in room 202.";
+      }
+      else {
+       if (FlagOff(IGOR_HAS_HINTED_KEY)) {
+        SetFlag(IGOR_HAS_HINTED_KEY);
+        print_ret (IgorsVoice)"I'll *really* get in trouble for this, but if you had a master key, maybe you could find something in their room.";
+       }
+       else print_ret (IgorsVoice)"There's nothing else I can tell you about the Russians.";
+      }
      }
+     else print_ret (IgorsVoice)"I can't talk about guests.";
     }
-    "Igor didn't seem to know anything about ", second, ".";
+    "Igor didn't seem to know anything about that.";
    Tell:
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(IGOR_LIFE, actor, TELL_ACTION, noun, second); #Endif;
     if (second == 'fluffy') {
      if (FlagOn(PLAYER_KNOWS_ABOUT_FLUFFY)) {
       if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) {
        SetFlag(IGOR_KNOWS_ABOUT_FLUFFY);
-       "I tell Igor that Fluffy's been kidnapped, he's very concerned and says he'll do whatever he can to help.";
-      } print_ret (IgorsVoice)"So no news, then?";
-     } "I tell Igor that I'm here with Fluffy to compete in a dog show, he wishes me good luck.";
+       print_ret (IgorsVoice)"Oh no, someone took your dog? If there's anything I can do to help, let me know.";
+      } print_ret (IgorsVoice)"So no more news, then?";
+     } print_ret (IgorsVoice)"Well, good luck with the dog show!";
+    }
+    if (second == 'russians' or 'vlad' or 'flashback') {
+     if (FlagOn(PLAYER_HAD_FLASHBACK) && FlagOn(IGOR_KNOWS_ABOUT_FLUFFY)) {
+      print_ret (IgorsVoice)"Yeah, there's a couple Russian guys that checked in yesterday.";
+     }
     }
     "He doesn't seem interested.";
   ],
   orders [;
    ComeHere:
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(IGOR_ORDERS, actor, COME_HERE_ACTION, noun, second); #Endif;
-    if (OnPhone(igor)) print_ret (IgorsVoice)"~I need to stay here, sorry.~";
+    if (OnPhone(igor)) print_ret (IgorsVoice)"I need to stay here, sorry.";
    FollowMe:
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(IGOR_ORDERS, actor, FOLLOW_ME_ACTION, noun, second); #Endif;
-    if (~~(OnPhone(igor))) print_ret (IgorsVoice)"~I need to stay here, sorry.~";
+    if (~~(OnPhone(igor))) print_ret (IgorsVoice)"I need to stay here, sorry.";
    StayHere:
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(IGOR_ORDERS, actor, STAY_HERE_ACTION, noun, second); #Endif;
-    print_ret (IgorsVoice)"~Of course, I have to stay here.~";
+    print_ret (IgorsVoice)"Of course, I have to stay here.";
    Give:
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(IGOR_ORDERS, actor, GIVE_ACTION, noun, second); #Endif;
     !if (call_person == self) "It'd be hard for ", (name)self, " to give you anything when I'm on the phone with ", (PronounAcc)self, "!";
     if ((noun in self) && (noun == master_key) && (second == player)) {
-     if (FlagOn(IGOR_HAS_REVEALED_202)) {
+     if (FlagOn(IGOR_KNOWS_ABOUT_FLUFFY) || FlagOn(IGOR_HAS_REVEALED_202)) {
       move noun to second;
-      print_ret (IgorsVoice)"Well, you really need to get your dog back, here you go.";
+      print_ret (IgorsVoice)"Well, you really need to get your dog back, so here you go.";
      } else print_ret (IgorsVoice)"Sorry, I'd get in big trouble if I did that.";
     }
    Take:
@@ -1494,7 +695,8 @@ Guy igor "Igor" lobby
     }
     print_ret (IgorsVoice)"No, thanks, I don't need that.";
    NotUnderstood: print_ret (IgorsVoice)"I don't understand.";
-  ];
+  ]
+ has scenery;
 
 ! Igor has the master key
 Disappearing_Object master_key "master key" igor
@@ -1508,6 +710,10 @@ Disappearing_Object master_key "master key" igor
 Top pink_shirt "pink shirt" room_402
  with
   name 'pink' 'shirt' 'top' 't-shirt',
+  ! Let the hotel room mention this
+  describe [;
+   rtrue;
+  ],
   article "my",
   owner kaitlyn
  has ~worn;
@@ -1515,6 +721,10 @@ Top pink_shirt "pink shirt" room_402
 Top green_shirt "green t-shirt" room_403
  with
   name 'green' 'shirt' 'top' 't-shirt',
+  ! Let the hotel room mention this
+  describe [;
+   rtrue;
+  ],
   article "Britney's"
   owner britney
  has ~worn;
@@ -1522,7 +732,6 @@ Top green_shirt "green t-shirt" room_403
 General_Object computer "computer" room_202
  with
   name 'computer',
-  initial "There's a computer here and it's on!",
   description [;
    SetFlag(PLAYER_HAS_SEEN_MESSAGE);
    print "There's something on the computer that I can't understand! It reads:^";
@@ -1534,7 +743,7 @@ General_Object computer "computer" room_202
    print (char)ucEs, (char)lcYe, (char)lcEr, (char)lcGe, (char)lcYe, (char)lcY, "^";
    glk_set_style(style_Normal);
   ]
- has static;
+ has static scenery;
 
 Object fluffy "Fluffy" thedark;
 
@@ -1542,8 +751,3 @@ Object fluffy "Fluffy" thedark;
 Guy anonymous "Anonymous" thedark
  with
   name 'anonymous';
-
-Girl mom "Mom" thedark
- with
-  name 'Mom',
-  contact_icon contact_mom;

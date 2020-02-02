@@ -49,59 +49,12 @@
  return date_array;
 ];
 
-![ DrawChar zscii row col;
-! ! Characters are offset one pixel to the right since they're left-centred in the images
-! if (gg_grwin ~= nothing) glk_image_draw(gg_grwin, zscii, 10*col+41, 20*row+25);
-!];
-
-![ DrawTime hh mm;
-! if (gg_grwin ~= nothing) {
-!  DrawChar(hh/10+48, 1, 11);
-!  DrawChar(hh%10+48, 1, 12);
-!  DrawChar(58, 1, 13);
-!  DrawChar(mm/10+48, 1, 14);
-!  DrawChar(mm%10+48, 1, 15);
-! }
-!];
-
-![ ClearPhone;
-! if (gg_grwin ~= nothing) glk_window_fill_rect(gg_grwin, $FFFFFF, 50, 45, 201, 355);
-!];
-
-![ OpenWindow;
-! if (gg_secondwin == 0) {
-!  ! Choices are winmethod_Above, winmethod_Below, winmethod_Left, winmethod_Right, winmethod_Fixed, winmethod_Proportional
-!  gg_secondwin = glk_window_open(gg_mainwin, (winmethod_Below+winmethod_Proportional), 20, wintype_TextBuffer, GG_SECONDWIN_ROCK);
-! }
-!];
-
-!! e.g. http://www.eblong.com/zarf/glulx/twocol.inf 2017-02-22 JMS
-!! e.g. http://ginko968.free.fr/jeux/wof.inf
-![ SecondVoice o text;
-! glk($47, glk($2C, gg_secondwin));
-! switch (o) {
-!  britney: glk_set_style(style_BlockQuote);
-!  igor: glk_set_style(style_Note);
-!  default: glk_set_style(style_Preformatted);
-! }
-! print (name) o, " > ", (string)text;
-! glk_set_style(style_Normal);
-! glk($47, glk($2C, gg_mainwin));
-!];
-
-![ CloseWindow;
-! if (gg_secondwin ~= 0) {
-!  glk_window_close(gg_secondwin, 0);
-!  gg_secondwin = 0;
-! }
-!];
-
 ! Inform routines
 
 !----------------------------------------------------------------------------
 ! Initialise
 !----------------------------------------------------------------------------
-[ Initialise i;
+[ Initialise;
  if (~~(glk_gestalt(gestalt_DateTime, 0)) || ~~(glk_gestalt(gestalt_Timer, 0))) {
   print "Your browser does not support required time features, try a more recent browser. Thanks for trying to save Fluffy!";
   quit;
@@ -110,10 +63,12 @@
  CurrentTime(t0);
  notify_mode = false;
  player = kaitlyn;
+ location = street;
 
- ! ToDo, remove these 2 lines
- move master_key to player;
- location = room_403;
+ ! Set things up for faster debugging
+ !move master_key to room_403;
+ !location = room_403;
+ !move igor to room_403;
 
  smartphone.sms_from = anonymous;
  smartphone.sms_text = "We have your dog. If you want it back, send us a topless picture of yourself. You have one hour.";
@@ -129,7 +84,7 @@
  Pause();
  ClearScreen();
  print "^Omigod, someone took my Fluffy! I gotta get her back!!^";
- #Ifdef DEBUG;
+ #Ifdef NO_THIS_IS_NOT_DEFINED;
   Pause();
   ClearScreen();
   print (header) "header
@@ -206,15 +161,6 @@
  print "^My name's Kaitlyn, I'm 23 and people tell me I'm quite pretty, but I just feel like a regular small-town girl.
   I've come to Vegas with my best friend, Britney, to show my Fluffy ", (char)heart, " at the Silver State Kennel Club Dog Show.
   We arrived an hour ago and I just left him in my hotel room, 402, while I ran out for something to eat. Britney stayed in her room, right next to mine, to get settled in.^^";
- !k = FindRoomNumber(k);
- !move pink_shirt to room_402;
- k_key.key_to_room = room_402;
- !b = FindRoomNumber(b);
- !move britney to room_403;
- !move green_shirt to room_403;
- b_key.key_to_room = room_403;
- !v = FindRoomNumber(v);
- !move computer to room_202;
  return 2;
  ! Story continues with street.initial()
 ];
@@ -228,21 +174,13 @@
  print " > ";
 ];
 
-[ DeathMessage;
- switch (deadflag) {
-  2: print "We rescued Fluffy, was he ever happy to see me! Plus, we had all the evidence we needed to put the Russians in jail for a long, long time.
-   Fluffy didn't do very well in the dog show, but after what happened to us that weekend, it didn't matter!";
-  3: print "After sending my topless photo to the Russians, they returned Fluffy and immediately posted the photo online.
-   I always wanted to be famous, so this wasn't such a bad ending!";
- }
-];
-
-! Pronoun routines
+! Pronoun routines, from http://inform-fiction.org/manual/Answers.pdf
 
 [ PronounAcc i;
  if (i hasnt animate || i has neuter) print "it";
  else { if (i has female) print "her"; else print "him"; }
 ];
+! Not used yet, so commented out
 ![ PronounNom i;
 ! if (i hasnt animate || i has neuter) print "it";
 ! else { if (i has female) print "she"; else print "he"; }
@@ -252,9 +190,9 @@
  else { if (i has female) print "She"; else print "He"; }
 ];
 
-! Printing styles
+! Printing styles, the ones that aren't used are commented out
 
-#Ifdef DEBUG;
+#Ifdef NO_THIS_IS_NOT_DEFINED;
 [ header text;
  glk_set_style(style_Header);
  print (string)text;
@@ -368,7 +306,7 @@
  }
  if (((location == elevator_vestibule) && (elevator.floor_number == 1)) || ((location == second_floor) && (elevator.floor_number == 2)) || ((location == third_floor) && (elevator.floor_number == 3)) || ((location == fourth_floor) && (elevator.floor_number == 4)) || ((location == fifth_floor) && (elevator.floor_number == 5))) give elevator_doors open;
  else if (((location == elevator_vestibule) && (elevator.floor_number ~= 1)) || ((location == second_floor) && (elevator.floor_number ~= 2)) || ((location == third_floor) && (elevator.floor_number ~= 3)) || ((location == fourth_floor) && (elevator.floor_number ~= 4)) || ((location == fifth_floor) && (elevator.floor_number ~= 5))) give elevator_doors ~open;
- ! When you move to a new room, all Disappearing_Objects with 'general', i.e. have been dropped in a Public_Room disappear
+ ! When you move to a new room, timer starts for all Disappearing_Objects with 'general', i.e. have been dropped in a Public_Room
  objectloop(o ofclass Disappearing_Object) {
   if (o has general) {
    if (parent(o) ofclass Public_Room) {
@@ -387,9 +325,11 @@
   give noun ~worn;
   move actor.bra to actor;
   give actor.bra worn;
-  if (actor == player) print "I take";
-  else print "Britney takes";
-  " off the ", (name)noun, ".";
+  if (actor == player) "I take off the ", (name)noun, ".";
+  else {
+    move b_tits to location;
+    print_ret (BritneysVoice)"Kaitlyn, this makes me very uncomfortable!";
+  }
  }
  if (actor == player) print "I'm";
  else print "Britney's";
@@ -403,9 +343,8 @@
   give noun ~worn;
   move actor.panties to actor;
   give actor.panties worn;
-  if (actor == player) print "I take";
-  else print "Britney takes";
-  " off the ", (name)noun, ".";
+  if (actor == player) "I take off the ", (name)noun, ".";
+  else print_ret (BritneysVoice)"Kaitlyn, this makes me very uncomfortable!";
  }
  if (actor == player) print "I'm";
  else print "Britney's";
@@ -419,9 +358,11 @@
   give actor.bra ~worn;
   actor.wearing_top = noun;
   give noun worn;
-  if (actor == player) print "I put";
-  else print "Britney puts";
-  " on the ", (name)noun, ".";
+  if (actor == player) print_ret "I put on the ", (name)noun, ".";
+  else {
+    move b_tits to thedark;
+    print_ret (BritneysVoice)"Thanks, I feel a little less naked now!";
+  }
  }
  if (actor == player) print "I'm";
  else print "Britney's";
@@ -435,9 +376,8 @@
   give actor.panties ~worn;
   actor.wearing_pants = noun;
   give noun worn;
-  if (actor == player) print "I put";
-  else print "Britney puts";
-  " on the ", (name)noun, ".";
+  if (actor == player) print_ret "I put on the ", (name)noun, ".";
+  else print_ret (BritneysVoice)"Thanks, I feel a little less naked now!";
  }
  if (actor == player) print "I'm";
  else print "Britney's";
@@ -460,14 +400,6 @@
   objectloop (o ofclass Person) PlaceInScope(o); rtrue;
  }
  "No person with that name.";
-];
-
-[ AnyContact o;
- if (scope_stage == 1) rfalse;
- if (scope_stage == 2) {
-  objectloop (o ofclass Contact) PlaceInScope(o); rtrue;
- }
- "No contact with that name.";
 ];
 
 ! Originally from DM4, modified to return an integer
@@ -512,27 +444,6 @@
 
 ! Verb routines
 
-[ CallContactSub noun;
- #Ifdef DEBUG; print "DEBUG actor ", (name)actor, " second ", (name)second, "^"; #Endif;
- noun.press();
- !if (OnPhone()) "I'm currently on the phone with ", (name)call_person, ".";
- !if ((smartphone notin player) || (smartphone.mode ~= MODE_CONTACTS)) "With what?";
- !if (noun ~= britney) "You don't know ", (name)noun, "'s number.";
- !if (player in parent(noun)) {
- ! print (CPronounNom)noun, "'s standing right in front of me!";
- ! rtrue;
- !}
- !smartphone.interact();
- !call_room = parent(noun);
- !call_person = noun;
- !give noun concealed;
- !move noun to location;
- !!OpenWindow();
- !!SecondVoice(noun, "I wonder who this is?^");
- !!"The phone rings and I hear, ~Hey, what's up?~";
- !!print_ret (BritneysVoice)"Hey Kaitlyn, what's up?";
-];
-
 [ CallNumberSub hundreds tens ones r;
  if (OnPhone()) "I'm currently on the phone with ", (name)call_person, ".";
  ! If player isn't holding the telephone, terminate
@@ -546,9 +457,6 @@
   call_person = igor;
   give igor concealed;
   move igor to player;
-  !OpenWindow();
-  !SecondVoice(igor, "Oh man, I wonder what this loser is gonna go on about...^");
-  !"After a few rings, I hear, ~Hello, Front Desk?~";
   print_ret (IgorsVoice)"Hello, Front Desk?";
  }
  ! 411 and 911
@@ -556,7 +464,6 @@
   SetFlag(PLAYER_TRIED_911);
   print_ret (preformatted)"External calls are not allowed.";
  }
- ! ToDo 867-5309 Jenny
  ! Three-digits
  if ((dialed_number > 0) && (dialed_number <= 999)) {
   hundreds = dialed_number/100;
@@ -583,7 +490,7 @@
    "The phone rings and rings until I hang up.";
   }
  }
- print_ret (preformatted)"Please try again.";
+ print_ret (preformatted)"Please hang up and try your call again.";
 ];
 
 [ ComeHereSub;
@@ -617,16 +524,18 @@
 [ PhotographSub o;
  !if (OnPhone(noun)) "How should I photograph ", (name)noun, "when I'm on the phone with ", (PronounAcc)noun, "?";
  if ((smartphone notin player) || (smartphone.mode ~= MODE_CAMERA)) "With what?";
+ if (noun ~= kaitlyn or britney or igor or computer) "I decide not to waste photos on that.";
  smartphone.interact();
  o = Photograph.create(noun);
  if (o == nothing) "Crap, SD card is full.";
  if (noun == player) "I take a selfie.";
- "I take a photograph of ", (name)noun,".";
+ else if (noun == britney or igor) "I take a picture of ", (name)noun,".";
+ else "I take a picture of the secret message on the computer.";
 ];
 
 ! Previous
 [ SwipeRightSub;
- if ((smartphone notin player) || (smartphone.mode ~= MODE_GALLERY)) "With what?";
+ if ((smartphone notin player) || (smartphone.mode ~= MODE_PHOTOS)) "With what?";
  smartphone.interact();
  if (current_photo > 1) current_photo--;
  else "Nothing happens.";
@@ -634,42 +543,36 @@
 
 ! Next
 [ SwipeLeftSub;
- if ((smartphone notin player) || (smartphone.mode ~= MODE_GALLERY)) "With what?";
+ if ((smartphone notin player) || (smartphone.mode ~= MODE_PHOTOS)) "With what?";
  smartphone.interact();
  if (current_photo < (MAX_PHOTOGRAPHS - Photograph.remaining())) current_photo++;
  else "Nothing happens.";
 ];
 
-[ ShareSub o f;
- f = false;
- if ((smartphone notin player) || (smartphone.mode ~= MODE_GALLERY)) "Share what?";
+[ ShareSub o toplessPhoto itsBritney;
+ toplessPhoto = false;
+ itsBritney = false;
+ if ((smartphone notin player) || (smartphone.mode ~= MODE_PHOTOS)) "Share what?";
  smartphone.interact();
  ! Find current photo
  objectloop(o ofclass Photograph) {
   if (o.number == current_photo) {
-   switch (o.subject) {
-    fluffy: print "fluffy^";
-    igor: print "igor";
-    britney: print "britney^";
-    kaitlyn:
-     print "kaitlyn^";
-     if (o.wearing_top == nothing) {
-      f = true;
-      print " topless.^";
-     } else print ".^";
-    computer: print "computer^";
-    default: print "something else^";
+   if (o.subject == britney or kaitlyn) {
+    if (o.wearing_top == nothing) {
+     toplessPhoto = true;
+     if (o.subject == britney) itsBritney = true;
+    }
    }
-   break;
   }
  }
- print (name)noun;
  switch (noun) {
   igor: "You don't know Igor's phone number.";
   britney: "Britney will like this photo.";
   anonymous:
-   if (f) deadflag = 3;
-   "Sending photo to Russians.";
+   if (toplessPhoto) {
+    if (itsBritney) deadflag = 3;
+    else deadflag = 4;
+   }
   kaitlyn: "I can't send to myself.";
   default: "I missed programming ", (name)noun, ".";
  }
@@ -681,26 +584,42 @@
 ];
 
 [ FlashbackSub;
- ! 1: Has player had flashback?
  SetFlag(PLAYER_HAD_FLASHBACK);
  "Hey, I just remembered, when I was in the elevator after checking in, there were two guys checking me out.
-  It was definitely not cool, it was really creepy. They were speaking some eastern European language and laughing at me and Fluffy.
+  It was definitely not cool, it was really creepy. They were speaking some eastern European language and laughing at Fluffy and me.
   I think I heard one guy call the other one Vlad. Maybe Igor can tell me something about them.";
 ];
 
 ! Hints
 [ ThinkSub;
  if (FlagOn(SMARTPHONE_LED_BLINKING)) "Check your smartphone for text messages.";
- if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) "Igor will be helpful once he knows Fluffy's been dognapped.";
- if (FlagOff(IGOR_HAS_REVEALED_202)) "Maybe Igor would tell you what room the Russians are in.";
- if (FlagOff(IGOR_HAS_HINTED_KEY)) "Igor might have additional ideas to help you.";
- if (master_key notin player) "You need a master key to get into the Russians' room.";
- if (FlagOff(PLAYER_HAS_SEEN_MESSAGE)) "There's information in the Russians' room.";
- if (FlagOff(PLAYER_HAS_PHOTOGRAPHED_MESSAGE)) "You need a way to record what the message says.";
- if (FlagOff(PLAYER_KNOWS_MESSAGE)) "Igor's Ukrainian, maybe he can translate the message.";
- if (FlagOn(PLAYER_TOOK_TOPLESS_PHOTO)) "You just have to send the photo.";
+ if (FlagOn(PLAYER_KNOWS_ABOUT_FLUFFY) && lobby has visited) {
+  if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) "Maybe Igor could help if he knew Fluffy's been dognapped.";
+  if (FlagOff(IGOR_HAS_REVEALED_202)) "Maybe Igor would tell you what room the Russians are in.";
+  if (FlagOff(IGOR_HAS_HINTED_KEY)) "Igor might have additional ideas to help you.";
+  if (master_key notin player) "You need a master key to get into the Russians' room.";
+  if (FlagOff(PLAYER_HAS_SEEN_MESSAGE)) "There's information in the Russians' room.";
+  if (FlagOff(PLAYER_HAS_PHOTOGRAPHED_MESSAGE)) "You need a way to record what the message says.";
+  if (FlagOff(PLAYER_KNOWS_MESSAGE)) "Igor's Ukrainian, maybe he can translate the message.";
+  if (FlagOn(PLAYER_TOOK_TOPLESS_PHOTO)) "You just have to send the photo.";
+ } else "You'll need to find someone who can help.";
 ];
 
-[ AboutSub;
+[ HelpSub;
  "Sometimes if you think carefully, the answer might come to you.";
+];
+
+[ DeathMessage;
+ switch (deadflag) {
+  3: print "After sending a topless photo of Britney to the Russians... ";
+  4: print "After sending my topless photo to the Russians, they returned Fluffy and immediately posted the photo online.
+      I always wanted to be famous, so this wasn't such a bad ending!";
+  5: print "I stumbled upon Fluffy in the basement...";
+  6: print "We rescued Fluffy, he was s-o-o-o happy to see me!!! Plus, we had all the evidence we needed to put the Russians in jail for a long, long time.
+      Fluffy came second in his class in the dog show, but after what happened that weekend, it didn't matter!";
+ }
+];
+
+[ ScoreSub;
+ rtrue;
 ];

@@ -24,8 +24,7 @@ Class Ownable_Object
    if (self.owner == kaitlyn) print "My ";
    else print "Britney's ";
    print (name)self;
-   if (location ofclass Hotel_Room) " is lying on the bed.";
-   else " is here.";
+   " is here.";
   ],
   ! Clothing that's being worn is not listed in inventory
   invent [;
@@ -46,12 +45,6 @@ Class Igor_Object
 
 Class Clothes
  class Ownable_Object Britney_Object
- with
-  before [;
-   ! actor == player, for britney it goes through her orders
-   Disrobe:
-    if (~~(location ofclass Hotel_Room)) "I can't undress in public!";
-  ],
  has clothing;
 
 Class Top
@@ -61,6 +54,7 @@ Class Top
    ! actor == player, for britney it goes through her orders
    Disrobe:
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(TOP_BEFORE, actor, DISROBE_ACTION, noun, second); #Endif;
+    if (~~(location ofclass Hotel_Room)) "I can't undress in public!";
     DisrobeTop(actor, noun);
     rtrue;
    Wear:
@@ -76,6 +70,7 @@ Class Pants
    ! actor == player, for britney it goes through her orders
    Disrobe:
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(PANTS_BEFORE, actor, DISROBE_ACTION, noun, second); #Endif;
+    if (~~(location ofclass Hotel_Room)) "I can't undress in public!";
     DisrobePants(actor, noun);
     rtrue;
    Wear:
@@ -99,9 +94,7 @@ Class Disappearing_Object
   after [;
    Drop:
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(DISAPPEARING_OBJECT_AFTER, actor, DROP_ACTION, noun, second); #Endif;
-    ! ToDo something about putting the smartphone down carefully
     if (location ofclass Public_Room) {
-     ! ToDo, can I use (alert) here?
      ! Timer is started in NewRoom for Disappearing_Objects which have general
      give self general;
      "Ok, but if you leave ", (the)self, " here, it may not be here when you return.";
@@ -123,15 +116,22 @@ Class Icon
   mode,
   before [;
    Push, Touch:
+    print "I ";
+    if (smartphone notin player) {
+     move smartphone to player;
+     print "picked up my smartphone and";
+    }
     smartphone.change_mode(self.mode);
-    "I selected ", (address)self.&name-->0, ".";
-  ];
+    "selected ", (address)self.&name-->0, ".";
+  ],
+ has static;
 
 Class Contact
  with
   contact_noun,
   before [;
    Push, Touch:
+    if (smartphone notin player) move smartphone to player;
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(CONTACT_BEFORE, actor, PUSH_ACTION, noun, second); #Endif;
     self.press();
     rtrue;
@@ -150,11 +150,7 @@ Class Contact
    give o concealed;
    move o to location;
    give self concealed;
-   !OpenWindow();
-   !SecondVoice(noun, "I wonder who this is?^");
-   !"The phone rings and I hear, ~Hey, what's up?~";
-   !print_ret (BritneysVoice)"Hey Kaitlyn, what's up?";
-   print_ret (name)o;
+   print_ret (BritneysVoice)"Hey Kaitlyn, what's up?";
   ];
 
 ! Dynamically created photos
@@ -199,7 +195,6 @@ Class Photograph(MAX_PHOTOGRAPHS)
     if (self.wearing_top == nothing) SetFlag(PLAYER_TOOK_TOPLESS_PHOTO);
     self.wearing_pants = o.wearing_pants;
    }
-   if (Photograph.remaining() <= 3) print Photograph.remaining(), " photo(s) remaining.^";
   ];
 
 Class Button
@@ -294,7 +289,7 @@ Class Hotel_Room_Door
       if (parent(o) == self.to_room) {
        give self ~locked open;
        StartTimer(self, 1);
-       "From inside the room, you hear ~Coming!~, then the door swings open.";
+       "From inside the room, I hear ~Coming!~, then the door swings open.";
       }
      }
      "I knock on the door, but nothing happens.";
@@ -347,7 +342,7 @@ Class Hotel_Room_Door
     }
     if (location ofclass hall) print "enter";
     else print "exit";
-    print" the room.^";
+    print " the room.^";
     ! Must not return true, because that stops everything, which we really can't do for this action!
   ],
   after [;
@@ -359,7 +354,6 @@ Class Hotel_Room_Door
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(HOTEL_ROOM_DOOR_AFTER, actor, GO_ACTION, noun, second); #Endif;
     StopTimer(self);
     give self ~open;
-    print "The door swings shut behind me.^";
     if (location ofclass Hall) give self locked;
   ],
   time_left,
@@ -383,7 +377,7 @@ Class Hotel_Room_Door
  has ~open locked proper;
 
 Class Room_Key
- class Disappearing_Object Ownable_Object Britney_Object
+ class Disappearing_Object Ownable_Object Britney_Object General_Object
  with
   key_to_room;
 
@@ -393,7 +387,9 @@ Class Room
  has light;
 
 Class Public_Room
- class Room;
+ class Room
+ with
+  description "Nothing much happening that seems to matter";
 
 Class Hall
  class Public_Room
@@ -418,8 +414,26 @@ Class Hall
 Class Hotel_Room
  class Room
  with
-  description [;
-   if (self hasnt visited) print "According to the floor plan on the back of the door, I'm in ", (name)self, ".^";
+  description [n o i;
+   n = 0;
+   objectloop(o in self) {
+    if (o ofclass General_Object) n++;
+   }
+   if (n > 0) {
+    i = 0;
+    objectloop(o in self) {
+     if (o ofclass General_Object) {
+      switch (++i) {
+       1: print "There's ";
+       default: if (i < n) print ", ";
+       else print " and ";
+      }
+      print (string)o.article, " ", (name)o;
+     }
+    }
+    " on the bed.";
+   }
+   else if (self hasnt visited) print "According to the floor plan on the back of the door, I'm in ", (name)self, ".";
   ],
   door_out,
   floor_number,
@@ -427,7 +441,9 @@ Class Hotel_Room
   before [;
    Drop:
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(HOTEL_ROOM_BEFORE, actor, DROP_ACTION, noun, second); #Endif;
-    if ((noun == master_key) || (noun ofclass Room_Key)) "I think about leaving the key here, but realize I may need it later.";
+    move noun to location;
+    if (noun == telephone) "I put the receiver back on the hook.";
+    "I put ", (string)noun.article, " ", (name)noun, " on the bed.";
    Exit:
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(HOTEL_ROOM_BEFORE, actor, EXIT_ACTION, noun, second); #Endif;
     <<Enter self.door_out>>;
@@ -439,15 +455,5 @@ Class Hotel_Room
     if ((player.wearing_top == nothing) || (player.wearing_pants == nothing)) "I should get dressed first.";
     if ((britney in location) && (britney.is_following) && ((britney.wearing_top == nothing) || (britney.wearing_pants == nothing))) print_ret (BritneysVoice)"Hang on, I'm not walking out of here dressed like this!";
     if (self.door_out hasnt open) give self.door_out open;
-  ],
-  after [ o;
-   Look:
-    ! ToDo: Print list of clothes lying on the bed
-    objectloop (o ofclass Clothes) {
-     if (o in self) {
-      print (name)o;
-     }
-    }
-
   ]
  has scenery proper;
