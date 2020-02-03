@@ -1,5 +1,7 @@
 # get-fluffy
 
+[Play](public/index.html)
+
 Get Fluffy! interactive fiction game
 
 Some known inconsistencies: Britney doesn't have a smartphone
@@ -12,7 +14,7 @@ Britney, look around - probably not
 
 Make sure dropping an object leaves it in the right place, Kaitlyn or Britney (OnPhone)
 
-Touch, feel, kiss, lick suck - If I know about fluffy, Not the time for that, else, do some
+Other verbs - If I know about fluffy, Not the time for that, else, do some
 
 Selfie verb
 
