@@ -2,7 +2,7 @@
 
 An interactive fiction game
 
-> Welcome to the Timbuktu!
+> Welcome to the Timbuktu!<br>
 >    \- Igor
 
 ```inform7
