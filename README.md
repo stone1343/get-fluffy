@@ -2,6 +2,18 @@
 
 An interactive fiction game
 
+> Welcome to the Timbuktu!
+>    - Igor
+
+```inform7
+Constant Story "Get Fluffy!";
+Constant Headline "^An interactive diary of what happened when some Russian thugs kidnapped my dog^
+ Copyright (c) 2020 Jeff Stone^";
+Release 0;
+! Default for Serial is yymmdd of date of compilation
+!Serial "200105";
+```
+
 [Play](https://stone1343.github.io/get-fluffy/public/index.html)
 
 Some known inconsistencies: Britney doesn't have a smartphone
