@@ -1,8 +1,8 @@
-# get-fluffy
+# Get Fluffy!
+
+An interactive fiction game
 
 [Play](https://stone1343.github.io/get-fluffy/public/index.html)
-
-Get Fluffy! interactive fiction game
 
 Some known inconsistencies: Britney doesn't have a smartphone
 
