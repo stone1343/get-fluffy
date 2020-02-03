@@ -3,7 +3,7 @@
 An interactive fiction game
 
 > Welcome to the Timbuktu!
->    - Igor
+>    \- Igor
 
 ```inform7
 Constant Story "Get Fluffy!";
