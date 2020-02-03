@@ -1,6 +1,6 @@
 # get-fluffy
 
-[Play](https://stone1343.github.io/get-fluffy/public/index.html)
+[Play](https://stone1343.github.io/get-fluffy/public/index.html){:target="_blank"}
 
 Get Fluffy! interactive fiction game
 
