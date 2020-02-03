@@ -1,6 +1,6 @@
 # get-fluffy
 
-[Play](public/index.html)
+[Play](https://stone1343.github.io/get-fluffy/public/index.html)
 
 Get Fluffy! interactive fiction game
 
@@ -8,7 +8,7 @@ Some known inconsistencies: Britney doesn't have a smartphone
 
 Resolve the stairs and their doors, including print "I open the door to the stairs using the master key..."
 
-Some Hotel_Room objects have random descriptions
+Some Hotel_Room objects have random descriptions, have Do Not Disturb or are locked from the inside
 
 Britney, look around - probably not
 
