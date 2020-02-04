@@ -5,7 +5,6 @@
 
 An interactive fiction game
 
-
 [Play Now](https://stone1343.github.io/get-fluffy/public/index.html) (desktop browser recommended)
 
 Some known inconsistencies: Britney doesn't have a smartphone
