@@ -70,8 +70,6 @@
  !location = room_403;
  !move igor to room_403;
 
- smartphone.sms_from = anonymous;
- smartphone.sms_text = "We have your dog. If you want it back, send us a topless picture of yourself. You have one hour.";
  SetFlag(SMARTPHONE_LED_BLINKING);
  Photograph.create(fluffy);
  ClearScreen();
@@ -320,68 +318,48 @@
 
 [ DisrobeTop actor noun;
  #Ifdef DEBUG_CLOTHES; print "DEBUG DisrobeTop ", (name)actor, " noun ", (name)noun, "^"; #Endif;
- if (actor.wearing_top == noun) {
-  actor.wearing_top = nothing;
-  give noun ~worn;
-  move actor.bra to actor;
-  give actor.bra worn;
-  if (actor == player) "I take off the ", (name)noun, ".";
-  else {
-    move b_tits to location;
-    print_ret (BritneysVoice)"Kaitlyn, this makes me very uncomfortable!";
-  }
- }
- if (actor == player) print "I'm";
- else print "Britney's";
- " not wearing the ", (name)noun, ".";
+ if (actor.wearing_top ~= noun) print_ret (string)actor.is, " not wearing the ", (name)actor.wearing_top, ".";
+ actor.wearing_top = nothing;
+ give noun ~worn;
+ move actor.bra to actor;
+ give actor.bra worn;
+ if (actor == player) "I take off the ", (name)noun, ".";
+ else print_ret (BritneysVoice)"Kaitlyn, this makes me very uncomfortable!";
 ];
 
 [ DisrobePants actor noun;
  #Ifdef DEBUG_CLOTHES; print "DEBUG DisrobePants ", (name)actor, " noun ", (name)noun, "^"; #Endif;
- if (actor.wearing_pants == noun) {
-  actor.wearing_pants = nothing;
-  give noun ~worn;
-  move actor.panties to actor;
-  give actor.panties worn;
-  if (actor == player) "I take off the ", (name)noun, ".";
-  else print_ret (BritneysVoice)"Kaitlyn, this makes me very uncomfortable!";
- }
- if (actor == player) print "I'm";
- else print "Britney's";
- " not wearing the ", (name)noun, ".";
+ if (actor.wearing_pants ~= noun) print_ret (string)actor.is, " not wearing the ", (name)actor.wearing_pants, ".";
+ actor.wearing_pants = nothing;
+ give noun ~worn;
+ move actor.panties to actor;
+ give actor.panties worn;
+ if (actor == player) "I take off the ", (name)noun, ".";
+ else print_ret (BritneysVoice)"Kaitlyn, this makes me very uncomfortable!";
 ];
 
 [ WearTop actor noun;
  #Ifdef DEBUG_CLOTHES; print "DEBUG WearTop ", (name)actor, " noun ", (name)noun, "^"; #Endif;
- if (actor.wearing_top == nothing) {
-  remove actor.bra;
-  give actor.bra ~worn;
-  actor.wearing_top = noun;
-  give noun worn;
-  if (actor == player) print_ret "I put on the ", (name)noun, ".";
-  else {
-    move b_tits to thedark;
-    print_ret (BritneysVoice)"Thanks, I feel a little less naked now!";
-  }
- }
- if (actor == player) print "I'm";
- else print "Britney's";
- " already wearing the ", (name)actor.wearing_top, ".";
+ if (actor.wearing_top ~= nothing) print_ret (string)actor.is, " already wearing the ", (name)actor.wearing_top, ".";
+ if (noun notin actor) print_ret (string)actor.is, " not carrying the ", (name)noun, ".";
+ remove actor.bra;
+ give actor.bra ~worn;
+ actor.wearing_top = noun;
+ give noun worn;
+ if (actor == player) "I put on the ", (name)noun, ".";
+ else print_ret (BritneysVoice)"Thanks, I feel a little less naked now!";
 ];
 
 [ WearPants actor noun;
  #Ifdef DEBUG_CLOTHES; print "DEBUG WearPants ", (name)actor, " noun ", (name)noun, "^"; #Endif;
- if (actor.wearing_pants == nothing) {
-  remove actor.panties;
-  give actor.panties ~worn;
-  actor.wearing_pants = noun;
-  give noun worn;
-  if (actor == player) print_ret "I put on the ", (name)noun, ".";
-  else print_ret (BritneysVoice)"Thanks, I feel a little less naked now!";
- }
- if (actor == player) print "I'm";
- else print "Britney's";
- " already wearing the ", (name)actor.wearing_pants, ".";
+ if (actor.wearing_pants ~= nothing) print_ret (string)actor.is, " already wearing the ", (name)actor.wearing_pants, ".";
+ if (noun notin actor) print_ret (string)actor.is, " not carrying the ", (name)noun, ".";
+ remove actor.panties;
+ give actor.panties ~worn;
+ actor.wearing_pants = noun;
+ give noun worn;
+ if (actor == player) "I put on the ", (name)noun, ".";
+ else print_ret (BritneysVoice)"Thanks, I feel a little less naked now!";
 ];
 
 ! Used for parsing grammar
@@ -461,7 +439,6 @@
  }
  ! 411 and 911
  if (dialed_number == 411 or 911) {
-  SetFlag(PLAYER_TRIED_911);
   print_ret (preformatted)"External calls are not allowed.";
  }
  ! Three-digits
@@ -584,29 +561,28 @@
 ];
 
 [ FlashbackSub;
- SetFlag(PLAYER_HAD_FLASHBACK);
+ SetFlag(PLAYER_KNOWS_ABOUT_RUSSIANS);
  "Hey, I just remembered, when I was in the elevator after checking in, there were two guys checking me out.
   It was definitely not cool, it was really creepy. They were speaking some eastern European language and laughing at Fluffy and me.
   I think I heard one guy call the other one Vlad. Maybe Igor can tell me something about them.";
 ];
 
-! Hints
+! Hints, which will guide you to the most desirable outcome, arresting the fucking Russian scumbags
 [ ThinkSub;
- if (FlagOn(SMARTPHONE_LED_BLINKING)) "Check your smartphone for text messages.";
- if (FlagOn(PLAYER_KNOWS_ABOUT_FLUFFY) && lobby has visited) {
-  if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) "Maybe Igor could help if he knew Fluffy's been dognapped.";
-  if (FlagOff(IGOR_HAS_REVEALED_202)) "Maybe Igor would tell you what room the Russians are in.";
-  if (FlagOff(IGOR_HAS_HINTED_KEY)) "Igor might have additional ideas to help you.";
-  if (master_key notin player) "You need a master key to get into the Russians' room.";
-  if (FlagOff(PLAYER_HAS_SEEN_MESSAGE)) "There's information in the Russians' room.";
-  if (FlagOff(PLAYER_HAS_PHOTOGRAPHED_MESSAGE)) "You need a way to record what the message says.";
-  if (FlagOff(PLAYER_KNOWS_MESSAGE)) "Igor's Ukrainian, maybe he can translate the message.";
-  if (FlagOn(PLAYER_TOOK_TOPLESS_PHOTO)) "You just have to send the photo.";
- } else "You'll need to find someone who can help.";
+ if (FlagOff(PLAYER_KNOWS_ABOUT_FLUFFY)) "I should check my smartphone to see what's going on.";
+ if (FlagOff(PLAYER_KNOWS_ABOUT_RUSSIANS)) "Maybe I explore the hotel.";
+ if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) "Maybe Igor could help if he knew Fluffy's been dognapped.";
+ if (FlagOff(PLAYER_KNOWS_ABOUT_202)) "Maybe Igor could tell me something about Vlad.";
+ if (master_key notin player) "I need a way to get into the Russians' room.";
+ if (FlagOff(PLAYER_HAS_SEEN_MESSAGE)) "I'm sure I could find some evidence in the Russians' room.";
+ if (FlagOff(PLAYER_HAS_PHOTOGRAPHED_MESSAGE)) "How can I record what the message says?";
+ if (FlagOff(PLAYER_KNOWS_MESSAGE)) "Igor's Ukrainian, maybe he can translate the message.";
+ if (FlagOn(PLAYER_TOOK_TOPLESS_PHOTO)) "I *could* actually just send the photo.";
+ "Time to go rescue Fluffy!";
 ];
 
 [ HelpSub;
- "Sometimes if you think carefully, the answer might come to you.";
+ "Sometimes if you think carefully, some insight might come to you.";
 ];
 
 [ DeathMessage;
@@ -614,10 +590,15 @@
   3: print "After sending a topless photo of Britney to the Russians... ";
   4: print "After sending my topless photo to the Russians, they returned Fluffy and immediately posted the photo online.
       I always wanted to be famous, so this wasn't such a bad ending!";
-  5: print "I stumbled upon Fluffy in the basement...";
+  5:
+   print "And there, I was shocked to find Fluffy!!! I didn't know enough about ";
+   if (FlagOn(PLAYER_KNOWS_ABOUT_RUSSIANS)) print "the Russians";
+   else print "whoever took him";
+   print " for the police to do anything, but at least I got Fluffy back! Fluffy performed well in the dog show and we all returned home safely.";
   6: print "We rescued Fluffy, he was s-o-o-o happy to see me!!! Plus, we had all the evidence we needed to put the Russians in jail for a long, long time.
-      Fluffy came second in his class in the dog show, but after what happened that weekend, it didn't matter!";
+            Fluffy came second in his class in the dog show, but after what happened that weekend, it didn't matter!";
  }
+ rtrue;
 ];
 
 [ ScoreSub;

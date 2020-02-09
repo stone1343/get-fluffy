@@ -106,22 +106,20 @@ Constant lcShch = lcA+25;
 
 Constant heart = '@{2764}';
 
+! Override default number of flags in newflags.h
 Constant FLAGCOUNT = 16;
 ! Flags:
-Constant SMARTPHONE_LED_BLINKING = 0;
-Constant PLAYER_KNOWS_ABOUT_FLUFFY = 1;
-Constant PLAYER_HAD_FLASHBACK = 2;
-Constant PLAYER_TRIED_911 = 3;
-Constant BRITNEY_KNOWS_ABOUT_FLUFFY = 4;
-Constant IGOR_KNOWS_ABOUT_FLUFFY = 5;
-Constant IGOR_HAS_REVEALED_202 = 6;
-Constant IGOR_HAS_HINTED_KEY = 7;
-Constant PLAYER_HAS_SEEN_MESSAGE = 8;
-Constant PLAYER_HAS_PHOTOGRAPHED_MESSAGE = 9;
-Constant PLAYER_KNOWS_MESSAGE = 10;
-Constant BRITNEY_KNOWS_MESSAGE = 11;
-! The "Kim Kardashian" ending
-Constant PLAYER_TOOK_TOPLESS_PHOTO 12;
+Constant SMARTPHONE_LED_BLINKING = 0; ! Doesn't affect game play, instead use PLAYER_KNOWS_ABOUT_FLUFFY
+Constant PLAYER_KNOWS_ABOUT_FLUFFY = 1; ! Read the text
+Constant PLAYER_KNOWS_ABOUT_RUSSIANS = 2; ! Had flashback
+Constant PLAYER_KNOWS_ABOUT_202 = 3; ! Igor has revealed Vlad and Sergei's room number
+Constant PLAYER_HAS_SEEN_MESSAGE = 4;
+Constant PLAYER_HAS_PHOTOGRAPHED_MESSAGE = 5; ! Just an interim state?
+Constant PLAYER_KNOWS_MESSAGE = 6;
+Constant PLAYER_TOOK_TOPLESS_PHOTO = 7;
+Constant BRITNEY_KNOWS_ABOUT_FLUFFY = 8;
+Constant BRITNEY_KNOWS_MESSAGE = 9;
+Constant IGOR_KNOWS_ABOUT_FLUFFY = 10;
 
 #Ifdef DEBUG_TRACEACTIONS;
  ! "Phases" - description
@@ -224,7 +222,8 @@ Include "fluffy-classes.inf";
 
 ! The rooms, the people and objects in them
 Include "fluffy-rooms.inf";
-Include "fluffy-people-and-objects.inf";
+Include "fluffy-people.inf";
+Include "fluffy-objects.inf";
 
 ! The rest of the routines...
 Include "fluffy-routines.inf";
@@ -234,7 +233,6 @@ Include "grammar";
 !----------------------------------------------------------------------------
 ! Extend and Verb directives, and action routines for new verbs
 !----------------------------------------------------------------------------
-! These are orders only
 Verb 'come'
  * 'here' -> ComeHere
  * 'with' 'me' -> FollowMe;

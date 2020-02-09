@@ -1,0 +1,292 @@
+
+Room_Key k_key "room key" kaitlyn
+ class Britney_Object Ownable_Object
+ with
+  name 'room' 'key',
+  article "my",
+  owner kaitlyn,
+  key_to_room room_402;
+
+Top yellow_shirt "yellow t-shirt" kaitlyn
+ with
+  name 'yellow' 'shirt' 'top' 't-shirt',
+  description "my yellow shirt",
+  article "my",
+  owner kaitlyn
+ has worn;
+
+Pants skinny_jeans "skinny jeans" kaitlyn
+ with
+  name 'skinny' 'jeans' 'pants',
+  description "my skinny jeans",
+  article "my",
+  owner kaitlyn
+ has worn pluralname;
+
+! Clothes that are initially hidden
+Underwear k_bra "bra" thedark
+ with
+  name 'bra',
+  description "I like how my boobs look in this bra.",
+  article "my",
+  owner kaitlyn
+  !before [;
+  ! Touch, Kiss, Lick, Suck:
+  !  "This is not that kind of game.";
+  !],
+ has ~worn pluralname; ! Needs animate to kiss them
+
+Underwear k_panties "panties" thedark
+ with
+  name 'panties',
+  article "my",
+  owner kaitlyn
+ has ~worn pluralname;
+
+! Might expect 'has talkable' for a phone, but this phone is basically a teleporter ;-)
+Disappearing_Object smartphone "smartphone" kaitlyn
+ with
+  ! Because the first one is the same as Phone mode, will remove it when in Home mode
+  ! Glulx wordsize = 4, so #name is 20
+  owner kaitlyn,
+  name 'phone' 'smartphone' 'cell' 'cellular' 'mobile' 'screen' 'display',
+  initial "~Hey, there's my smartphone!~",
+  description [;
+   !if (gg_grwin == nothing) gg_grwin = glk_window_open(gg_mainwin, winmethod_Right+winmethod_Fixed, 300, wintype_Graphics, GG_GRWIN_ROCK);
+   !glk_image_draw(gg_grwin, 1, 0, 0);
+   if (self.mode ~= MODE_OFF) <Examine screen>;
+   else print "I love my smartphone, it's got a full HD screen and, below the screen, is the Home button.^";
+   if (FlagOn(SMARTPHONE_LED_BLINKING)) print "^Hey, the notification light is blinking!^";
+   rtrue;
+  ],
+  invent "my smartphone", ! So inventory doesn't list the screen, buttons, icons, etc
+  article "my",
+  mode MODE_OFF,
+  before [;
+   Push, Touch:
+    !if (self.mode == MODE_HOME) <<Push call_icon>>;
+    "You'll have to be more specific.";
+   Drop:
+    if ((OnPhone()) && (telephone hasnt general)) "Don't be rude, you need to hang up first.";
+    move self to location;
+    "I put my smartphone down carefully.";
+  ],
+  change_mode [new_mode o;
+   ! Switching out of Text mode, clear existing conversation
+   self.mode = new_mode;
+   if (self.mode ~= MODE_OFF) self.interact();
+   if (self.mode == MODE_HOME) {
+    objectloop(o ofclass Icon) {
+     move o to screen;
+    }
+   } else {
+    objectloop(o ofclass Icon) {
+     remove o;
+    }
+   }
+   if (self.mode == MODE_CONTACTS) {
+    objectloop(o ofclass Contact) {
+     move o to screen;
+    }
+   } else {
+    objectloop(o ofclass Contact) {
+     remove o;
+    }
+   }
+   if (self.mode == MODE_PHOTOS) {
+    current_photo = MAX_PHOTOGRAPHS - Photograph.remaining();
+   }
+  ],
+  interact [;
+   self.move_counter = SMARTPHONE_TIMEOUT;
+   #Ifdef DEBUG_PHONES; print "DEBUG interact smartphone.move_counter ", self.move_counter; new_line; #Endif;
+   StartDaemon(self);
+  ],
+  move_counter,
+  daemon [;
+   if (call_person == nothing) {
+    self.move_counter--;
+    #Ifdef DEBUG_PHONES; print "DEBUG daemon smartphone.move_counter ", self.move_counter; new_line; #Endif;
+    if (self.move_counter == 0) {
+     self.change_mode(MODE_OFF);
+     StopDaemon(self);
+    }
+   } else {
+    #Ifdef DEBUG_PHONES; print "DEBUG On smartphone call_person ", (name)call_person, "call_room ", (name)call_room; new_line; #Endif;
+   }
+  ]
+ has container transparent;
+
+Object screen "screen" smartphone
+ with
+  description [ o;
+   switch (parent(self).mode) {
+    MODE_OFF: "It's off.";
+    MODE_HOME: "The screen's got four icons, labelled Contacts, Messages, Camera and Photos.";
+    ! Contacts is for outgoing calls to Britney
+    MODE_CONTACTS:
+     if (call_person == nothing) {
+      print "Contacts:";
+      objectloop (o ofclass Contact) {
+       print "^ ", (name)o.contact_noun;
+      }
+      new_line;
+      rtrue;
+     } else "It has a picture of ", (name)call_person, " and a Hang Up button.";
+    ! Text mode is only to receive the ransom message from anonymous
+    MODE_MESSAGES:
+     ClearFlag(SMARTPHONE_LED_BLINKING);
+     glk_set_style(style_Preformatted);
+     print "Message from Anonymous:^We have your dog. If you want it back, send us a topless picture of yourself. You have one hour.^";
+     glk_set_style(style_Normal);
+     SetFlag(PLAYER_KNOWS_ABOUT_FLUFFY);
+     return;
+    MODE_CAMERA: "Ready to take a photo.";
+    MODE_PHOTOS:
+     !if (Photograph.remaining() == MAX_PHOTOGRAPHS) "I haven't taken any photos yet.";
+     !print "It shows the photo of ";
+     objectloop(o ofclass Photograph) {
+      if (o.number == current_photo) {
+       <<Examine o>>;
+      }
+     }
+     ".";
+    default: "Shouldn't happen.";
+   }
+  ],
+  before [;
+   Push, Touch: "You'll have to be more specific.";
+   Take: "That would be vandalism and you're not that kind of person, are you?";
+  ]
+ has container transparent;
+
+Object home_button "home" smartphone
+ with
+  name 'home',
+  before [;
+   Push, Touch:
+    if (smartphone notin player) move smartphone to player;
+    switch (smartphone.mode) {
+     MODE_OFF: print "I pressed the home button and entered my PIN.^";
+     MODE_HOME: print "Nothing happens.^";
+     default: print "Back to home screen.^";
+    }
+    smartphone.change_mode(MODE_HOME);
+    rtrue;
+  ]
+ has static;
+
+! The icons have to be moved to the screen when in MODE_HOME, otherwise removed so you can't interact with them
+Icon contacts_icon "contacts"
+ with
+  mode MODE_CONTACTS,
+  name 'Contacts';
+
+Icon messages_icon "messages"
+ with
+  mode MODE_MESSAGES,
+  name 'Messages';
+
+Icon camera_icon "camera"
+ with
+  mode MODE_CAMERA,
+  name 'Camera';
+
+Icon photos_icon "photos"
+ with
+  mode MODE_PHOTOS,
+  name 'Photos';
+
+! Contacts
+Contact contact_britney
+ with
+  contact_noun britney,
+  name 'Britney',
+  before [;
+   Push, Touch:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(CONTACT_BRITNEY_BEFORE, actor, PUSH_ACTION, noun, second); #Endif;
+  ];
+
+Room_Key b_key "room key" britney
+ class Britney_Object Ownable_Object General_Object
+ with
+  name 'room' 'key',
+  article "Britney's",
+  owner britney,
+  key_to_room room_403;
+
+! Clothes that Britney's wearing
+Top blue_shirt "blue t-shirt" britney
+ with
+  name 'blue' 'shirt' 'top' 't-shirt',
+  description "her blue shirt",
+  article "Britney's",
+  owner britney
+ has worn;
+
+Pants yoga_pants "yoga pants" britney
+ with
+  name 'yoga' 'pants',
+  description "her yoga pants",
+  article "Britney's",
+  owner britney
+ has worn pluralname;
+
+! Clothes that are initially hidden
+Underwear b_bra "bra" thedark
+ with
+  name 'bra',
+  article "Britney's",
+  owner britney
+ has ~worn;
+
+Underwear b_panties "panties" thedark
+ with
+  name 'panties',
+  article "Britney's",
+  owner britney
+ has ~worn pluralname;
+
+!Object b_tits "Britney's boobs" thedark
+! with
+!  name 'boobs' 'breasts' 'tits',
+!  description "They're smaller than mine, but still awesome.",
+!  article "Britney's",
+!  before [;
+!   Touch, Kiss:
+!    if (OnPhone(britney)) "Can't exactly feel her up over the phone!";
+!    "Focus on the game.";
+!  ],
+! has scenery static pluralname proper animate; ! Animate so you can try to kiss them!
+
+! Igor has the master key
+Disappearing_Object master_key "master key" igor
+ class Igor_Object
+ with
+  name 'master' 'key',
+  description "It has the hotel's logo, but no room number.",
+  article "Igor's";
+
+! Objects in hotel rooms
+Top pink_shirt "pink shirt" room_402
+ with
+  name 'pink' 'shirt' 'top' 't-shirt',
+  description "my pink shirt",
+  article "my",
+  owner kaitlyn
+ has ~worn;
+
+Top green_shirt "green t-shirt" room_403
+ with
+  name 'green' 'shirt' 'top' 't-shirt',
+  description "brit's green shirt",
+  article "Britney's"
+  owner britney
+ has ~worn;
+
+Object fluffy "Fluffy" thedark;
+
+! SMS thread with Vladimir Putkin
+Guy anonymous "Anonymous" thedark
+ with
+  name 'anonymous';

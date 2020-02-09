@@ -12,9 +12,7 @@ Class Guy
  class Person
  has male ~female;
 
-Class General_Object
- with
-  list_together 2;
+Class General_Object;
 
 Class Ownable_Object
  class General_Object
@@ -26,7 +24,6 @@ Class Ownable_Object
    print (name)self;
    " is here.";
   ],
-  ! Clothing that's being worn is not listed in inventory
   invent [;
    if (self.owner == kaitlyn) print "my ";
    else print "Britney's ";
@@ -45,16 +42,17 @@ Class Igor_Object
 
 Class Clothes
  class Ownable_Object Britney_Object
+ with
+  list_together 2
  has clothing;
 
 Class Top
  class Clothes
  with
   before [;
-   ! actor == player, for britney it goes through her orders
    Disrobe:
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(TOP_BEFORE, actor, DISROBE_ACTION, noun, second); #Endif;
-    if (~~(location ofclass Hotel_Room)) "I can't undress in public!";
+    if (~~(location ofclass Hotel_Room)) "I'm not gonna take my shirt off in public!";
     DisrobeTop(actor, noun);
     rtrue;
    Wear:
@@ -67,10 +65,9 @@ Class Pants
  class Clothes
  with
   before [;
-   ! actor == player, for britney it goes through her orders
    Disrobe:
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(PANTS_BEFORE, actor, DISROBE_ACTION, noun, second); #Endif;
-    if (~~(location ofclass Hotel_Room)) "I can't undress in public!";
+    if (~~(location ofclass Hotel_Room)) "I'm not gonna take my pants off in public!";
     DisrobePants(actor, noun);
     rtrue;
    Wear:
@@ -377,8 +374,10 @@ Class Hotel_Room_Door
  has ~open locked proper;
 
 Class Room_Key
- class Disappearing_Object Ownable_Object Britney_Object General_Object
+ class Disappearing_Object Ownable_Object Britney_Object Igor_Object
  with
+  description "It has the hotel's logo, but no room number.",
+  list_together 3,
   key_to_room;
 
 Class Room
@@ -387,15 +386,14 @@ Class Room
  has light;
 
 Class Public_Room
- class Room
- with
-  description "Nothing much happening that seems to matter";
+ class Room;
 
 Class Hall
  class Public_Room
  with
+  !initial "The elevator is to the east.",
   description [;
-   "I see doors numbered ", self.floor_number, "01 through ", self.floor_number, "07.";
+   if (self hasnt visited) "I see doors numbered ", self.floor_number, "01 through ", self.floor_number, "07.";
   ],
   floor_number,
   e_to [;
@@ -414,26 +412,29 @@ Class Hall
 Class Hotel_Room
  class Room
  with
-  description [n o i;
-   n = 0;
-   objectloop(o in self) {
-    if (o ofclass General_Object) n++;
-   }
-   if (n > 0) {
-    i = 0;
-    objectloop(o in self) {
-     if (o ofclass General_Object) {
-      switch (++i) {
-       1: print "There's ";
-       default: if (i < n) print ", ";
-       else print " and ";
-      }
-      print (string)o.article, " ", (name)o;
-     }
-    }
-    " on the bed.";
-   }
-   else if (self hasnt visited) print "According to the floor plan on the back of the door, I'm in ", (name)self, ".";
+  !description [n o i;
+  ! n = 0;
+  ! objectloop(o in self) {
+  !  if (o ofclass General_Object) n++;
+  ! }
+  ! if (n > 0) {
+  !  i = 0;
+  !  objectloop(o in self) {
+  !   if (o ofclass General_Object) {
+  !    switch (++i) {
+  !     1: print "There's ";
+  !     default: if (i < n) print ", ";
+  !     else print " and ";
+  !    }
+  !    print (string)o.article, " ", (name)o;
+  !   }
+  !  }
+  !  " on the bed.";
+  ! }
+  ! else if (self hasnt visited) print "According to the floor plan on the back of the door, I'm in ", (name)self, ".";
+  !],
+  description [;
+   if (self hasnt visited) "According to the floor plan on the back of the door, I'm in ", (name)self, ".";
   ],
   door_out,
   floor_number,
@@ -451,8 +452,8 @@ Class Hotel_Room
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(HOTEL_ROOM_BEFORE, actor, ENTER_ACTION, noun, second); #Endif;
    Go:
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(HOTEL_ROOM_BEFORE, actor, GO_ACTION, noun, second); #Endif;
-    if (telephone in player) "I'm still holding the telephone, it's one of those old-fashioned ones with a cord.";
-    if ((player.wearing_top == nothing) || (player.wearing_pants == nothing)) "I should get dressed first.";
+    if (telephone in player) "I'm still holding the house phone, it's one of those old-fashioned ones with a cord.";
+    if ((player.wearing_top == nothing) || (player.wearing_pants == nothing)) "I think about walking out of the room, but I should get dressed first.";
     if ((britney in location) && (britney.is_following) && ((britney.wearing_top == nothing) || (britney.wearing_pants == nothing))) print_ret (BritneysVoice)"Hang on, I'm not walking out of here dressed like this!";
     if (self.door_out hasnt open) give self.door_out open;
   ]

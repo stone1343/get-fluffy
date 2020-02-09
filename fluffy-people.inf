@@ -1,5 +1,5 @@
 
-Object kaitlyn "Kaitlyn"
+Girl kaitlyn "Kaitlyn"
  with
   name 'kaitlyn',
   narrative_voice 1,
@@ -7,6 +7,7 @@ Object kaitlyn "Kaitlyn"
   wearing_pants skinny_jeans,
   bra k_bra,
   panties k_panties,
+  is "I'm",
   description [;
    if ((self.wearing_top ~= nothing) && (self.wearing_pants ~= nothing)) "I'm rockin' a cute, little ", (name)self.wearing_top, " and ", (name)self.wearing_pants, ".";
    if ((self.wearing_top == nothing) && (self.wearing_pants ~= nothing)) "I'm in bra and ", (name)self.wearing_pants, ".";
@@ -22,219 +23,16 @@ Object kaitlyn "Kaitlyn"
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(KAITLYN_BEFORE, actor, GIVE_ACTION, noun, second); #Endif;
     if (OnPhone(self)) "It'd be hard to give something to ", (name)self, " when I'm on the phone with ", (PronounAcc)self, "!";
   ],
- has animate ~male female concealed proper transparent;
-
-Room_Key k_key "room key" kaitlyn
- class Britney_Object Ownable_Object
- with
-  name 'room' 'key',
-  description "It has the hotel's logo, but no room number.",
-  article "my",
-  owner kaitlyn,
-  key_to_room room_402;
-
-Top yellow_shirt "yellow t-shirt" kaitlyn
- with
-  name 'yellow' 'shirt' 'top' 't-shirt',
-  article "my",
-  owner kaitlyn
- has worn;
-
-Pants skinny_jeans "skinny jeans" kaitlyn
- with
-  name 'skinny' 'jeans' 'pants',
-  article "my",
-  owner kaitlyn
- has worn pluralname;
-
-! Clothes that are initially hidden
-Underwear k_bra "bra"
- with
-  name 'bra' 'tits' 'boobs' 'breasts',
-  description "I like how my boobs look in this bra.",
-  article "my",
-  owner kaitlyn,
-  before [;
-   Touch, Kiss:
-    "This is not that kind of game.";
+  after [;
+   Exit:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(KAITLYN_BEFORE, actor, EXIT_ACTION, noun, second); #Endif;
+   Go:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(KAITLYN_BEFORE, actor, GO_ACTION, noun, second); #Endif;
+   Give:
+    #Ifdef DEBUG_TRACEACTIONS; TraceActions(KAITLYN_BEFORE, actor, GIVE_ACTION, noun, second); #Endif;
+    if (OnPhone(self)) "It'd be hard to give something to ", (name)self, " when I'm on the phone with ", (PronounAcc)self, "!";
   ],
- has ~worn animate pluralname; ! Animate so I can kiss them!
-
-Underwear k_panties "panties"
- with
-  name 'panties',
-  article "my",
-  owner kaitlyn
- has ~worn pluralname;
-
-! Might expect 'has talkable' for a phone, but this phone is basically a teleporter ;-)
-Disappearing_Object smartphone "smartphone" kaitlyn
- with
-  ! Because the first one is the same as Phone mode, will remove it when in Home mode
-  ! Glulx wordsize = 4, so #name is 20
-  owner kaitlyn,
-  name 'phone' 'smartphone' 'cell' 'cellular' 'mobile' 'screen' 'display',
-  initial "~Hey, there's my smartphone!~",
-  description [;
-   !if (gg_grwin == nothing) gg_grwin = glk_window_open(gg_mainwin, winmethod_Right+winmethod_Fixed, 300, wintype_Graphics, GG_GRWIN_ROCK);
-   !glk_image_draw(gg_grwin, 1, 0, 0);
-   if (self.mode ~= MODE_OFF) <Examine screen>;
-   else print "I love my smartphone, it's got a full HD screen and, below the screen, is the Home button.^";
-   if (FlagOn(SMARTPHONE_LED_BLINKING)) print "^Hey, the notification light is blinking!^";
-   rtrue;
-  ],
-  invent "my smartphone", ! So inventory doesn't list the screen, buttons, icons, etc
-  article "my",
-  mode MODE_OFF,
-  sms_from,
-  sms_text,
-  before [;
-   Push, Touch:
-    !if (self.mode == MODE_HOME) <<Push call_icon>>;
-    "You'll have to be more specific.";
-   Drop:
-    if ((OnPhone()) && (telephone hasnt general)) "Don't be rude, you need to hang up first.";
-    move self to location;
-    "I put my smartphone down carefully.";
-  ],
-  change_mode [new_mode o;
-   ! Switching out of Text mode, clear existing conversation
-   self.mode = new_mode;
-   if (self.mode ~= MODE_OFF) self.interact();
-   if (self.mode == MODE_HOME) {
-    objectloop(o ofclass Icon) {
-     move o to screen;
-    }
-   } else {
-    objectloop(o ofclass Icon) {
-     remove o;
-    }
-   }
-   if (self.mode == MODE_CONTACTS) {
-    objectloop(o ofclass Contact) {
-     move o to screen;
-    }
-   } else {
-    objectloop(o ofclass Contact) {
-     remove o;
-    }
-   }
-   if (self.mode == MODE_PHOTOS) {
-    current_photo = MAX_PHOTOGRAPHS - Photograph.remaining();
-   }
-  ],
-  interact [;
-   self.move_counter = SMARTPHONE_TIMEOUT;
-   #Ifdef DEBUG_PHONES; print "DEBUG interact smartphone.move_counter ", self.move_counter; new_line; #Endif;
-   StartDaemon(self);
-  ],
-  move_counter,
-  daemon [;
-   if (call_person == nothing) {
-    self.move_counter--;
-    #Ifdef DEBUG_PHONES; print "DEBUG daemon smartphone.move_counter ", self.move_counter; new_line; #Endif;
-    if (self.move_counter == 0) {
-     self.change_mode(MODE_OFF);
-     StopDaemon(self);
-    }
-   } else {
-    #Ifdef DEBUG_PHONES; print "DEBUG On smartphone call_person ", (name)call_person, "call_room ", (name)call_room; new_line; #Endif;
-   }
-  ]
- has container transparent;
-
-Object screen "screen" smartphone
- with
-  description [ o;
-   switch (parent(self).mode) {
-    MODE_OFF: "It's off.";
-    MODE_HOME: "The screen's got four icons, labelled Contacts, Messages, Camera and Photos.";
-    ! Contacts is for outgoing calls to Britney
-    MODE_CONTACTS:
-     if (call_person == nothing) {
-      print "Contacts:";
-      objectloop (o ofclass Contact) {
-       print "^ ", (name)o.contact_noun;
-      }
-      new_line;
-      rtrue;
-     } else "It has a picture of ", (name)call_person, " and a Hang Up button.";
-    ! Text mode is only to receive the ransom message from anonymous
-    MODE_MESSAGES:
-     ClearFlag(SMARTPHONE_LED_BLINKING);
-     if ((smartphone.sms_from ~= nothing) && (smartphone.sms_text ~= nothing)) {
-      glk_set_style(style_Preformatted);
-      print "Message from ", (name)smartphone.sms_from, ": ~", (string)smartphone.sms_text, "~^";
-      glk_set_style(style_Normal);
-      if (smartphone.sms_from == anonymous) SetFlag(PLAYER_KNOWS_ABOUT_FLUFFY);
-      return;
-     }
-     "Ready to send a text message.";
-    MODE_CAMERA: "Ready to take a photo.";
-    MODE_PHOTOS:
-     !if (Photograph.remaining() == MAX_PHOTOGRAPHS) "I haven't taken any photos yet.";
-     !print "It shows the photo of ";
-     objectloop(o ofclass Photograph) {
-      if (o.number == current_photo) {
-       <<Examine o>>;
-      }
-     }
-     ".";
-    default: "Shouldn't happen.";
-   }
-  ],
-  before [;
-   Push, Touch: "You'll have to be more specific.";
-   Take: "That would be vandalism and you're not that kind of person, are you?";
-  ]
- has container transparent;
-
-Object home_button "home" smartphone
- with
-  name 'home',
-  before [;
-   Push, Touch:
-    if (smartphone notin player) move smartphone to player;
-    switch (smartphone.mode) {
-     MODE_OFF: print "I pressed the home button and entered my PIN.^";
-     MODE_HOME: print "Nothing happens.^";
-     default: print "Back to home screen.^";
-    }
-    smartphone.change_mode(MODE_HOME);
-    rtrue;
-  ]
- has static;
-
-! The icons have to be moved to the screen when in MODE_HOME, otherwise removed so you can't interact with them
-Icon contacts_icon "contacts"
- with
-  mode MODE_CONTACTS,
-  name 'Contacts';
-
-Icon messages_icon "messages"
- with
-  mode MODE_MESSAGES,
-  name 'Messages';
-
-Icon camera_icon "camera"
- with
-  mode MODE_CAMERA,
-  name 'Camera';
-
-Icon photos_icon "photos"
- with
-  mode MODE_PHOTOS,
-  name 'Photos';
-
-! Contacts
-Contact contact_britney
- with
-  contact_noun britney,
-  name 'Britney',
-  before [;
-   Push, Touch:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(CONTACT_BRITNEY_BEFORE, actor, PUSH_ACTION, noun, second); #Endif;
-  ];
+ has concealed proper transparent;
 
 Girl britney "Britney" room_403
  with
@@ -243,6 +41,7 @@ Girl britney "Britney" room_403
   wearing_pants yoga_pants,
   bra b_bra,
   panties b_panties,
+  is "Britney's",
   destination_floor,
   destination_room, ! can be nothing if she's just looking around
   is_following false,
@@ -268,9 +67,12 @@ Girl britney "Britney" room_403
        default: if (i < n) print ", ";
        else print " and ";
       };
-      if (o.owner == kaitlyn) print "my ";
-      else print "her ";
-      print (name)o;
+      if (o ofclass Ownable_Object) {
+       if (o.owner == kaitlyn) print "my";
+       else print "her";
+      }
+      else print (string)noun.article;
+      print " ", (name)o;
      }
     }
    } else print "Britney's a brunette, she's slim and athletic like me";
@@ -326,13 +128,11 @@ Girl britney "Britney" room_403
       }
      }
      if (smartphone.mode == MODE_MESSAGES) {
-      if (smartphone.sms_from == anonymous) {
-       if (FlagOff(BRITNEY_KNOWS_ABOUT_FLUFFY)) {
-        SetFlag(BRITNEY_KNOWS_ABOUT_FLUFFY);
-        print_ret (BritneysVoice)"Omigod, someone took Fluffy? What are we gonna do to get him back?";
-       } print_ret (BritneysVoice)"I don't what else I can tell you to help.";
-      } else print_ret (BritneysVoice)"Why are you showing me your text messages?";
-     }
+      if (FlagOff(BRITNEY_KNOWS_ABOUT_FLUFFY)) {
+       SetFlag(BRITNEY_KNOWS_ABOUT_FLUFFY);
+       print_ret (BritneysVoice)"Omigod, someone took Fluffy? What are we gonna do to get him back?";
+      } print_ret (BritneysVoice)"I don't what else I can tell you to help.";
+    }
     print_ret (BritneysVoice)"Is that supposed to be interesting?";
    }
    Tell:
@@ -521,58 +321,6 @@ Girl britney "Britney" room_403
    #Ifdef DEBUG_DAEMONS; print "DEBUG britney daemon end parent ", (name)parent(self); new_line; #Endif;
   ];
 
-Room_Key b_key "room key" britney
- class Britney_Object Ownable_Object General_Object
- with
-  name 'room' 'key',
-  description "It has the hotel's logo, but no room number.",
-  article "Britney's",
-  owner britney,
-  key_to_room room_403;
-
-! Clothes that Britney's wearing
-Top blue_shirt "blue t-shirt" britney
- with
-  name 'blue' 'shirt' 'top' 't-shirt',
-  article "Britney's",
-  owner britney
- has worn;
-
-Pants yoga_pants "yoga pants" britney
- with
-  name 'yoga' 'pants',
-  article "Britney's",
-  owner britney
- has worn pluralname;
-
-! Clothes that are initially hidden
-Underwear b_bra "bra"
- with
-  name 'bra',
-  article "Britney's",
-  owner britney
- has ~worn;
-
-Underwear b_panties "panties"
- with
-  name 'panties',
-  article "Britney's",
-  owner britney
- has ~worn pluralname;
-
-Object b_tits "Britney's tits" thedark
- with	
-  name 'tits' 'boobs' 'breasts',
-  description "They're smaller than mine, but still awesome.",
-  article "Britney's",
-  before [;
-   Touch, Kiss:
-    if (OnPhone(britney)) "Can't exactly feel her up over the phone!";
-    "Focus on the game.";
-  ],
- has scenery static pluralname proper animate; ! Animate so you can try to kiss them!
-
-! Igor's in the lobby
 Guy igor "Igor" lobby
  with
   name 'Igor' 'man',
@@ -623,30 +371,22 @@ Guy igor "Igor" lobby
       }
      }
      if (smartphone.mode == MODE_MESSAGES) {
-      if (smartphone.sms_from == anonymous) {
-       if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) {
-        SetFlag(IGOR_KNOWS_ABOUT_FLUFFY);
-        print_ret (IgorsVoice)"I'm so sorry someone took your dog, if there's anything I can do to help, let me know, I'm always here.";
-       } print_ret (IgorsVoice)"I don't know what else I can tell you to help.";
-      } else print_ret (IgorsVoice)"Why are you showing me your text messages?";
+      if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) {
+       SetFlag(IGOR_KNOWS_ABOUT_FLUFFY);
+       print_ret (IgorsVoice)"I'm so sorry someone took your dog! If there's anything I can do to help, let me know, I'm always here.";
+      } print_ret (IgorsVoice)"I don't know what else I can tell you to help.";
      }
-    print_ret (IgorsVoice)"Is that supposed to be interesting?";
-   }
+     print_ret (IgorsVoice)"Is that supposed to be interesting?";
+    }
    Ask:
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(IGOR_LIFE, actor, ASK_ACTION, noun, second); #Endif;
     if (second == 'russians' or 'vlad' or 'vladimir') {
-     if (FlagOn(PLAYER_KNOWS_ABOUT_FLUFFY) && FlagOn(IGOR_KNOWS_ABOUT_FLUFFY)) {
-      if (FlagOff(IGOR_HAS_REVEALED_202)) {
-       SetFlag(IGOR_HAS_REVEALED_202);
+     if (FlagOn(IGOR_KNOWS_ABOUT_FLUFFY)) {
+      if (FlagOff(PLAYER_KNOWS_ABOUT_202)) {
+       SetFlag(PLAYER_KNOWS_ABOUT_202);
        print_ret (IgorsVoice)"I could get in trouble for telling you this, but there's two big Russian guys named Vladimir and Sergei in room 202.";
       }
-      else {
-       if (FlagOff(IGOR_HAS_HINTED_KEY)) {
-        SetFlag(IGOR_HAS_HINTED_KEY);
-        print_ret (IgorsVoice)"I'll *really* get in trouble for this, but if you had a master key, maybe you could find something in their room.";
-       }
-       else print_ret (IgorsVoice)"There's nothing else I can tell you about the Russians.";
-      }
+      else print_ret (IgorsVoice)"There's nothing else I can tell you about the Russians.";
      }
      else print_ret (IgorsVoice)"I can't talk about guests.";
     }
@@ -662,9 +402,26 @@ Guy igor "Igor" lobby
      } print_ret (IgorsVoice)"Well, good luck with the dog show!";
     }
     if (second == 'russians' or 'vlad' or 'flashback') {
-     if (FlagOn(PLAYER_HAD_FLASHBACK) && FlagOn(IGOR_KNOWS_ABOUT_FLUFFY)) {
+     if (FlagOn(PLAYER_KNOWS_ABOUT_RUSSIANS) && FlagOn(IGOR_KNOWS_ABOUT_FLUFFY)) {
       print_ret (IgorsVoice)"Yeah, there's a couple Russian guys that checked in yesterday.";
      }
+    }
+    if (second == 'message' or 'computer') {
+     if (FlagOn(PLAYER_HAS_SEEN_MESSAGE)) {
+      if (FlagOff(PLAYER_KNOWS_MESSAGE)) {
+       ! You can't adequately describe the message unless you're looking at the computer
+       if (location == room_202) {
+        SetFlag(PLAYER_KNOWS_MESSAGE);
+        "It takes a while to describe it to Igor, but eventually he figures out that it means Fluffy's in the basement.";
+       }
+       print_ret (IgorsVoice)"That sounds like it's in Russian.";
+      }
+      print_ret "Let's not stand around talking all day!";
+     }
+     ! (name) - no, nothing - no, (string) - no
+     ! Can't figure this out, so brute force
+     if (second == 'message') "What message?";
+     else "What computer?";
     }
     "He doesn't seem interested.";
   ],
@@ -682,7 +439,7 @@ Guy igor "Igor" lobby
     #Ifdef DEBUG_TRACEACTIONS; TraceActions(IGOR_ORDERS, actor, GIVE_ACTION, noun, second); #Endif;
     !if (call_person == self) "It'd be hard for ", (name)self, " to give you anything when I'm on the phone with ", (PronounAcc)self, "!";
     if ((noun in self) && (noun == master_key) && (second == player)) {
-     if (FlagOn(IGOR_KNOWS_ABOUT_FLUFFY) || FlagOn(IGOR_HAS_REVEALED_202)) {
+     if (FlagOn(IGOR_KNOWS_ABOUT_FLUFFY)) {
       move noun to second;
       print_ret (IgorsVoice)"Well, you really need to get your dog back, so here you go.";
      } else print_ret (IgorsVoice)"Sorry, I'd get in big trouble if I did that.";
@@ -697,57 +454,3 @@ Guy igor "Igor" lobby
    NotUnderstood: print_ret (IgorsVoice)"I don't understand.";
   ]
  has scenery;
-
-! Igor has the master key
-Disappearing_Object master_key "master key" igor
- class Igor_Object
- with
-  name 'master' 'key',
-  description "It has the hotel's logo, but no room number.",
-  article "Igor's";
-
-! Objects in hotel rooms
-Top pink_shirt "pink shirt" room_402
- with
-  name 'pink' 'shirt' 'top' 't-shirt',
-  ! Let the hotel room mention this
-  describe [;
-   rtrue;
-  ],
-  article "my",
-  owner kaitlyn
- has ~worn;
-
-Top green_shirt "green t-shirt" room_403
- with
-  name 'green' 'shirt' 'top' 't-shirt',
-  ! Let the hotel room mention this
-  describe [;
-   rtrue;
-  ],
-  article "Britney's"
-  owner britney
- has ~worn;
-
-General_Object computer "computer" room_202
- with
-  name 'computer',
-  description [;
-   SetFlag(PLAYER_HAS_SEEN_MESSAGE);
-   print "There's something on the computer that I can't understand! It reads:^";
-   glk_set_style(style_Preformatted);
-   print (char)ucVe, (char)lcEl, (char)lcA, (char)lcDe, ", ";
-   print (char)lcShch, (char)lcYe, (char)lcEn, (char)lcO, (char)lcKa, " ";
-   print (char)lcVe, " ";
-   print (char)lcPe, (char)lcO, (char)lcDe, (char)lcVe, (char)lcA, (char)lcEl, (char)lcYe, ".^";
-   print (char)ucEs, (char)lcYe, (char)lcEr, (char)lcGe, (char)lcYe, (char)lcY, "^";
-   glk_set_style(style_Normal);
-  ]
- has static scenery;
-
-Object fluffy "Fluffy" thedark;
-
-! SMS thread with Vladimir Putkin
-Guy anonymous "Anonymous" thedark
- with
-  name 'anonymous';

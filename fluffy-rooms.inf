@@ -54,7 +54,7 @@ Public_Room lobby "Lobby"
 Public_Room gift_shop "Gift Shop"
  with
   initial [;
-    if (self hasnt visited) "This is the gift shop, full of tacky, over-priced dust collectors.";
+    if (self hasnt visited) "This is the gift shop, full of tacky, over-priced dust collectors made in China.";
     rtrue;
   ],
   description [;
@@ -96,7 +96,7 @@ Public_Room casino "Casino"
   n_to gift_shop,
   s_to restaurant;
 
-Object slot_machine "slot machine" casino
+Object -> slot_machine "slot machine"
  with
   name 'slot' 'machine',
   description "It has a lot of flashing lights.",
@@ -113,7 +113,7 @@ Object slot_machine "slot machine" casino
 Public_Room restaurant "Restaurant"
  with
   initial [;
-   if (self hasnt visited) "It actually looks like a nice restaurant, lots of people enjoying their meals, but nothing very interesting for me right now.";
+   if (self hasnt visited) "This is the restaurant, it actually looks like a nice place, lots of people enjoying their meals, but nothing very interesting for me right now.";
    rtrue;
   ],
   description [;
@@ -137,7 +137,7 @@ Public_Room restaurant "Restaurant"
 Public_Room nightclub "Nightclub"
  with
   initial [;
-   if (self hasnt visited) "It's loud and crowded with all kinds of seedy people, my favourite kind of place.";
+   if (self hasnt visited) "This is a nightclub, it's loud and crowded with all kinds of seedy people, my favourite kind of place.";
    rtrue;
   ],
   description [;
@@ -157,14 +157,12 @@ Public_Room nightclub "Nightclub"
 Public_Room elevator_vestibule "Elevator Vestibule"
  with
   initial [;
-   if (self hasnt visited) "The elevator vestibule is the hub of the hotel, from here I can get to any other room on the ground floor.";
+   if (self hasnt visited) "This is the elevator vestibule, the hub of the hotel, from here I can get to any other room on the ground floor.";
    rtrue;
   ],
-  description [;
-   rtrue;
-  ],
+  description "The elevator's to the east.",
   e_to [;
-   if (elevator_doors hasnt open) "The elevator must be at a different floor.";
+   if (elevator_doors hasnt open) "The elevator's at a different floor.";
    return elevator;
   ],
   floor_number 1,
@@ -175,10 +173,11 @@ Public_Room elevator_vestibule "Elevator Vestibule"
   s_to nightclub,
   d_to [;
    if (master_key notin player) {
-    print "The door says it's for authorized hotel staff only";
-    if (FlagOn(PLAYER_KNOWS_MESSAGE)) ". If I had some sort of master key, maybe I could get down there and rescue Fluffy!";
-    else ".";
+    print "The door says it's for authorized hotel staff only.";
+    if (FlagOn(PLAYER_KNOWS_MESSAGE)) " If I had some sort of master key, maybe I could get down there and rescue Fluffy!";
+    rtrue;
    }
+   print "I used the master key to go down to the basement.^";
    return basement;
   ];
 
@@ -207,10 +206,10 @@ Button call_elevator_button "button" elevator_vestibule
 Object elevator_doors "elevator doors"
  with
   name 'elevator' 'doors',
-  initial [;
-   if (location ~= elevator) "To the east is an elevator.";
-   "The elevator is ready.";
-  ],
+  !initial [;
+  ! if (location ~= elevator) "To the east is an elevator.";
+  ! "The elevator is ready.";
+  !],
   description [;
    print "The elevator doors are ";
    if (self has open) "open.";
@@ -231,13 +230,13 @@ Object elevator_doors "elevator doors"
    if (location ofclass Hall) return e_to;
    return w_to;
   ]
- has static door ~open;
+ has static door scenery ~open;
 
 Object elevator "Elevator" class Public_Room
  with
   name 'elevator',
   description [;
-   if (FlagOn(PLAYER_KNOWS_ABOUT_FLUFFY) && FlagOff(PLAYER_HAD_FLASHBACK)) TriggerFlashback();
+   if (FlagOn(PLAYER_KNOWS_ABOUT_FLUFFY) && FlagOff(PLAYER_KNOWS_ABOUT_RUSSIANS)) TriggerFlashback();
    print "I'm in the hotel's main elevator, on the ";
    switch (self.floor_number) {
     1: print "ground";
@@ -246,8 +245,7 @@ Object elevator "Elevator" class Public_Room
     4: print "fourth";
     5: print "fifth";
    }
-   print " floor.";
-   rtrue;
+   " floor.";
   ],
   floor_number 3,
   before [;
@@ -297,7 +295,7 @@ Elevator_Button button5 "fifth floor button" elevator_buttons
 
 Object stairs "stairs"
  with
-  name 'stairs',
+  name 'stairs' 'door',
   initial [;
    if (location == elevator_vestibule or fifth_floor) "Through a glass door, I see a set of stairs.";
    rtrue;
@@ -307,6 +305,7 @@ Object stairs "stairs"
    if (location == basement or fifth_floor) "up.";
    "down.";
   ],
+  ! All the logic for using the stairs is in the rooms
   found_in basement elevator_vestibule fifth_floor roof
  has static pluralname;
 
@@ -345,15 +344,42 @@ Hotel_Room_Door door_202 "Door 202"
   to_room room_202,
   to_hall second_floor,
   dir_in s_to,
-  dir_out n_to;
+  dir_out n_to,
+  before [;
+   Go:
+    if (location ofclass Hotel_Room) rfalse;
+    if (parent(britney) ~= location) "I shouldn't go in there alone.";
+  ];
 
 Hotel_Room room_202 "Room 202"
  with
-  description "There's a computer here and it's on!",
   n_to door_202,
   door_out door_202,
   floor_number 2,
   room_number 202;
+
+General_Object -> computer "computer"
+ with
+  name 'computer',
+  initial [;
+   if (FlagOff(PLAYER_HAS_SEEN_MESSAGE)) "There's a computer here and it's on!";
+   rtrue;
+  ],
+  description [;
+   if (FlagOff(PLAYER_HAS_SEEN_MESSAGE)) {
+    SetFlag(PLAYER_HAS_SEEN_MESSAGE);
+    print "There's a message on the computer that I can't understand! It reads:^";
+   }
+   else print "The message says:^";
+   glk_set_style(style_Preformatted);
+   print (char)ucVe, (char)lcEl, (char)lcA, (char)lcDe, ", ";
+   print (char)lcShch, (char)lcYe, (char)lcEn, (char)lcO, (char)lcKa, " ";
+   print (char)lcVe, " ";
+   print (char)lcPe, (char)lcO, (char)lcDe, (char)lcVe, (char)lcA, (char)lcEl, (char)lcYe, ".^";
+   print (char)ucEs, (char)lcYe, (char)lcEr, (char)lcGe, (char)lcYe, (char)lcY, "^";
+   glk_set_style(style_Normal);
+  ]
+ has static;
 
 Hotel_Room_Door door_203 "Door 203"
  with
@@ -820,7 +846,10 @@ Room basement "Basement"
 
 Room roof "Roof"
  with
-  initial "Being on the roof of the hotel reminds me of that scene from The Hangover! But my weekend is not gonna be like that!",
+  initial [;
+   if (self hasnt visited) "I used the master key to go up to the roof. Being up here reminds me of that scene from The Hangover! But my weekend is *not* gonna be like that!";
+   rtrue;
+  ],
   description [ hh;
    CurrentTime();
    hh = date_array-->4;
@@ -829,15 +858,19 @@ Room roof "Roof"
    else if ((hh >= 12) && (hh < 18)) print "hot afternoon";
    else if ((hh >= 18) && (hh < 21)) print "warm evening";
    else print "cool night";
-   ", and I'm on the roof of the hotel.";
+   print ", and ";
+   if (britney in location) print "we're";
+   else print "I'm";
+   print " on the roof of the hotel.";
+   rtrue;
   ],
   d_to fifth_floor;
 
-Disappearing_Object token "token" roof
+Disappearing_Object -> token "token"
  class Britney_Object
  with
   name 'token' 'coin',
-  initial "Check it out, there's a token on the floor!",
+  initial "Check it out, there's a token over there!",
   description "It looks like a coin but it's not a coin.",
   after [;
    Take: "Cool, it's a shiny gold token.";
