@@ -266,7 +266,8 @@ Bunch_Of_Buttons elevator_buttons "buttons" elevator
  with
   name 'buttons' 'panel',
   initial "There is a panel with several buttons.",
-  description "The buttons are labelled G, 2, 3, 4 and 5.";
+  description "The buttons are labelled G, 2, 3, 4 and 5."
+ has pluralname;
 
 Elevator_Button ground_button "ground button" elevator_buttons
  with
