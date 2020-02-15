@@ -347,9 +347,8 @@ Hotel_Room_Door door_202 "Door 202"
   dir_in s_to,
   dir_out n_to,
   before [;
-   Go:
-    if (location ofclass Hotel_Room) rfalse;
-    if (parent(britney) ~= location) "I shouldn't go in there alone.";
+   Unlock, Open, Go:
+    if ((location ofclass Hall) && (parent(britney) ~= location)) "I shouldn't go in there alone.";
   ];
 
 Hotel_Room room_202 "Room 202"
@@ -481,7 +480,11 @@ Hotel_Room_Door door_301 "Door 301"
   to_room room_301,
   to_hall third_floor,
   dir_in se_to,
-  dir_out nw_to;
+  dir_out nw_to,
+  before [;
+   Unlock, Open, Go:
+    "There's a ~Do Not Disturb~ sign on the door.";
+  ];
 
 Hotel_Room room_301 "Room 301"
  with
@@ -813,7 +816,11 @@ Hotel_Room_Door door_506 "Door 506"
   to_room room_506,
   to_hall fifth_floor,
   dir_in n_to,
-  dir_out s_to;
+  dir_out s_to,
+  before [;
+   Open, Go:
+    "The door's locked from the inside.";
+  ];
 
 Hotel_Room room_506 "Room 506"
  with

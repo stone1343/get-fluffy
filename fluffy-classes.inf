@@ -129,10 +129,7 @@ Class Contact
    if (OnPhone()) "I'm currently on the phone with ", (name)call_person, ".";
    if ((smartphone notin actor) || (smartphone.mode ~= MODE_CONTACTS)) "With what?";
    o = self.contact_noun;
-   if (player in parent(o)) {
-    print (CPronounNom)o, "'s standing right in front of me!";
-    rtrue;
-   }
+   if (player in parent(o)) print_ret (CPronounNom)o, "'s standing right in front of me!";
    smartphone.interact();
    call_room = parent(o);
    call_person = o;
@@ -190,7 +187,6 @@ Class Button
  with
   before [;
    Push, Touch: "It beeps quietly when you push it.";
-   !Take: "That would be vandalism and you're not that kind of person, are you?";
   ],
  has scenery;
 
@@ -212,7 +208,6 @@ Class Bunch_Of_Buttons
  with
   before [;
    Push, Touch: "You can't push them all.";
-   !Take: "That would be vandalism and you're not that kind of person, are you?";
   ]
  has transparent static;
 
@@ -235,7 +230,7 @@ Class Hotel_Room_Door
  with
   when_closed [;
    if (location ofclass Hall) "It's a normal hotel room door.";
-   "It has a floor plan including fire escape plan.";
+   "It has a floor plan including fire escape route.";
   ],
   when_open [;
    if (location ofclass Hall) "The door to the room is open.";
@@ -321,8 +316,8 @@ Class Hotel_Room_Door
    Go:
     StopTimer(self);
     give self ~open;
-    print " The door swings shut behind me.^";
     if (location ofclass Hall) give self locked;
+    "^The door swings shut behind me.";
   ],
   time_left,
   time_out [;
@@ -374,27 +369,6 @@ Class Hall
 Class Hotel_Room
  class Room
  with
-  !description [n o i;
-  ! n = 0;
-  ! objectloop(o in self) {
-  !  if (o ofclass General_Object) n++;
-  ! }
-  ! if (n > 0) {
-  !  i = 0;
-  !  objectloop(o in self) {
-  !   if (o ofclass General_Object) {
-  !    switch (++i) {
-  !     1: print "There's ";
-  !     default: if (i < n) print ", ";
-  !     else print " and ";
-  !    }
-  !    print (string)o.article, " ", (name)o;
-  !   }
-  !  }
-  !  " on the bed.";
-  ! }
-  ! else if (self hasnt visited) print "According to the floor plan on the back of the door, I'm in ", (name)self, ".";
-  !],
   description [;
    if (self hasnt visited) "According to the floor plan on the back of the door, I'm in ", (name)self, ".";
   ],

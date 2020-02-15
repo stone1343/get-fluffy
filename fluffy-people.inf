@@ -16,11 +16,11 @@ Girl kaitlyn "Kaitlyn"
   ],
   before [;
    Give:
-    if (OnPhone(self)) "It'd be hard to give something to ", (name)self, " when I'm on the phone with ", (PronounAcc)self, "!";
+    if (OnPhone(self)) "(Kaitlyn Before Give) It'd be hard to give something to ", (name)self, " when I'm on the phone with ", (PronounAcc)self, "!";
   ],
   after [;
    Give:
-    if (OnPhone(self)) "It'd be hard to give something to ", (name)self, " when I'm on the phone with ", (PronounAcc)self, "!";
+    if (OnPhone(self)) "(Kaitlyn After Give) It'd be hard to give something to ", (name)self, " when I'm on the phone with ", (PronounAcc)self, "!";
   ],
  has concealed proper transparent;
 
@@ -33,7 +33,7 @@ Girl britney "Britney" room_403
   panties b_panties,
   is "Britney's",
   destination_floor,
-  destination_room, ! can be nothing if she's just looking around
+  destination_room,
   is_following false,
   contact_icon contact_britney,
   initial [;
@@ -84,6 +84,7 @@ Girl britney "Britney" room_403
      move noun to britney;
      print_ret (BritneysVoice)"Thanks.";
     }
+    print_ret (BritneysVoice)"No thanks.";
    Show:
     ! Showing to Britney...
     ! if (call_person == self) "It's hard to show something to ", (name)self, " when I'm on the phone with ", (PronounAcc)self, "!";
@@ -98,14 +99,12 @@ Girl britney "Britney" room_403
          britney:
           print (BritneysVoice)"Oh, that's a pretty good photo of me";
           if ((o.wearing_top == nothing) || (o.wearing_pants == nothing)) print_ret (BritneysVoice)", but make sure you don't show that to anyone else!";
-          else print_ret (BritneysVoice)".~";
+          print_ret (BritneysVoice)".";
          kaitlyn:
           print_ret (BritneysVoice)"That's an awesome photo of you!";
          computer:
-          if (FlagOn(PLAYER_KNOWS_MESSAGE)) {
-           SetFlag(BRITNEY_KNOWS_MESSAGE);
-           print_ret (BritneysVoice)"We need to go there and find Fluffy!";
-          }
+          if (FlagOff(PLAYER_KNOWS_MESSAGE)) print_ret (BritneysVoice)"Hey, Igor's Ukrainian, maybe he'd know what that means.";
+          print_ret (BritneysVoice)"We need to go there and find Fluffy!";
          default: print_ret (BritneysVoice)"That's a nice photo.";
         }
         break;
@@ -124,15 +123,8 @@ Girl britney "Britney" room_403
     if (second == 'fluffy') {
      if (FlagOn(PLAYER_KNOWS_ABOUT_FLUFFY)) {
       if (FlagOff(BRITNEY_KNOWS_ABOUT_FLUFFY)) {
-       print (BritneysVoice)"Omigod, that's awful, Katie!!!";
        SetFlag(BRITNEY_KNOWS_ABOUT_FLUFFY);
-       !self.destination_floor = 1;
-       !self.destination_room = nothing;
-       !StartDaemon(self);
-       !if (OnPhone(britney)) {
-       ! EndCall(britney);
-       ! print_ret (BritneysVoice)", talk to you later.";
-       !} print_ret (BritneysVoice)".";
+       print_ret (BritneysVoice)"Omigod, that's awful, Katie!!!";
       }
       else print_ret (BritneysVoice)"Let me know if there's anything I can to to help!";
      }
@@ -306,7 +298,7 @@ Guy igor "Igor" lobby
  with
   name 'Igor' 'man',
   description [;
-   if (OnPhone(self)) "Over the phone, you notice his accent more.";
+   if (OnPhone(self)) "Over the phone, his accent seems even stronger.";
    "Igor's wearing a hotel uniform.";
   ],
   before [;
@@ -331,13 +323,13 @@ Guy igor "Igor" lobby
       objectloop(o ofclass Photograph) {
        if (o.number == current_photo) {
         switch (o.subject) {
-         fluffy: print_ret (IgorsVoice)"Oh, that's your dog? He's really cute!";
+         fluffy: print_ret (IgorsVoice)"Oh, that's your dog, he's really cute!";
          igor: print_ret (IgorsVoice)"Hey, that's me!";
          britney: print_ret (IgorsVoice)"Yes, that's your friend, how could I forget her?";
          kaitlyn:
           print (IgorsVoice)"That's an awesome photo of you";
           if ((o.wearing_top == nothing) || (o.wearing_pants == nothing)) print_ret (IgorsVoice)", but you shouldn't be showing that to me.";
-          else print_ret (IgorsVoice)".~";
+          else print_ret (IgorsVoice)".";
          computer:
           SetFlag(PLAYER_KNOWS_MESSAGE);
           print_ret (IgorsVoice)"Oh, that's Russian, it means, ~Vlad, the dog's in the basement.~";
@@ -351,22 +343,26 @@ Guy igor "Igor" lobby
       if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) {
        SetFlag(IGOR_KNOWS_ABOUT_FLUFFY);
        print_ret (IgorsVoice)"I'm so sorry someone took your dog! If there's anything I can do to help, let me know, I'm always here.";
-      } print_ret (IgorsVoice)"I don't know what else I can tell you to help.";
+      }
+      print_ret (IgorsVoice)"I don't know what else I can tell you to help.";
      }
      print_ret (IgorsVoice)"Is that supposed to be interesting?";
     }
    Ask:
-    if (second == 'russians' or 'vlad' or 'vladimir') {
-     if (FlagOn(IGOR_KNOWS_ABOUT_FLUFFY)) {
-      if (FlagOff(PLAYER_KNOWS_ABOUT_202)) {
-       SetFlag(PLAYER_KNOWS_ABOUT_202);
-       print_ret (IgorsVoice)"I could get in trouble for telling you this, but there's two big Russian guys named Vladimir and Sergei in room 202.";
-      }
-      else print_ret (IgorsVoice)"There's nothing else I can tell you about the Russians.";
-     }
-     else print_ret (IgorsVoice)"I can't talk about guests.";
+    if (second == 'britney') print_ret (IgorsVoice)"Not sure, miss, did you try her room?";
+    if (second == 'fluffy') {
+     if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) print_ret (IgorsVoice)"I think your dog is very cute, good luck in the dog show!";
+     print_ret (IgorsVoice)"Sorry, I don't know anything else about your dog.";
     }
-    "Igor didn't seem to know anything about that.";
+    if (second == 'russians' or 'vlad' or 'vladimir') {
+     if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) print_ret (IgorsVoice)"Just between you and me, I hate Russians after what they did to my country.";
+     if (FlagOff(PLAYER_KNOWS_ABOUT_202)) {
+      SetFlag(PLAYER_KNOWS_ABOUT_202);
+      print_ret (IgorsVoice)"I could get in trouble for telling you this, but there's two big Russian guys named Vladimir and Sergei in room 202.";
+     }
+     print_ret (IgorsVoice)"There's nothing else I can tell you about the Russians.";
+    }
+    print_ret (IgorsVoice)"I don't really know about that.";
    Tell:
     if (second == 'fluffy') {
      if (FlagOn(PLAYER_KNOWS_ABOUT_FLUFFY)) {
@@ -409,11 +405,10 @@ Guy igor "Igor" lobby
     print_ret (IgorsVoice)"Of course, I have to stay here.";
    Give:
     !if (call_person == self) "It'd be hard for ", (name)self, " to give you anything when I'm on the phone with ", (PronounAcc)self, "!";
-    if ((noun in self) && (noun == master_key) && (second == player)) {
-     if (FlagOn(IGOR_KNOWS_ABOUT_FLUFFY)) {
-      move noun to second;
-      print_ret (IgorsVoice)"Well, you really need to get your dog back, so here you go.";
-     } else print_ret (IgorsVoice)"Sorry, I'd get in big trouble if I did that.";
+    if ((noun == master_key) && (noun in self) && (second == player)) {
+     if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) print_ret (IgorsVoice)"Sorry, I'd get in big trouble if I did that.";
+     move noun to second;
+     print_ret (IgorsVoice)"Well, you really need to get your dog back, so here you go.";
     }
    Take:
     if (noun == master_key) {

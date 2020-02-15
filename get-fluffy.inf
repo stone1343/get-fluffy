@@ -110,8 +110,7 @@ Constant PLAYER_HAS_PHOTOGRAPHED_MESSAGE = 5; ! Just an interim state?
 Constant PLAYER_KNOWS_MESSAGE = 6;
 Constant PLAYER_TOOK_TOPLESS_PHOTO = 7;
 Constant BRITNEY_KNOWS_ABOUT_FLUFFY = 8;
-Constant BRITNEY_KNOWS_MESSAGE = 9;
-Constant IGOR_KNOWS_ABOUT_FLUFFY = 10;
+Constant IGOR_KNOWS_ABOUT_FLUFFY = 9;
 
 Statusline time;
 Replace LanguageTimeOfDay;

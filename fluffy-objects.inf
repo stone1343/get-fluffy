@@ -46,17 +46,13 @@ Underwear k_panties "panties" thedark
 ! Might expect 'has talkable' for a phone, but this phone is basically a teleporter ;-)
 Disappearing_Object smartphone "smartphone" kaitlyn
  with
-  ! Because the first one is the same as Phone mode, will remove it when in Home mode
-  ! Glulx wordsize = 4, so #name is 20
   owner kaitlyn,
   name 'phone' 'smartphone' 'cell' 'cellular' 'mobile' 'screen' 'display',
   initial "~Hey, there's my smartphone!~",
   description [;
-   !if (gg_grwin == nothing) gg_grwin = glk_window_open(gg_mainwin, winmethod_Right+winmethod_Fixed, 300, wintype_Graphics, GG_GRWIN_ROCK);
-   !glk_image_draw(gg_grwin, 1, 0, 0);
    if (self.mode ~= MODE_OFF) <Examine screen>;
    else print "I love my smartphone, it's got a full HD screen and, below the screen, is the Home button.^";
-   if (FlagOn(SMARTPHONE_LED_BLINKING)) print "^Hey, the notification light is blinking!^";
+   if (FlagOn(SMARTPHONE_LED_BLINKING)) print_ret "^Hey, the notification light is blinking!";
    rtrue;
   ],
   invent "my smartphone", ! So inventory doesn't list the screen, buttons, icons, etc
@@ -64,7 +60,6 @@ Disappearing_Object smartphone "smartphone" kaitlyn
   mode MODE_OFF,
   before [;
    Push, Touch:
-    !if (self.mode == MODE_HOME) <<Push call_icon>>;
     "You'll have to be more specific.";
    Drop:
     if ((OnPhone()) && (telephone hasnt general)) "Don't be rude, you need to hang up first.";
@@ -79,7 +74,8 @@ Disappearing_Object smartphone "smartphone" kaitlyn
     objectloop(o ofclass Icon) {
      move o to screen;
     }
-   } else {
+   }
+   else {
     objectloop(o ofclass Icon) {
      remove o;
     }
@@ -88,7 +84,8 @@ Disappearing_Object smartphone "smartphone" kaitlyn
     objectloop(o ofclass Contact) {
      move o to screen;
     }
-   } else {
+   }
+   else {
     objectloop(o ofclass Contact) {
      remove o;
     }
@@ -129,7 +126,8 @@ Object screen "screen" smartphone
       }
       new_line;
       rtrue;
-     } else "It has a picture of ", (name)call_person, " and a Hang Up button.";
+     }
+     else "It has a picture of ", (name)call_person, " and a Hang Up button.";
     ! Text mode is only to receive the ransom message from anonymous
     MODE_MESSAGES:
      ClearFlag(SMARTPHONE_LED_BLINKING);
