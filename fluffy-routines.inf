@@ -536,7 +536,7 @@
 ! Hints, which will guide you to the most desirable outcome, arresting the fucking Russian scumbags
 [ ThinkSub;
  if (FlagOff(PLAYER_KNOWS_ABOUT_FLUFFY)) "I should check my smartphone to see what's going on.";
- if (FlagOff(PLAYER_KNOWS_ABOUT_RUSSIANS)) "Maybe I should explore the hotel.";
+ if (FlagOff(PLAYER_KNOWS_ABOUT_RUSSIANS)) "Maybe I should explore the hotel a little more.";
  if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) "Would Igor help if he knew Fluffy's been dognapped?";
  if (FlagOff(PLAYER_KNOWS_ABOUT_202)) "Maybe Igor could tell me something about Vlad.";
  if (master_key notin player) "I need a way to get into the Russians' room.";

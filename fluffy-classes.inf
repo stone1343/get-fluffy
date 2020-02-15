@@ -356,9 +356,9 @@ Class Public_Room
 Class Hall
  class Public_Room
  with
-  !initial "The elevator is to the east.",
   description [;
    if (self hasnt visited) "I see doors numbered ", self.floor_number, "01 through ", self.floor_number, "07.";
+   rtrue;
   ],
   floor_number,
   e_to [;
@@ -371,6 +371,7 @@ Class Hotel_Room
  with
   description [;
    if (self hasnt visited) "According to the floor plan on the back of the door, I'm in ", (name)self, ".";
+   rtrue;
   ],
   door_out,
   floor_number,

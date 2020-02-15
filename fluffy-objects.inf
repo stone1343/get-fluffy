@@ -105,7 +105,7 @@ Disappearing_Object smartphone "smartphone" kaitlyn
     if (self.move_counter == 0) {
      self.change_mode(MODE_OFF);
      StopDaemon(self);
-     print "My smartphone times out and turns off.^";
+     print "^My smartphone times out and turns off.^";
     }
    }
   ]
@@ -162,7 +162,7 @@ Object home_button "home" smartphone
    Push, Touch:
     if (smartphone notin player) move smartphone to player;
     switch (smartphone.mode) {
-     MODE_OFF: print "I pressed the home button and entered my PIN.^";
+     MODE_OFF: print "I pressed the Home button.^";
      MODE_HOME: print "Nothing happens.^";
      default: print "Back to home screen.^";
     }

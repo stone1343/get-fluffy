@@ -173,9 +173,9 @@ Public_Room elevator_vestibule "Elevator Vestibule"
   s_to nightclub,
   d_to [;
    if (master_key notin player) {
-    print "The door says it's for authorized hotel staff only.";
-    if (FlagOn(PLAYER_KNOWS_MESSAGE)) " If I had some sort of master key, maybe I could get down there and rescue Fluffy!";
-    rtrue;
+    print "The door says it's for authorized hotel staff only";
+    if (FlagOn(PLAYER_KNOWS_MESSAGE)) ", if I had some sort of master key, maybe I could get down there and rescue Fluffy!";
+    ".";
    }
    print "I used the master key to go down to the basement.^";
    return basement;
@@ -227,7 +227,7 @@ Object elevator_doors "elevator doors"
    }
   ],
   door_dir [;
-   if (location ofclass Hall) return e_to;
+   if ((location == elevator_vestibule) || (location ofclass Hall)) return e_to;
    return w_to;
   ]
  has static door scenery ~open;

@@ -126,7 +126,7 @@ Girl britney "Britney" room_403
        SetFlag(BRITNEY_KNOWS_ABOUT_FLUFFY);
        print_ret (BritneysVoice)"Omigod, that's awful, Katie!!!";
       }
-      else print_ret (BritneysVoice)"Let me know if there's anything I can to to help!";
+      else print_ret (BritneysVoice)"Let me know if there's anything I can do to help!";
      }
      else print_ret (BritneysVoice)"OMG, Kaitlyn, I know you love your dog!";
     }
@@ -134,11 +134,7 @@ Girl britney "Britney" room_403
    Ask:
     if (second == 'fluffy') {
      if (FlagOff(BRITNEY_KNOWS_ABOUT_FLUFFY)) print_ret (BritneysVoice)"I love that little dog, Katey!";
-     else print_ret (BritneysVoice)"I don't know what else to suggest";
-    }
-    if (second == 'fluffy') {
-     if (FlagOff(BRITNEY_KNOWS_ABOUT_FLUFFY)) print_ret (BritneysVoice)"I love that little dog, Katey!";
-     else print_ret (BritneysVoice)"I don't know what else to suggest";
+     else print_ret (BritneysVoice)"I don't know what else to suggest.";
     }
     "Britney didn't know anything about that.";
    Kiss:
@@ -285,8 +281,8 @@ Girl britney "Britney" room_403
     move self to to_room;
     if (player in to_room) {
      self.destination_room = to_room;
-     if (location ofclass Hotel_Room) print "I heard a knock on the door and let Britney in.";
-     else print "^Just then, Britney arrived.";
+     if (location ofclass Hotel_Room) print "^I heard a knock on the door and let Britney in.^";
+     else print "^Just then, Britney arrived.^";
     }
     if (parent(self) == self.destination_room) {
      StopDaemon(self);
