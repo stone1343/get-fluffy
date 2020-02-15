@@ -13,11 +13,11 @@ endif
 
 all: $(ULX) $(JS)
 
-# ToDo: Pptimize, use flags -~SG
+# ToDo: Optimize, use flags -~SG
 $(ULX): $(INF)
 	$(INFORM) -SDG get-fluffy.inf
 
-# Build the .js requred by Quixe
+# Build the .js for Quixe
 $(JS): $(ULX)
 	$(LUA) $(ULX)>$(JS)
 
