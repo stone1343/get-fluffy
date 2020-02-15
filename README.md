@@ -3,11 +3,11 @@
 > Welcome to the Timbuktu!<br>
 >    \- Igor
 
-An entry in [IFComp 2020](https://ifcomp.org/)
+An entry in [IFComp 2020](https://ifcomp.org/).
 
 [Play Now on GitHub Pages](https://stone1343.github.io/get-fluffy/public/index.html) (Desktop browser highly recommended)
 
-If you've downloaded the project from GitHub, navigate to the public directory and open index.html with whichever brower you prefer
+If you've downloaded the project from GitHub, navigate to the public directory and open index.html with whichever brower you prefer.
 
 Some known inconsistencies:
 * Britney doesn't have a smartphone
@@ -23,7 +23,7 @@ On Windows, you can:
 * **compile**, create the game files
 * **play**, open public\index.html with your default browser
 
-On Linux, you can
+On Linux, you can:
 * **make clean**
 * **make**
 * **./play**, open public/index.html with your default browser
