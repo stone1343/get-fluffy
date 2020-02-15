@@ -4,16 +4,21 @@ LUA = lua game2js.lua
 INF = get-fluffy.inf fluffy-classes.inf fluffy-rooms.inf fluffy-people.inf fluffy-objects.inf fluffy-routines.inf
 ULX = get-fluffy.ulx
 JS = public/get-fluffy.ulx.js
+ifdef OS
+  RM = del /q
+else
+  RM = rm -f
+endif
 
 all: $(ULX) $(JS)
 
-# To optimize, use flags -~SG
+# Compile, to optimize, use flags -~SG
 $(ULX): $(INF)
 	$(INFORM) -SDG get-fluffy.inf
 
-# Quixe
+# Build the .js requred by Quixe
 $(JS): $(ULX)
 	$(LUA) $(ULX) >$(JS)
 
 clean:
-	rm -f $(ULX) $(JS)
+	$RM) $(ULX) $(JS)
