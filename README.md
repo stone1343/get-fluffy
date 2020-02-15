@@ -10,9 +10,9 @@ An entry in [IFComp 2020](https://ifcomp.org/).
 If you've downloaded the project from GitHub, navigate to the public directory and open index.html with whichever brower you prefer.
 
 Some known inconsistencies:
-* Britney doesn't have a smartphone
+* Britney doesn't have a smartphone.
 * Why does it seem like you're entering every room for the first time? Do you have amnesia? No, it just seems to fit the paradigm of IF games.
-* Britney moves between floors without using the elevator as if there were stairs, but there are none
+* Britney moves between floors without using the elevator as if there were stairs, but there are none.
 
 *Get Fluffy!* has not been tested on iOS or Android, please use a desktop browser.
 
