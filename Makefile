@@ -13,7 +13,7 @@ endif
 
 all: $(ULX) $(JS)
 
-# Compile, to optimize, use flags -~SG
+# ToDo: Pptimize, use flags -~SG
 $(ULX): $(INF)
 	$(INFORM) -SDG get-fluffy.inf
 
