@@ -1,8 +1,0 @@
-s
-x igor
-press home
-press messages
-x screen
-show it to igor
-igor, give me master
-recording off

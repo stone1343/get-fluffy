@@ -14,4 +14,16 @@ Some known inconsistencies:
 
 *Get Fluffy!* has not been tested on iOS or Android, please use a desktop browser.
 
-To build *Get Fluffy!*, you'll need the Inform compiler and Lua interpreter
+To build *Get Fluffy!*, you'll need the Inform compiler and Lua interpreter.
+
+On Windows, you can:
+* **clean**, delete the game files
+* **compile**, create the game files
+* **play**, open public\index.html with your default browser
+* or manually navigate to the public directory and open index.html with whichever browser you prefer
+
+On Linux, you can
+* **make clean**
+* **make**
+* **./play**
+* or manually navigate to the public directory and open index.html with whichever browser you prefer
