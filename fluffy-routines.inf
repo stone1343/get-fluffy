@@ -324,7 +324,10 @@
  move actor.bra to actor;
  give actor.bra worn;
  if (actor == player) "I take off the ", (name)noun, ".";
- else print_ret (BritneysVoice)"Kaitlyn, this makes me very uncomfortable!";
+ else {
+  move b_tits to location; ! ToDo - make sure they move to where Britney is (or maybe they should always move with her and description changes if she has a shirt on
+  print_ret (BritneysVoice)"Kaitlyn, this makes me very uncomfortable!";
+ }
 ];
 
 [ DisrobePants actor noun;
@@ -347,7 +350,10 @@
  actor.wearing_top = noun;
  give noun worn;
  if (actor == player) "I put on the ", (name)noun, ".";
- else print_ret (BritneysVoice)"Thanks, I feel a little less naked now!";
+ else {
+  move b_tits to thedark; ! ToDo
+  print_ret (BritneysVoice)"Thanks, I feel a little less naked now!";
+ }
 ];
 
 [ WearPants actor noun;
@@ -570,8 +576,8 @@
 ! Hints, which will guide you to the most desirable outcome, arresting the fucking Russian scumbags
 [ ThinkSub;
  if (FlagOff(PLAYER_KNOWS_ABOUT_FLUFFY)) "I should check my smartphone to see what's going on.";
- if (FlagOff(PLAYER_KNOWS_ABOUT_RUSSIANS)) "Maybe I explore the hotel.";
- if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) "Maybe Igor could help if he knew Fluffy's been dognapped.";
+ if (FlagOff(PLAYER_KNOWS_ABOUT_RUSSIANS)) "Maybe I should explore the hotel.";
+ if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) "Would Igor help if he knew Fluffy's been dognapped?";
  if (FlagOff(PLAYER_KNOWS_ABOUT_202)) "Maybe Igor could tell me something about Vlad.";
  if (master_key notin player) "I need a way to get into the Russians' room.";
  if (FlagOff(PLAYER_HAS_SEEN_MESSAGE)) "I'm sure I could find some evidence in the Russians' room.";

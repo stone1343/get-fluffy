@@ -9,7 +9,7 @@ function pause() {
 done=0
 while (( !done )); do
   clear
-  options=(make-all get-fluffy get-fluffy-debug official-game public/get-fluffy public/get-fluffy-debug make-clean exit)
+  options=(make-all get-fluffy official-game make-clean exit)
   select opt in "${options[@]}"; do
     case $opt in
       make-all)
@@ -28,14 +28,14 @@ while (( !done )); do
         fi
         break
         ;;
-      get-fluffy-debug)
-        if make $opt.ulx; then
-          glulxe $opt.ulx
-        else
-          pause 'Correct error(s)'
-        fi
-        break
-        ;;
+      #get-fluffy-debug)
+      #  if make $opt.ulx; then
+      #    glulxe $opt.ulx
+      #  else
+      #    pause 'Correct error(s)'
+      #  fi
+      #  break
+      #  ;;
       official-game)
         if make public/get-fluffy.ulx.js; then
           firefox file://$PWD/public/index.html
@@ -44,22 +44,22 @@ while (( !done )); do
         fi
         break
         ;;
-      public/get-fluffy)
-        if make  $opt.ulx.js; then
-          firefox file://$PWD/public/get-fluffy.html
-        else
-          pause 'Correct error(s)'
-        fi
-        break
-        ;;
-      public/get-fluffy-debug)
-        if make $opt.ulx.js; then
-          firefox file://$PWD/public/get-fluffy-debug.html
-        else
-          pause 'Correct error(s)'
-        fi
-        break
-        ;;
+      #public/get-fluffy)
+      #  if make  $opt.ulx.js; then
+      #    firefox file://$PWD/public/get-fluffy.html
+      #  else
+      #    pause 'Correct error(s)'
+      #  fi
+      #  break
+      #  ;;
+      #public/get-fluffy-debug)
+      #  if make $opt.ulx.js; then
+      #    firefox file://$PWD/public/get-fluffy-debug.html
+      #  else
+      #    pause 'Correct error(s)'
+      #  fi
+      #  break
+      #  ;;
       make-clean)
         if make clean; then
           pause 'Cleaned'

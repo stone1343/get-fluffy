@@ -140,17 +140,19 @@ Girl britney "Britney" room_403
     if (second == 'fluffy') {
      if (FlagOn(PLAYER_KNOWS_ABOUT_FLUFFY)) {
       if (FlagOff(BRITNEY_KNOWS_ABOUT_FLUFFY)) {
-       print (BritneysVoice)"Omigod, that's awful, I'll go look around for clues";
+       print (BritneysVoice)"Omigod, that's awful, Katie!!!";
        SetFlag(BRITNEY_KNOWS_ABOUT_FLUFFY);
-       self.destination_floor = 1;
-       self.destination_room = nothing;
-       StartDaemon(self);
-       if (OnPhone(britney)) {
-        EndCall(britney);
-        print_ret (BritneysVoice)", talk to you later.";
-       } print_ret (BritneysVoice)".";
-      } else "She says she'll continue looking.";
-     } else print_ret (BritneysVoice)"OMG, Kaitlyn, I know you love your dog!";
+       !self.destination_floor = 1;
+       !self.destination_room = nothing;
+       !StartDaemon(self);
+       !if (OnPhone(britney)) {
+       ! EndCall(britney);
+       ! print_ret (BritneysVoice)", talk to you later.";
+       !} print_ret (BritneysVoice)".";
+      }
+      else print_ret (BritneysVoice)"Let me know if there's anything I can to to help!";
+     }
+     else print_ret (BritneysVoice)"OMG, Kaitlyn, I know you love your dog!";
     }
     "She doesn't seem interested.";
    Ask:
@@ -168,7 +170,8 @@ Girl britney "Britney" room_403
     if ((noun ofclass Britney_Object) && (noun in britney)) {
      if (OnPhone(britney)) {
       move noun to call_room;
-     } else {
+     }
+     else {
       move noun to location;
      }
      print_ret (BritneysVoice)"Ok.";
@@ -181,7 +184,8 @@ Girl britney "Britney" room_403
        move noun to britney;
        print_ret (BritneysVoice)"Ok.";
       }
-     } else {
+     }
+     else {
       if (noun in parent(britney)) {
        move noun to britney;
        print_ret (BritneysVoice)"Ok.";

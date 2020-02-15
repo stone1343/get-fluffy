@@ -5,11 +5,12 @@
 
 An interactive fiction game
 
-[Play Now](https://stone1343.github.io/get-fluffy/public/index.html) (desktop browser recommended)
+[Play Now on GitHub Pages](https://stone1343.github.io/get-fluffy/public/index.html) (Desktop browser highly recommended)
 
 Some known inconsistencies:
 * Britney doesn't have a smartphone
 * Why does it seem like you're entering every room for the first time? Do you have amnesia? No, it just seems to fit the paradigm of IF games.
+* Britney moves between floors without using the elevator but there's no stairs
 
 Resolve the stairs and their doors, including print "I open the door to the stairs using the master key..."
 

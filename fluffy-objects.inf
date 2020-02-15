@@ -210,7 +210,7 @@ Contact contact_britney
 Room_Key b_key "room key" britney
  class Britney_Object Ownable_Object General_Object
  with
-  name 'room' 'key',
+  name 'Britney^s' 'room' 'key',
   article "Britney's",
   owner britney,
   key_to_room room_403;
@@ -247,17 +247,17 @@ Underwear b_panties "panties" thedark
   owner britney
  has ~worn pluralname;
 
-!Object b_tits "Britney's boobs" thedark
-! with
-!  name 'boobs' 'breasts' 'tits',
-!  description "They're smaller than mine, but still awesome.",
-!  article "Britney's",
-!  before [;
-!   Touch, Kiss:
-!    if (OnPhone(britney)) "Can't exactly feel her up over the phone!";
-!    "Focus on the game.";
-!  ],
-! has scenery static pluralname proper animate; ! Animate so you can try to kiss them!
+Object b_tits "Britney's boobs" thedark
+ with
+  name 'Britney^s' 'boobs' 'breasts' 'tits',
+  description "They're smaller than mine, but still awesome.",
+  article "Britney's",
+  before [;
+   Touch, Kiss:
+    if (OnPhone(britney)) "Can't exactly feel her up over the phone!";
+    "Focus on the game.";
+  ],
+ has scenery static pluralname proper animate; ! Animate so you can try to kiss them!
 
 ! Igor has the master key
 Disappearing_Object master_key "master key" igor
