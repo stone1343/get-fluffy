@@ -198,8 +198,8 @@ Button call_elevator_button "button" elevator_vestibule
   before [;
    ! Call the elevator
    Push, Touch:
-    if (elevator.floor_number == parent(player).floor_number) "Nothing happens.";
-    elevator.floor_number = parent(player).floor_number;
+    if (elevator.floor_number == location.floor_number) "Nothing happens.";
+    elevator.floor_number = location.floor_number;
     give elevator_doors open;
   ];
 

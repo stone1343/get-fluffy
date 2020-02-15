@@ -157,7 +157,7 @@
   But I'm getting ahead of myself, let me start at the beginning...^";
  banner();
  print "^My name's Kaitlyn, I'm 23 and people tell me I'm quite pretty, but I just feel like a regular small-town girl.
-  I've come to Vegas with my best friend, Britney, to show my Fluffy ", (char)heart, " at the Silver State Kennel Club Dog Show.
+  I've come to Las Vegas with my best friend, Britney, to show my Fluffy ", (char)heart, " at the Silver State Kennel Club Dog Show.
   We arrived an hour ago and I just left him in my hotel room, 402, while I ran out for something to eat. Britney stayed in her room, right next to mine, to get settled in.^^";
  return 2;
  ! Story continues with street.initial()
@@ -252,36 +252,9 @@
  glk_set_style(style_Normal);
 ];
 
-! Debugging routines
-
-#Ifdef DEBUG_TRACEACTIONS;
- ! d = description - string
- ! ar = actor
- ! an = action - string
- ! n = noun
- ! s = second
- [ TraceActions d ar an n s;
-  print (string)d, " actor ";
-  PrintObject(ar);
-  print " action ", (string)an, " noun ";
-  PrintObject(n);
-  if (s ~= nothing) {
-   print " second ";
-   PrintObject(s);
-  }
-  new_line;
- ];
-
- [ PrintObject o;
-  if (o == nothing) print "nothing";
-  else print (name)o;
- ];
-#Endif;
-
 ! Utility routines
 
 [ ActorHasKeyForDoor a d o;
- !#Ifdef DEBUG; print "DEBUG ActorHasKeyForDoor actor ", (name)a, " door ", (name)d; new_line; #Endif;
  if (master_key in a) rtrue;;
  objectloop (o ofclass Room_Key) {
   if (o in a) {
@@ -292,15 +265,12 @@
 ];
 
 [ NewRoom o;
- #Ifdef DEBUG_MOVEMENT; print "DEBUG NewRoom^"; #Endif;
  if (britney.is_following) {
   move britney to location;
-  #Ifdef DEBUG_MOVEMENT; print "DEBUG moved britney^"; #Endif;
  }
  ! And person you're on the smartphone with follows you
  if (call_person ~= nothing) {
   move call_person to location;
-  #Ifdef DEBUG_MOVEMENT; print "DEBUG moved ", (name)call_person, "^"; #Endif;
  }
  if (((location == elevator_vestibule) && (elevator.floor_number == 1)) || ((location == second_floor) && (elevator.floor_number == 2)) || ((location == third_floor) && (elevator.floor_number == 3)) || ((location == fourth_floor) && (elevator.floor_number == 4)) || ((location == fifth_floor) && (elevator.floor_number == 5))) give elevator_doors open;
  else if (((location == elevator_vestibule) && (elevator.floor_number ~= 1)) || ((location == second_floor) && (elevator.floor_number ~= 2)) || ((location == third_floor) && (elevator.floor_number ~= 3)) || ((location == fourth_floor) && (elevator.floor_number ~= 4)) || ((location == fifth_floor) && (elevator.floor_number ~= 5))) give elevator_doors ~open;
@@ -308,7 +278,6 @@
  objectloop(o ofclass Disappearing_Object) {
   if (o has general) {
    if (parent(o) ofclass Public_Room) {
-    #Ifdef DEBUG_DAEMONS; print "DEBUG starting timer for ", (name)o, "^"; #Endif;
     StartTimer(o, 5);
     give o ~general;
    }
@@ -317,7 +286,6 @@
 ];
 
 [ DisrobeTop actor noun;
- #Ifdef DEBUG_CLOTHES; print "DEBUG DisrobeTop ", (name)actor, " noun ", (name)noun, "^"; #Endif;
  if (actor.wearing_top ~= noun) print_ret (string)actor.is, " not wearing the ", (name)actor.wearing_top, ".";
  actor.wearing_top = nothing;
  give noun ~worn;
@@ -331,7 +299,6 @@
 ];
 
 [ DisrobePants actor noun;
- #Ifdef DEBUG_CLOTHES; print "DEBUG DisrobePants ", (name)actor, " noun ", (name)noun, "^"; #Endif;
  if (actor.wearing_pants ~= noun) print_ret (string)actor.is, " not wearing the ", (name)actor.wearing_pants, ".";
  actor.wearing_pants = nothing;
  give noun ~worn;
@@ -342,7 +309,6 @@
 ];
 
 [ WearTop actor noun;
- #Ifdef DEBUG_CLOTHES; print "DEBUG WearTop ", (name)actor, " noun ", (name)noun, "^"; #Endif;
  if (actor.wearing_top ~= nothing) print_ret (string)actor.is, " already wearing the ", (name)actor.wearing_top, ".";
  if (noun notin actor) print_ret (string)actor.is, " not carrying the ", (name)noun, ".";
  remove actor.bra;
@@ -357,7 +323,6 @@
 ];
 
 [ WearPants actor noun;
- #Ifdef DEBUG_CLOTHES; print "DEBUG WearPants ", (name)actor, " noun ", (name)noun, "^"; #Endif;
  if (actor.wearing_pants ~= nothing) print_ret (string)actor.is, " already wearing the ", (name)actor.wearing_pants, ".";
  if (noun notin actor) print_ret (string)actor.is, " not carrying the ", (name)noun, ".";
  remove actor.panties;
@@ -477,25 +442,21 @@
 ];
 
 [ ComeHereSub;
- #Ifdef DEBUG; print "DEBUG actor ", (name)actor, "^"; #Endif;
  if (actor == player) rfalse;
 ];
 
 [ FollowMeSub;
- #Ifdef DEBUG; print "DEBUG actor ", (name)actor, "^"; #Endif;
  if (actor == player) rfalse;
 ];
 
-! End following
+! Stop following
 [ StayHereSub;
- #Ifdef DEBUG; print "DEBUG actor ", (name)actor, "^"; #Endif;
  if (actor == player) rfalse;
 ];
 
 [ HangUpSub o;
  if (~~(OnPhone())) "No call active at the moment.";
  o = call_person;
- !CloseWindow();
  EndCall(o);
  "~Bye, ", (name)o, ".~";
 ];
@@ -505,7 +466,7 @@
 ];
 
 [ PhotographSub o;
- !if (OnPhone(noun)) "How should I photograph ", (name)noun, "when I'm on the phone with ", (PronounAcc)noun, "?";
+ if (OnPhone(noun)) "How should I photograph ", (name)noun, "when I'm on the phone with ", (PronounAcc)noun, "?";
  if ((smartphone notin player) || (smartphone.mode ~= MODE_CAMERA)) "With what?";
  if (noun ~= kaitlyn or britney or igor or computer) "I decide not to waste photos on that.";
  smartphone.interact();
@@ -562,7 +523,6 @@
 ];
 
 [ TriggerFlashback;
- #Ifdef DEBUG_DAEMONS; print "DEBUG starting timer^"; #Endif;
  glk_request_timer_events(5000);
 ];
 

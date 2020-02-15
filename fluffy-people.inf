@@ -15,21 +15,11 @@ Girl kaitlyn "Kaitlyn"
    if ((self.wearing_top == nothing) && (self.wearing_pants == nothing)) "I'm looking pretty good in my bra and panties.";
   ],
   before [;
-   Exit:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(KAITLYN_BEFORE, actor, EXIT_ACTION, noun, second); #Endif;
-   Go:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(KAITLYN_BEFORE, actor, GO_ACTION, noun, second); #Endif;
    Give:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(KAITLYN_BEFORE, actor, GIVE_ACTION, noun, second); #Endif;
     if (OnPhone(self)) "It'd be hard to give something to ", (name)self, " when I'm on the phone with ", (PronounAcc)self, "!";
   ],
   after [;
-   Exit:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(KAITLYN_BEFORE, actor, EXIT_ACTION, noun, second); #Endif;
-   Go:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(KAITLYN_BEFORE, actor, GO_ACTION, noun, second); #Endif;
    Give:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(KAITLYN_BEFORE, actor, GIVE_ACTION, noun, second); #Endif;
     if (OnPhone(self)) "It'd be hard to give something to ", (name)self, " when I'm on the phone with ", (PronounAcc)self, "!";
   ],
  has concealed proper transparent;
@@ -47,7 +37,6 @@ Girl britney "Britney" room_403
   is_following false,
   contact_icon contact_britney,
   initial [;
-   #Ifdef DEBUG_DAEMONS; print "DEBUG britney daemon stop^"; #Endif;
    StopDaemon(self);
    if (britney.is_following) rtrue;
    "Britney, my BFF, is here.";
@@ -84,23 +73,19 @@ Girl britney "Britney" room_403
   ],
   before [;
    Give:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(BRITNEY_BEFORE, actor, GIVE_ACTION, noun, second); #Endif;
     if (OnPhone(self)) "It'd be hard to give something to ", (name)self, " when I'm on the phone with ", (PronounAcc)self, "!";
    Show:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(BRITNEY_BEFORE, actor, SHOW_ACTION, noun, second); #Endif;
     if (OnPhone(self)) "It's hard to show something to ", (name)self, " when I'm on the phone with ", (PronounAcc)self, "!";
   ],
   life [ o;
    Give:
     ! Giving to Britney...
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(BRITNEY_LIFE, actor, GIVE_ACTION, noun, second); #Endif;
     if (noun ofclass Britney_Object) {
      move noun to britney;
      print_ret (BritneysVoice)"Thanks.";
     }
    Show:
     ! Showing to Britney...
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(BRITNEY_LIFE, actor, SHOW_ACTION, noun, second); #Endif;
     ! if (call_person == self) "It's hard to show something to ", (name)self, " when I'm on the phone with ", (PronounAcc)self, "!";
     if (noun == smartphone) {
      if (smartphone.mode == MODE_PHOTOS) {
@@ -136,7 +121,6 @@ Girl britney "Britney" room_403
     print_ret (BritneysVoice)"Is that supposed to be interesting?";
    }
    Tell:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(BRITNEY_LIFE, actor, TELL_ACTION, noun, second); #Endif;
     if (second == 'fluffy') {
      if (FlagOn(PLAYER_KNOWS_ABOUT_FLUFFY)) {
       if (FlagOff(BRITNEY_KNOWS_ABOUT_FLUFFY)) {
@@ -156,28 +140,31 @@ Girl britney "Britney" room_403
     }
     "She doesn't seem interested.";
    Ask:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(BRITNEY_LIFE, actor, ASK_ACTION, noun, second); #Endif;
+    if (second == 'fluffy') {
+     if (FlagOff(BRITNEY_KNOWS_ABOUT_FLUFFY)) print_ret (BritneysVoice)"I love that little dog, Katey!";
+     else print_ret (BritneysVoice)"I don't know what else to suggest";
+    }
+    if (second == 'fluffy') {
+     if (FlagOff(BRITNEY_KNOWS_ABOUT_FLUFFY)) print_ret (BritneysVoice)"I love that little dog, Katey!";
+     else print_ret (BritneysVoice)"I don't know what else to suggest";
+    }
+    "Britney didn't know anything about that.";
    Kiss:
     print_ret (BritneysVoice)"I love you, Kaitlyn, but not that way.";
   ],
   orders [;
    Give:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(BRITNEY_ORDERS, actor, GIVE_ACTION, noun, second); #Endif;
+    if (OnPhone(britney)) print_ret (BritneysVoice)"Remind me when I see you again.";
+    if (noun notin britney) print_ret (BritneysVoice)"But, Kaitlyn, I don't have that.";
     move noun to player;
     print_ret (BritneysVoice)"ok ", (name)noun;
    Drop:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(BRITNEY_ORDERS, actor, DROP_ACTION, noun, second); #Endif;
     if ((noun ofclass Britney_Object) && (noun in britney)) {
-     if (OnPhone(britney)) {
-      move noun to call_room;
-     }
-     else {
-      move noun to location;
-     }
+     if (OnPhone(britney)) move noun to call_room;
+     else move noun to location;
      print_ret (BritneysVoice)"Ok.";
     }
    Take:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(BRITNEY_ORDERS, actor, TAKE_ACTION, noun, second); #Endif;
     if ((noun ofclass Britney_Object) && (noun notin britney)) {
      if (OnPhone(britney)) {
       if (noun in call_room) {
@@ -193,10 +180,10 @@ Girl britney "Britney" room_403
      }
     }
    Look:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(BRITNEY_ORDERS, actor, LOOK_ACTION, noun, second); #Endif;
-    print_ret (BritneysVoice)"ToDo.";
+    ! ToDo: Add more colour?
+    if (OnPhone(britney)) print_ret (BritneysVoice)"I don't see much happening.";
+    else print_ret (BritneysVoice)"Yes, I see you, you look nice.";
    Disrobe:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(BRITNEY_ORDERS, actor, DISROBE_ACTION, noun, second); #Endif;
     if (~~(location ofclass Hotel_Room)) print_ret (BritneysVoice)"I can't undress in public!";
     if (noun ofclass Top) {
      DisrobeTop(actor, noun);
@@ -207,7 +194,6 @@ Girl britney "Britney" room_403
      rtrue;
     }
    Wear:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(BRITNEY_ORDERS, actor, WEAR_ACTION, noun, second); #Endif;
     if (noun ofclass Top) {
      WearTop(actor, noun);
      rtrue;
@@ -217,13 +203,12 @@ Girl britney "Britney" room_403
      rtrue;
     }
    ComeHere:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(BRITNEY_ORDERS, actor, COME_HERE_ACTION, noun, second); #Endif;
     if (OnPhone(britney)) {
      if ((self.wearing_top == nothing) || (self.wearing_pants == nothing)) print_ret (BritneysVoice)"I'm not walking out of here dressed like this!";
      if (player in basement or roof) print_ret (BritneysVoice)"That's for authorized personnel only.";
      if (player in elevator) print_ret (BritneysVoice)"Let's meet somewhere other than the elevator.";
      !if (player in room1 or room2 or room3 or room4 or room5 or room6 or room7) "~Ok, stay there and I'll be there soon.~";
-     if (parent(player) ofclass Hall or Hotel_Room) self.destination_floor = parent(player).floor_number;
+     if (location ofclass Hall or Hotel_Room) self.destination_floor = location.floor_number;
      else self.destination_floor = 1;
      self.destination_room = location;
      !if (player in street) self.destination_on_route = lobby;
@@ -232,21 +217,16 @@ Girl britney "Britney" room_403
      EndCall(britney);
      print_ret (BritneysVoice)"Ok, I'll be there as soon as I can.";
     }
-   ! ToDo GoTo
+   ! Not going to implement GoTo
    FollowMe:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(BRITNEY_ORDERS, actor, FOLLOW_ME_ACTION, noun, second); #Endif;
     britney.is_following = true;
     print_ret (BritneysVoice)"Sure, I'll come with you.";
    StayHere:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(BRITNEY_ORDERS, actor, STAY_HERE_ACTION, noun, second); #Endif;
     britney.is_following = false;
     print_ret (BritneysVoice)"Ok, I'll stay here.";
    NotUnderstood: print_ret (BritneysVoice)"I don't understand.";
   ],
   daemon [ to_room;
-   #Ifdef DEBUG_DAEMONS;
-    print "DEBUG britney daemon start parent ", (name)parent(self), " destination floor ", self.destination_floor, " destination room ", (name)self.destination_room, ".^";
-   #Endif;
    to_room = nothing;
    switch (parent(self)) {
     room_501, room_502, room_503, room_504, room_505, room_506, room_507:
@@ -309,20 +289,17 @@ Girl britney "Britney" room_403
     street: to_room = lobby;
     default: print "Britney doesn't even know where she is!^";
    }
-   #Ifdef DEBUG_DAEMONS; print "DEBUG britney daemon to_room ", to_room; new_line; #Endif;
    if (to_room ~= nothing) {
     move self to to_room;
     if (player in to_room) {
      self.destination_room = to_room;
-     if (parent(player) ofclass Hotel_Room) print "I heard a knock on the door and let Britney in.";
+     if (location ofclass Hotel_Room) print "I heard a knock on the door and let Britney in.";
      else print "^Just then, Britney arrived.";
     }
     if (parent(self) == self.destination_room) {
-     #Ifdef DEBUG_DAEMONS; print "DEBUG britney daemon stop^"; #Endif;
      StopDaemon(self);
     }
    }
-   #Ifdef DEBUG_DAEMONS; print "DEBUG britney daemon end parent ", (name)parent(self); new_line; #Endif;
   ];
 
 Guy igor "Igor" lobby
@@ -334,16 +311,13 @@ Guy igor "Igor" lobby
   ],
   before [;
    Give:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(IGOR_BEFORE, actor, GIVE_ACTION, noun, second); #Endif;
     if (OnPhone(self)) "It'd be hard to give ", (name)self, " something when I'm on the phone with ", (PronounAcc)self, "!";
    Show:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(IGOR_BEFORE, actor, SHOW_ACTION, noun, second); #Endif;
     if (OnPhone(self)) "It's hard to show something to ", (name)self, " when I'm on the phone with ", (PronounAcc)self, "!";
   ],
   life [ o;
    Give:
     ! Giving to Igor...
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(IGOR_LIFE, actor, GIVE_ACTION, noun, second); #Endif;
     if (noun == master_key) {
      move noun to igor;
      print_ret (IgorsVoice)"Thanks for getting that back to me!";
@@ -351,7 +325,6 @@ Guy igor "Igor" lobby
     print_ret (IgorsVoice)"No, thanks, I don't need that.";
    Show:
     ! Showing to Igor...
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(IGOR_LIFE, actor, SHOW_ACTION, noun, second); #Endif;
     if (noun == smartphone) {
      if (smartphone.mode == MODE_PHOTOS) {
       ! Find current photo
@@ -383,7 +356,6 @@ Guy igor "Igor" lobby
      print_ret (IgorsVoice)"Is that supposed to be interesting?";
     }
    Ask:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(IGOR_LIFE, actor, ASK_ACTION, noun, second); #Endif;
     if (second == 'russians' or 'vlad' or 'vladimir') {
      if (FlagOn(IGOR_KNOWS_ABOUT_FLUFFY)) {
       if (FlagOff(PLAYER_KNOWS_ABOUT_202)) {
@@ -396,7 +368,6 @@ Guy igor "Igor" lobby
     }
     "Igor didn't seem to know anything about that.";
    Tell:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(IGOR_LIFE, actor, TELL_ACTION, noun, second); #Endif;
     if (second == 'fluffy') {
      if (FlagOn(PLAYER_KNOWS_ABOUT_FLUFFY)) {
       if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) {
@@ -431,16 +402,12 @@ Guy igor "Igor" lobby
   ],
   orders [;
    ComeHere:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(IGOR_ORDERS, actor, COME_HERE_ACTION, noun, second); #Endif;
     if (OnPhone(igor)) print_ret (IgorsVoice)"I need to stay here, sorry.";
    FollowMe:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(IGOR_ORDERS, actor, FOLLOW_ME_ACTION, noun, second); #Endif;
     if (~~(OnPhone(igor))) print_ret (IgorsVoice)"I need to stay here, sorry.";
    StayHere:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(IGOR_ORDERS, actor, STAY_HERE_ACTION, noun, second); #Endif;
     print_ret (IgorsVoice)"Of course, I have to stay here.";
    Give:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(IGOR_ORDERS, actor, GIVE_ACTION, noun, second); #Endif;
     !if (call_person == self) "It'd be hard for ", (name)self, " to give you anything when I'm on the phone with ", (PronounAcc)self, "!";
     if ((noun in self) && (noun == master_key) && (second == player)) {
      if (FlagOn(IGOR_KNOWS_ABOUT_FLUFFY)) {
@@ -449,7 +416,6 @@ Guy igor "Igor" lobby
      } else print_ret (IgorsVoice)"Sorry, I'd get in big trouble if I did that.";
     }
    Take:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(IGOR_ORDERS, actor, TAKE_ACTION, noun, second); #Endif;
     if (noun == master_key) {
      move noun to igor;
      print_ret (IgorsVoice)"I sure am glad to get that back!";

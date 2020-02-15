@@ -1,5 +1,9 @@
 #!/bin/bash
 
+make
+firefox file://$PWD/public/get-fluffy.html
+exit
+
 # Using Firefox because I can set it to clear cache on close so I always get the current .js
 
 function pause() {

@@ -99,20 +99,17 @@ Disappearing_Object smartphone "smartphone" kaitlyn
   ],
   interact [;
    self.move_counter = SMARTPHONE_TIMEOUT;
-   #Ifdef DEBUG_PHONES; print "DEBUG interact smartphone.move_counter ", self.move_counter; new_line; #Endif;
    StartDaemon(self);
   ],
   move_counter,
   daemon [;
    if (call_person == nothing) {
     self.move_counter--;
-    #Ifdef DEBUG_PHONES; print "DEBUG daemon smartphone.move_counter ", self.move_counter; new_line; #Endif;
     if (self.move_counter == 0) {
      self.change_mode(MODE_OFF);
      StopDaemon(self);
+     print "My smartphone times out and turns off.^";
     }
-   } else {
-    #Ifdef DEBUG_PHONES; print "DEBUG On smartphone call_person ", (name)call_person, "call_room ", (name)call_room; new_line; #Endif;
    }
   ]
  has container transparent;
@@ -201,11 +198,7 @@ Icon photos_icon "photos"
 Contact contact_britney
  with
   contact_noun britney,
-  name 'Britney',
-  before [;
-   Push, Touch:
-    #Ifdef DEBUG_TRACEACTIONS; TraceActions(CONTACT_BRITNEY_BEFORE, actor, PUSH_ACTION, noun, second); #Endif;
-  ];
+  name 'Britney';
 
 Room_Key b_key "room key" britney
  class Britney_Object Ownable_Object General_Object

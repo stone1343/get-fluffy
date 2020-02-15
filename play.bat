@@ -1,2 +1,3 @@
 @echo off
-start public\index.html
+rem start public\index.html
+glulxe get-fluffy.ulx
