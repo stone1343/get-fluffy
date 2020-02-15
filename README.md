@@ -3,9 +3,11 @@
 > Welcome to the Timbuktu!<br>
 >    \- Igor
 
-An interactive fiction game
+An entry in [IFComp 2020](https://ifcomp.org/)
 
 [Play Now on GitHub Pages](https://stone1343.github.io/get-fluffy/public/index.html) (Desktop browser highly recommended)
+
+If you've downloaded the project from GitHub, navigate to the public directory and open index.html with whichever brower you prefer
 
 Some known inconsistencies:
 * Britney doesn't have a smartphone
@@ -14,16 +16,14 @@ Some known inconsistencies:
 
 *Get Fluffy!* has not been tested on iOS or Android, please use a desktop browser.
 
-To build *Get Fluffy!*, you'll need the Inform compiler and Lua interpreter.
+You don't need to compile or build anything, everything you need is provided, all ready to go. If you do want to build *Get Fluffy!*, you'll need the Inform compiler and Lua interpreter.
 
 On Windows, you can:
 * **clean**, delete the game files
 * **compile**, create the game files
 * **play**, open public\index.html with your default browser
-* or manually navigate to the public directory and open index.html with whichever browser you prefer
 
 On Linux, you can
 * **make clean**
 * **make**
-* **./play**
-* or manually navigate to the public directory and open index.html with whichever browser you prefer
+* **./play**, open public/index.html with your default browser
