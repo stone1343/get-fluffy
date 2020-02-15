@@ -19,7 +19,7 @@ $(ULX): $(INF)
 
 # Build the .js requred by Quixe
 $(JS): $(ULX)
-	$(LUA) $(ULX) >$(JS)
+	$(LUA) $(ULX)>$(JS)
 
 clean:
 	$(RM) $(ULX) $(JS)
