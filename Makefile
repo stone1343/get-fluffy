@@ -21,4 +21,4 @@ $(JS): $(ULX)
 	$(LUA) $(ULX) >$(JS)
 
 clean:
-	$RM) $(ULX) $(JS)
+	$(RM) $(ULX) $(JS)
