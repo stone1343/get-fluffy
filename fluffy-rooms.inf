@@ -369,15 +369,16 @@ General_Object -> computer "computer"
    if (FlagOff(PLAYER_HAS_SEEN_MESSAGE)) {
     SetFlag(PLAYER_HAS_SEEN_MESSAGE);
     print "There's a message on the computer that I can't understand! It reads:^";
+    glk_set_style(style_Preformatted);
+    print (char)ucVe, (char)lcEl, (char)lcA, (char)lcDe, ", ";
+    print (char)lcShch, (char)lcYe, (char)lcEn, (char)lcO, (char)lcKa, " ";
+    print (char)lcVe, " ";
+    print (char)lcPe, (char)lcO, (char)lcDe, (char)lcVe, (char)lcA, (char)lcEl, (char)lcYe, ".^";
+    print (char)ucEs, (char)lcYe, (char)lcEr, (char)lcGe, (char)lcYe, (char)lcY, "^";
+    glk_set_style(style_Normal);
+    rtrue;
    }
-   else print "The message says:^";
-   glk_set_style(style_Preformatted);
-   print (char)ucVe, (char)lcEl, (char)lcA, (char)lcDe, ", ";
-   print (char)lcShch, (char)lcYe, (char)lcEn, (char)lcO, (char)lcKa, " ";
-   print (char)lcVe, " ";
-   print (char)lcPe, (char)lcO, (char)lcDe, (char)lcVe, (char)lcA, (char)lcEl, (char)lcYe, ".^";
-   print (char)ucEs, (char)lcYe, (char)lcEr, (char)lcGe, (char)lcYe, (char)lcY, "^";
-   glk_set_style(style_Normal);
+   "There's an incomprehensible message on the computer.";
   ]
  has static;
 
@@ -874,15 +875,13 @@ Room roof "Roof"
   ],
   d_to fifth_floor;
 
+! The logic is all in the class definition
 Disappearing_Object -> token "token"
  class Britney_Object
  with
   name 'token' 'coin',
   initial "Check it out, there's a token over there!",
-  description "It looks like a coin but it's not a coin.",
-  after [;
-   Take: "Cool, it's a shiny gold token.";
-  ];
+  description "It looks like a coin but it's not a coin.";
 
 ! Might expect 'has talkable' for a phone, but this phone is basically a teleporter ;-)
 ! Telephone's general means call active

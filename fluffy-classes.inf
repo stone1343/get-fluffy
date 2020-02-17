@@ -25,10 +25,12 @@ Class Ownable_Object
    " is here.";
   ],
   invent [;
-   if (self.owner == kaitlyn) print "my ";
-   else print "Britney's ";
-   print (name)self;
-   if (self has worn) print " (being worn)";
+   ! Don't include clothes you're wearing
+   if (self hasnt worn) {
+    if (self.owner == kaitlyn) print "my ";
+    else print "Britney's ";
+    print (name)self;
+   }
    rtrue;
   ];
 
@@ -41,17 +43,18 @@ Class Igor_Object
  class General_Object;
 
 Class Clothes
- class Ownable_Object Britney_Object
  with
   list_together 2
  has clothing;
 
 Class Top
- class Clothes
+ class Clothes Ownable_Object Britney_Object
  with
   before [;
    Disrobe:
+    ! This is for Kaitlyn, Britney's undress is in her object definition
     if (~~(location ofclass Hotel_Room)) "I'm not gonna take my shirt off in public!";
+    if (FlagOff(PLAYER_KNOWS_ABOUT_FLUFFY)) "I decide not to listen to a voice in my head that suggests something inappropriate.";
     DisrobeTop(actor, noun);
     rtrue;
    Wear:
@@ -62,21 +65,24 @@ Class Top
 Class Pants
  class Clothes
  with
+  ! Never listed in inventory
+  !invent [;
+  ! rtrue;
+  !],
   before [;
-   Disrobe:
-    if (~~(location ofclass Hotel_Room)) "I'm not gonna take my pants off in public!";
-    DisrobePants(actor, noun);
-    rtrue;
-   Wear:
-    WearPants(actor, noun);
-    rtrue;
+   Disrobe: print_ret (preformatted)"This is not that kind of game!";
   ];
 
+! i.e. bras
 Class Underwear
  class Clothes
  with
+  ! Never listed in inventory
+  !invent [;
+  ! rtrue;
+  !],
   before [;
-   Disrobe: "Keep it PG-13!";
+   Disrobe: print_ret (preformatted)"Keep it PG-13!";
   ];
 
 ! A Disappearing_Object is a special kind of object which disappears if you leave it in a Public_Room
@@ -86,14 +92,25 @@ Class Disappearing_Object
  with
   after [;
    Drop:
+    move self to location;
+    print "I put down ";
+    if (self == smartphone) print "my smartphone, ", (i)" carefully";
+    else print (the)self;
     if (location ofclass Public_Room) {
      ! Timer is started in NewRoom for Disappearing_Objects which have general
      give self general;
-     "Ok, but if you leave ", (the)self, " here, it may not be here when you return.";
+     print ", knowing it may not be here when I return";
     }
+    ".";
    Take:
+    move self to player;
     give self ~general;
     StopTimer(self);
+    if (self == token && FlagOff(PLAYER_TOOK_TOKEN)) {
+     score++;
+     SetFlag(PLAYER_TOOK_TOKEN);
+    }
+    "I picked up ", (the) self, ".";
   ],
   time_left,
   time_out [;
@@ -116,36 +133,12 @@ Class Icon
   ],
  has static;
 
-Class Contact
- with
-  contact_noun,
-  before [;
-   Push, Touch:
-    if (smartphone notin player) move smartphone to player;
-    self.press();
-    rtrue;
-  ],
-  press [ o;
-   if (OnPhone()) "I'm currently on the phone with ", (name)call_person, ".";
-   if ((smartphone notin actor) || (smartphone.mode ~= MODE_CONTACTS)) "With what?";
-   o = self.contact_noun;
-   if (player in parent(o)) print_ret (CPronounNom)o, "'s standing right in front of me!";
-   smartphone.interact();
-   call_room = parent(o);
-   call_person = o;
-   give o concealed;
-   move o to location;
-   give self concealed;
-   print_ret (BritneysVoice)"Hey Kaitlyn, what's up?";
-  ];
-
 ! Dynamically created photos
 Class Photograph(MAX_PHOTOGRAPHS)
  with
   number,
   subject,
   wearing_top,
-  wearing_pants,
   description [;
    switch (self.subject) {
     fluffy: "It's Fluffy, he's s-o-o-o cute I love him so much!!!";
@@ -154,9 +147,7 @@ Class Photograph(MAX_PHOTOGRAPHS)
      print "It's a picture of Britney in a ";
      if (self.wearing_top) print (name)self.wearing_top;
      else print "bra";
-     print " and ";
-     if (self.wearing_pants) print_ret (name)self.wearing_pants, ".";
-     else "panties.";
+     " and yoga pants.";
     computer:
      if (FlagOn(PLAYER_KNOWS_MESSAGE)) "It's the computer message saying that Fluffy is in the basement.";
      else "The computer has a message that I can't understand.";
@@ -164,13 +155,9 @@ Class Photograph(MAX_PHOTOGRAPHS)
      print "It's a picture of me in a ";
      if (self.wearing_top) print (name)self.wearing_top;
      else print "bra";
-     print " and ";
-     if (self.wearing_pants) print (name)self.wearing_pants, ".";
-     else print "panties.";
-     if ((self.wearing_top == nothing)) {
-      if ((self.wearing_pants == nothing)) " Yeah, I look pretty good in my underwear.";
-      else " I like how my boobs look in this bra.";
-     } else " It's a cute outfit, isn't it?";
+     print " and skinny jeans.";
+     if ((self.wearing_top == nothing)) " I like how my boobs look in this bra.";
+     " It's a cute outfit, isn't it?";
    }
   ],
   create [ o;
@@ -179,8 +166,8 @@ Class Photograph(MAX_PHOTOGRAPHS)
    if (o == player or britney) {
     self.wearing_top = o.wearing_top;
     if (self.wearing_top == nothing) SetFlag(PLAYER_TOOK_TOPLESS_PHOTO);
-    self.wearing_pants = o.wearing_pants;
    }
+   if (o == computer) SetFlag(PLAYER_HAS_PHOTOGRAPHED_MESSAGE);
   ];
 
 Class Button
@@ -385,8 +372,8 @@ Class Hotel_Room
     <<Enter self.door_out>>;
    Go:
     if (telephone in player) "I'm still holding the house phone, it's one of those old-fashioned ones with a cord.";
-    if ((player.wearing_top == nothing) || (player.wearing_pants == nothing)) "I think about walking out of the room, but I should get dressed first.";
-    if ((britney in location) && (britney.is_following) && ((britney.wearing_top == nothing) || (britney.wearing_pants == nothing))) print_ret (BritneysVoice)"Hang on, I'm not walking out of here dressed like this!";
+    if (player.wearing_top == nothing) "I think about walking out of the room, but I should get dressed first.";
+    if ((britney in location) && (britney.is_following) && (britney.wearing_top == nothing)) print_ret (BritneysVoice)"Hang on, I'm not walking out of here dressed like this!";
     if (self.door_out hasnt open) give self.door_out open;
   ]
  has scenery proper;

@@ -65,11 +65,6 @@
  player = kaitlyn;
  location = street;
 
- ! Set things up for faster debugging
- !move master_key to room_403;
- !location = room_403;
- !move igor to room_403;
-
  SetFlag(SMARTPHONE_LED_BLINKING);
  Photograph.create(fluffy);
  ClearScreen();
@@ -83,72 +78,72 @@
  ClearScreen();
  print "^Omigod, someone took my Fluffy! I gotta get her back!!^";
  #Ifdef NO_THIS_IS_NOT_DEFINED;
-  Pause();
-  ClearScreen();
-  print (header) "header
-   ABCDEFGHIJKLMNOPQRSTUVWXYZ
-   abcdefghijklmnopqrstuvwxyz
-   `1234567890-=
-   ~!#$%&*()_+
-   []{}|;':<>^";
-  print (subheader) "subheader
-   ABCDEFGHIJKLMNOPQRSTUVWXYZ
-   abcdefghijklmnopqrstuvwxyz
-   `1234567890-=
-   ~!#$%&*()_+
-   []{}|;':<>^";
-  print (b) "bold (input)
-   ABCDEFGHIJKLMNOPQRSTUVWXYZ
-   abcdefghijklmnopqrstuvwxyz
-   `1234567890-=
-   ~!#$%&*()_+
-   []{}|;':<>^";
-  print (i) "italic (emphasized)
-   ABCDEFGHIJKLMNOPQRSTUVWXYZ
-   abcdefghijklmnopqrstuvwxyz
-   `1234567890-=
-   ~!#$%&*()_+
-   []{}|;':<>^";
-  print (preformatted) "preformatted
-   ABCDEFGHIJKLMNOPQRSTUVWXYZ
-   abcdefghijklmnopqrstuvwxyz
-   `1234567890-=
-   ~!#$%&*()_+
-   []{}|;':<>^";
-  print (BritneysVoice) "Britney
-   ABCDEFGHIJKLMNOPQRSTUVWXYZ
-   abcdefghijklmnopqrstuvwxyz
-   `1234567890-=
-   ~!#$%&*()_+
-   []{}|;':<>^";
-  print (HackersVoice) "Hacker
-   ABCDEFGHIJKLMNOPQRSTUVWXYZ
-   abcdefghijklmnopqrstuvwxyz
-   `1234567890-=
-   ~!#$%&*()_+
-   []{}|;':<>^";
-  print (IgorsVoice) "Igor
-   ABCDEFGHIJKLMNOPQRSTUVWXYZ
-   abcdefghijklmnopqrstuvwxyz
-   `1234567890-=
-   ~!#$%&*()_+
-   []{}|;':<>^";
-  print (blue) "blue
-   ABCDEFGHIJKLMNOPQRSTUVWXYZ
-   abcdefghijklmnopqrstuvwxyz
-   `1234567890-=
-   ~!#$%&*()_+
-   []{}|;':<>^";
-  print (pink) "pink
-   ABCDEFGHIJKLMNOPQRSTUVWXYZ
-   abcdefghijklmnopqrstuvwxyz
-   `1234567890-=
-   ~!#$%&*()_+
-   []{}|;':<>^";
-  glk_set_style(style_Preformatted);
-  print (char)ucA, (char)ucBe, (char)ucVe, (char)ucGe, (char)ucDe, (char)ucYe, (char)ucYo, (char)ucZhe, (char)ucZe, (char)ucI, (char)ucY, (char)ucKa, (char)ucEl, (char)ucEm, (char)ucEn, (char)ucO, (char)ucPe, (char)ucEr, (char)ucEs, (char)ucTe, (char)ucU, (char)ucF, (char)ucKha, (char)ucTse, (char)ucChe, (char)ucSh, (char)ucShch, (char)ucHard, (char)ucBI, (char)ucSoft, (char)ucE, (char)ucYu, (char)ucYa, "^";
-  print (char)lcA, (char)lcBe, (char)lcVe, (char)lcGe, (char)lcDe, (char)lcYe, (char)lcYo, (char)lcZhe, (char)lcZe, (char)lcI, (char)lcY, (char)lcKa, (char)lcEl, (char)lcEm, (char)lcEn, (char)lcO, (char)lcPe, (char)lcEr, (char)lcEs, (char)lcTe, (char)lcU, (char)lcF, (char)lcKha, (char)lcTse, (char)lcChe, (char)lcSh, (char)lcShch, (char)lcHard, (char)lcBI, (char)lcSoft, (char)lcE, (char)lcYu, (char)lcYa, "^";
-  glk_set_style(style_Normal);
+ Pause();
+ ClearScreen();
+ print (header) "header
+  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  abcdefghijklmnopqrstuvwxyz
+  `1234567890-=
+  ~!#$%&*()_+
+  []{}|;':<>^";
+ print (subheader) "subheader
+  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  abcdefghijklmnopqrstuvwxyz
+  `1234567890-=
+  ~!#$%&*()_+
+  []{}|;':<>^";
+ print (b) "bold (input)
+  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  abcdefghijklmnopqrstuvwxyz
+  `1234567890-=
+  ~!#$%&*()_+
+  []{}|;':<>^";
+ print (i) "italic (emphasized)
+  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  abcdefghijklmnopqrstuvwxyz
+  `1234567890-=
+  ~!#$%&*()_+
+  []{}|;':<>^";
+ print (preformatted) "preformatted
+  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  abcdefghijklmnopqrstuvwxyz
+  `1234567890-=
+  ~!#$%&*()_+
+  []{}|;':<>^";
+ print (BritneysVoice) "Britney
+  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  abcdefghijklmnopqrstuvwxyz
+  `1234567890-=
+  ~!#$%&*()_+
+  []{}|;':<>^";
+ print (HackersVoice) "Hacker
+  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  abcdefghijklmnopqrstuvwxyz
+  `1234567890-=
+  ~!#$%&*()_+
+  []{}|;':<>^";
+ print (IgorsVoice) "Igor
+  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  abcdefghijklmnopqrstuvwxyz
+  `1234567890-=
+  ~!#$%&*()_+
+  []{}|;':<>^";
+ print (blue) "blue
+  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  abcdefghijklmnopqrstuvwxyz
+  `1234567890-=
+  ~!#$%&*()_+
+  []{}|;':<>^";
+ print (pink) "pink
+  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  abcdefghijklmnopqrstuvwxyz
+  `1234567890-=
+  ~!#$%&*()_+
+  []{}|;':<>^";
+ glk_set_style(style_Preformatted);
+ print (char)ucA, (char)ucBe, (char)ucVe, (char)ucGe, (char)ucDe, (char)ucYe, (char)ucYo, (char)ucZhe, (char)ucZe, (char)ucI, (char)ucY, (char)ucKa, (char)ucEl, (char)ucEm, (char)ucEn, (char)ucO, (char)ucPe, (char)ucEr, (char)ucEs, (char)ucTe, (char)ucU, (char)ucF, (char)ucKha, (char)ucTse, (char)ucChe, (char)ucSh, (char)ucShch, (char)ucHard, (char)ucBI, (char)ucSoft, (char)ucE, (char)ucYu, (char)ucYa, "^";
+ print (char)lcA, (char)lcBe, (char)lcVe, (char)lcGe, (char)lcDe, (char)lcYe, (char)lcYo, (char)lcZhe, (char)lcZe, (char)lcI, (char)lcY, (char)lcKa, (char)lcEl, (char)lcEm, (char)lcEn, (char)lcO, (char)lcPe, (char)lcEr, (char)lcEs, (char)lcTe, (char)lcU, (char)lcF, (char)lcKha, (char)lcTse, (char)lcChe, (char)lcSh, (char)lcShch, (char)lcHard, (char)lcBI, (char)lcSoft, (char)lcE, (char)lcYu, (char)lcYa, "^";
+ glk_set_style(style_Normal);
  #Endif;
  Pause();
  ClearScreen();
@@ -173,7 +168,6 @@
 ];
 
 ! Pronoun routines, from http://inform-fiction.org/manual/Answers.pdf
-
 [ PronounAcc i;
  if (i hasnt animate || i has neuter) print "it";
  else { if (i has female) print "her"; else print "him"; }
@@ -183,10 +177,10 @@
 ! if (i hasnt animate || i has neuter) print "it";
 ! else { if (i has female) print "she"; else print "he"; }
 !];
-[ CPronounNom i;
- if (i hasnt animate || i has neuter) print "It";
- else { if (i has female) print "She"; else print "He"; }
-];
+![ CPronounNom i;
+! if (i hasnt animate || i has neuter) print "It";
+! else { if (i has female) print "She"; else print "He"; }
+!];
 
 ! Printing styles, the ones that aren't used are commented out
 
@@ -205,12 +199,6 @@
 
 [ b text;
  glk_set_style(style_Input);
- print (string)text;
- glk_set_style(style_Normal);
-];
-
-[ i text;
- glk_set_style(style_Emphasized);
  print (string)text;
  glk_set_style(style_Normal);
 ];
@@ -248,6 +236,12 @@
 
 [ preformatted text;
  glk_set_style(style_Preformatted);
+ print (string)text;
+ glk_set_style(style_Normal);
+];
+
+[ i text;
+ glk_set_style(style_Emphasized);
  print (string)text;
  glk_set_style(style_Normal);
 ];
@@ -293,19 +287,10 @@
  give actor.bra worn;
  if (actor == player) "I take off the ", (name)noun, ".";
  else {
-  move b_tits to location; ! ToDo - make sure they move to where Britney is (or maybe they should always move with her and description changes if she has a shirt on
-  print_ret (BritneysVoice)"Kaitlyn, this makes me very uncomfortable!";
+  move b_tits to parent(britney);
+  if (FlagOff(BRITNEY_KNOWS_ABOUT_FLUFFY)) print_ret (BritneysVoice)"Ok, but... why?";
+  print_ret (BritneysVoice)"Sure, but only to help you get Fluffy back!";
  }
-];
-
-[ DisrobePants actor noun;
- if (actor.wearing_pants ~= noun) print_ret (string)actor.is, " not wearing the ", (name)actor.wearing_pants, ".";
- actor.wearing_pants = nothing;
- give noun ~worn;
- move actor.panties to actor;
- give actor.panties worn;
- if (actor == player) "I take off the ", (name)noun, ".";
- else print_ret (BritneysVoice)"Kaitlyn, this makes me very uncomfortable!";
 ];
 
 [ WearTop actor noun;
@@ -317,20 +302,9 @@
  give noun worn;
  if (actor == player) "I put on the ", (name)noun, ".";
  else {
-  move b_tits to thedark; ! ToDo
+  move b_tits to thedark;
   print_ret (BritneysVoice)"Thanks, I feel a little less naked now!";
  }
-];
-
-[ WearPants actor noun;
- if (actor.wearing_pants ~= nothing) print_ret (string)actor.is, " already wearing the ", (name)actor.wearing_pants, ".";
- if (noun notin actor) print_ret (string)actor.is, " not carrying the ", (name)noun, ".";
- remove actor.panties;
- give actor.panties ~worn;
- actor.wearing_pants = noun;
- give noun worn;
- if (actor == player) "I put on the ", (name)noun, ".";
- else print_ret (BritneysVoice)"Thanks, I feel a little less naked now!";
 ];
 
 ! Used for parsing grammar
@@ -373,20 +347,45 @@
  return GPR_PREPOSITION;
 ];
 
-! Doesn't need debug output because gameplay should always make it clear
+#Ifdef ADDITIONAL_DEBUGGING;
+[ OutputCallInfo;
+ print "call_person ";
+ if (call_person == nothing ) print "nothing^";
+ else print (name)call_person,"^";
+ print "call_room ";
+ if (call_room == nothing ) print "nothing^";
+ else print (name)call_room,"^";
+];
+#Endif;
+
+! Doesn't print anything, caller is responible for that
 [ EndCall o;
+ #Ifdef ADDITIONAL_DEBUGGING;
+ print "EndCall ",(name)o,"^";
+ OutputCallInfo();
+ #Endif;
  give o ~concealed;
  move o to call_room;
- call_room = nothing;
+ if (o == britney && o.wearing_top == nothing) move b_tits to call_room;
  call_person = nothing;
+ call_room = nothing;
+ #Ifdef ADDITIONAL_DEBUGGING;
+ OutputCallInfo();
+ #Endif;
  ! If hanging up house phone
  if (telephone has general) give telephone ~general;
  ! Else hanging up smartphone
- else give o.contact_icon ~concealed;
+ else give contact_britney ~concealed;
 ];
 
 ! o is optional object to to determine if you're on the phone with that person
 [ OnPhone o;
+ #Ifdef ADDITIONAL_DEBUGGING;
+ print "OnPhone ";
+ if (o == nothing ) print "nothing^";
+ else print (name)o,"^";
+ OutputCallInfo();
+ #Endif;
  if (o ~= nothing) return ((call_room ~= nothing) && (call_person == o));
  else return ((call_room ~= nothing) && (call_person ~= nothing));
 ];
@@ -402,14 +401,21 @@
   ! If that's where you are, terminate
   if (player in lobby) "Doh! Busy signal.";
   give telephone general;
-  call_room = lobby;
   call_person = igor;
+  call_room = lobby;
+  #Ifdef ADDITIONAL_DEBUGGING;
+  OutputCallInfo();
+  #Endif;
   give igor concealed;
   move igor to player;
   print_ret (IgorsVoice)"Hello, Front Desk?";
  }
  ! 411 and 911
  if (dialed_number == 411 or 911) {
+  if (FlagOff(PLAYER_DIALED_911)) {
+   score++;
+   SetFlag(PLAYER_DIALED_911);
+  }
   print_ret (preformatted)"External calls are not allowed.";
  }
  ! Three-digits
@@ -428,8 +434,12 @@
       give telephone general;
       call_room = r;
       call_person = britney;
+      #Ifdef ADDITIONAL_DEBUGGING;
+      OutputCallInfo();
+      #Endif;
       give britney concealed;
       move britney to location;
+      if (britney.wearing_top == nothing) move b_tits to location;
       print_ret (BritneysVoice)"Hello?";
      }
      break;
@@ -454,11 +464,10 @@
  if (actor == player) rfalse;
 ];
 
-[ HangUpSub o;
+[ HangUpSub;
  if (~~(OnPhone())) "No call active at the moment.";
- o = call_person;
- EndCall(o);
- "~Bye, ", (name)o, ".~";
+ EndCall(call_person);
+ "~Bye, ", (name)call_person, ".~";
 ];
 
 [ KnockSub;
@@ -517,6 +526,7 @@
     if (itsBritney) deadflag = 3;
     else deadflag = 4;
    }
+   "This is *NOT* the photo they wanted, maybe it'll piss them off!";
   kaitlyn: "I can't send to myself.";
   default: "I missed programming ", (name)noun, ".";
  }
@@ -535,16 +545,29 @@
 
 ! Hints, which will guide you to the most desirable outcome, arresting the fucking Russian scumbags
 [ ThinkSub;
- if (FlagOff(PLAYER_KNOWS_ABOUT_FLUFFY)) "I should check my smartphone to see what's going on.";
+ ! ToDo: Any other possible improvements?
+ ! Guide user to the preferred ending, even if you've taken a topless photo or have lost the master key
+ if (FlagOff(PLAYER_KNOWS_ABOUT_FLUFFY)) "I should check my messages.";
  if (FlagOff(PLAYER_KNOWS_ABOUT_RUSSIANS)) "Maybe I should explore the hotel a little more.";
  if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) "Would Igor help if he knew Fluffy's been dognapped?";
- if (FlagOff(PLAYER_KNOWS_ABOUT_202)) "Maybe Igor could tell me something about Vlad.";
- if (master_key notin player) "I need a way to get into the Russians' room.";
- if (FlagOff(PLAYER_HAS_SEEN_MESSAGE)) "I'm sure I could find some evidence in the Russians' room.";
- if (FlagOff(PLAYER_HAS_PHOTOGRAPHED_MESSAGE)) "How can I record what the message says?";
+ if (FlagOff(PLAYER_KNOWS_ABOUT_202)) "Maybe Igor could tell me something about this Vlad guy.";
+ if (FlagOff(PLAYER_HAS_SEEN_MESSAGE)) {
+  if ((parent(master_key) == thedark or roof) || (parent(master_key) ofclass Hotel_Room)) ConsiderSendingPhoto();
+  if (master_key notin player) "I need a master key to get into the Russians' room.";
+  if (location ~= room_202) "I'm sure I could find some evidence in the Russians' room.";
+  "I wish I was more observant!";
+ }
+ if (FlagOff(PLAYER_HAS_PHOTOGRAPHED_MESSAGE)) "I should record what the message says.";
  if (FlagOff(PLAYER_KNOWS_MESSAGE)) "Igor's Ukrainian, maybe he can translate the message.";
- if (FlagOn(PLAYER_TOOK_TOPLESS_PHOTO)) "I *could* actually just send the photo.";
+ ! At this point, you know where Fluffy is
+ if ((parent(master_key) == thedark or roof) || (parent(master_key) ofclass Hotel_Room)) ConsiderSendingPhoto();
+ if (master_key notin player) "I need the master key to get into the basement.";
  "Time to go rescue Fluffy!";
+];
+
+[ ConsiderSendingPhoto;
+ if (FlagOff(PLAYER_TOOK_TOPLESS_PHOTO)) "Since I've lost the master key, I might have to actually take a topless photo.";
+ "I might have to send the photo to those scumbags.";
 ];
 
 [ HelpSub;
@@ -553,20 +576,23 @@
 
 [ DeathMessage;
  switch (deadflag) {
-  3: print "After sending a topless photo of Britney to the Russians... ";
-  4: print "After sending my topless photo to the Russians, they returned Fluffy and immediately posted the photo online.
-      I always wanted to be famous, so this wasn't such a bad ending!";
+  3:
+   "Britney didn't mind me sending the topless photo of her to the Russians, but it still wasn't something I was happy about doing.
+    Anyway, we got Fluffy back and neither of us will ever forget that weekend!";
+  4:
+   "After sending my topless photo to the Russians, they returned Fluffy and immediately posted the photo online.
+    I always wanted to be famous, so this wasn't such a bad ending!";
   5:
    print "And there, I was shocked to find Fluffy!!! I didn't know enough about ";
    if (FlagOn(PLAYER_KNOWS_ABOUT_RUSSIANS)) print "the Russians";
    else print "whoever took him";
-   print " for the police to do anything, but at least I got Fluffy back! Fluffy performed well in the dog show and we all returned home safely.";
-  6: print "We rescued Fluffy, he was s-o-o-o happy to see me!!! Plus, we had all the evidence we needed to put the Russians in jail for a long, long time.
-            Fluffy came second in his class in the dog show, but after what happened that weekend, it didn't matter!";
+   " for the police to do anything, but at least I got Fluffy back! Fluffy performed well in the dog show and we all returned home safely.";
+  6:
+   "We rescued Fluffy, he was s-o-o-o happy to see me!!! Plus, we had all the evidence we needed to put the Russians in jail for a long, long time.
+    Fluffy came second in his class in the dog show, but after what happened that weekend, it didn't matter!";
  }
- rtrue;
 ];
 
 [ ScoreSub;
- rtrue;
+ "You got ", score, " of ", MAX_SCORE, " bonus points!";
 ];

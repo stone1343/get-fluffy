@@ -20,28 +20,19 @@ Pants skinny_jeans "skinny jeans" kaitlyn
   name 'skinny' 'jeans' 'pants',
   description "my skinny jeans",
   article "my",
-  owner kaitlyn
  has worn pluralname;
 
 ! Clothes that are initially hidden
 Underwear k_bra "bra" thedark
  with
-  name 'bra',
+  name 'my' 'bra' 'boobs' 'breasts' 'tits',
   description "I like how my boobs look in this bra.",
   article "my",
-  owner kaitlyn
-  !before [;
-  ! Touch, Kiss, Lick, Suck:
-  !  "This is not that kind of game.";
-  !],
- has ~worn pluralname; ! Needs animate to kiss them
-
-Underwear k_panties "panties" thedark
- with
-  name 'panties',
-  article "my",
-  owner kaitlyn
- has ~worn pluralname;
+  before [;
+   Touch, Kiss:
+    print_ret (preformatted)"This is not that kind of game.";
+  ],
+ has ~worn pluralname animate; ! Needs animate to kiss them
 
 ! Might expect 'has talkable' for a phone, but this phone is basically a teleporter ;-)
 Disappearing_Object smartphone "smartphone" kaitlyn
@@ -63,33 +54,25 @@ Disappearing_Object smartphone "smartphone" kaitlyn
     "You'll have to be more specific.";
    Drop:
     if ((OnPhone()) && (telephone hasnt general)) "Don't be rude, you need to hang up first.";
-    move self to location;
-    "I put my smartphone down carefully.";
+    !move self to location;
+    !! Timer starts when you
+    !give self general;
+    !print "I put my smartphone down, ", (i)"carefully";
+    !if (location ofclass Public_Room) print ", knowing it may not be here when I return";
+    !".";
+   !Take:
+   ! give self ~general;
+   ! StopTimer(self);
+   ! "I pick up my smartphone.";
   ],
   change_mode [new_mode o;
    ! Switching out of Text mode, clear existing conversation
    self.mode = new_mode;
    if (self.mode ~= MODE_OFF) self.interact();
-   if (self.mode == MODE_HOME) {
-    objectloop(o ofclass Icon) {
-     move o to screen;
-    }
-   }
-   else {
-    objectloop(o ofclass Icon) {
-     remove o;
-    }
-   }
-   if (self.mode == MODE_CONTACTS) {
-    objectloop(o ofclass Contact) {
-     move o to screen;
-    }
-   }
-   else {
-    objectloop(o ofclass Contact) {
-     remove o;
-    }
-   }
+   if (self.mode == MODE_HOME) objectloop(o ofclass Icon) move o to screen;
+   else objectloop(o ofclass Icon) remove o;
+   if (self.mode == MODE_CONTACTS) move contact_britney to screen;
+   else remove contact_britney;
    if (self.mode == MODE_PHOTOS) {
     current_photo = MAX_PHOTOGRAPHS - Photograph.remaining();
    }
@@ -114,39 +97,23 @@ Disappearing_Object smartphone "smartphone" kaitlyn
 Object screen "screen" smartphone
  with
   description [ o;
-   switch (parent(self).mode) {
+   switch (smartphone.mode) {
     MODE_OFF: "It's off.";
     MODE_HOME: "The screen's got four icons, labelled Contacts, Messages, Camera and Photos.";
-    ! Contacts is for outgoing calls to Britney
+    ! Contacts is only for outgoing calls to Britney
     MODE_CONTACTS:
-     if (call_person == nothing) {
-      print "Contacts:";
-      objectloop (o ofclass Contact) {
-       print "^ ", (name)o.contact_noun;
-      }
-      new_line;
-      rtrue;
-     }
-     else "It has a picture of ", (name)call_person, " and a Hang Up button.";
+     if (call_person == britney) "It has a picture of Britney and a Hang Up button.";
+     "Contacts:^ Britney";
     ! Text mode is only to receive the ransom message from anonymous
     MODE_MESSAGES:
      ClearFlag(SMARTPHONE_LED_BLINKING);
-     glk_set_style(style_Preformatted);
-     print "Message from Anonymous:^We have your dog. If you want it back, send us a topless picture of yourself. You have one hour.^";
-     glk_set_style(style_Normal);
      SetFlag(PLAYER_KNOWS_ABOUT_FLUFFY);
-     return;
+     !glk_set_style(style_Preformatted);
+     print_ret (preformatted)"Message from Anonymous:^We have your dog. If you want it back, send us a topless picture of yourself. You have one hour.";
+     !glk_set_style(style_Normal);
     MODE_CAMERA: "Ready to take a photo.";
     MODE_PHOTOS:
-     !if (Photograph.remaining() == MAX_PHOTOGRAPHS) "I haven't taken any photos yet.";
-     !print "It shows the photo of ";
-     objectloop(o ofclass Photograph) {
-      if (o.number == current_photo) {
-       <<Examine o>>;
-      }
-     }
-     ".";
-    default: "Shouldn't happen.";
+     objectloop(o ofclass Photograph) if (o.number == current_photo) <<Examine o>>;
    }
   ],
   before [;
@@ -192,11 +159,26 @@ Icon photos_icon "photos"
   mode MODE_PHOTOS,
   name 'Photos';
 
-! Contacts
-Contact contact_britney
+Object contact_britney
  with
-  contact_noun britney,
-  name 'Britney';
+  name 'Britney',
+  before [;
+   Push, Touch:
+    if (OnPhone()) "I'm currently on the phone with ", (name)call_person, ".";
+    if ((smartphone notin actor) || (smartphone.mode ~= MODE_CONTACTS)) "With what?";
+    if (player in parent(britney)) print_ret "She's standing right in front of me!";
+    smartphone.interact();
+    call_room = parent(britney);
+    call_person = britney;
+    #Ifdef ADDITIONAL_DEBUGGING;
+    OutputCallInfo();
+    #Endif;
+    give britney concealed;
+    move britney to location;
+    give self concealed;
+    if (britney.wearing_top == nothing) move b_tits to location;
+    print_ret (BritneysVoice)"Hey Kaitlyn, what's up?";
+  ];
 
 Room_Key b_key "room key" britney
  class Britney_Object Ownable_Object General_Object
@@ -220,7 +202,6 @@ Pants yoga_pants "yoga pants" britney
   name 'yoga' 'pants',
   description "her yoga pants",
   article "Britney's",
-  owner britney
  has worn pluralname;
 
 ! Clothes that are initially hidden
@@ -228,15 +209,7 @@ Underwear b_bra "bra" thedark
  with
   name 'bra',
   article "Britney's",
-  owner britney
  has ~worn;
-
-Underwear b_panties "panties" thedark
- with
-  name 'panties',
-  article "Britney's",
-  owner britney
- has ~worn pluralname;
 
 Object b_tits "Britney's boobs" thedark
  with
@@ -245,8 +218,7 @@ Object b_tits "Britney's boobs" thedark
   article "Britney's",
   before [;
    Touch, Kiss:
-    if (OnPhone(britney)) "Can't exactly feel her up over the phone!";
-    "Focus on the game.";
+    print_ret (preformatted)"Focus on the game!";
   ],
  has scenery static pluralname proper animate; ! Animate so you can try to kiss them!
 

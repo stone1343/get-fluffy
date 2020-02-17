@@ -4,19 +4,30 @@ Girl kaitlyn "Kaitlyn"
   name 'kaitlyn',
   narrative_voice 1,
   wearing_top yellow_shirt,
-  wearing_pants skinny_jeans,
   bra k_bra,
-  panties k_panties,
   is "I'm",
   description [;
-   if ((self.wearing_top ~= nothing) && (self.wearing_pants ~= nothing)) "I'm rockin' a cute, little ", (name)self.wearing_top, " and ", (name)self.wearing_pants, ".";
-   if ((self.wearing_top == nothing) && (self.wearing_pants ~= nothing)) "I'm in bra and ", (name)self.wearing_pants, ".";
-   if ((self.wearing_top ~= nothing) && (self.wearing_pants == nothing)) "I'm in ", (name)self.wearing_top, " and panties.";
-   if ((self.wearing_top == nothing) && (self.wearing_pants == nothing)) "I'm looking pretty good in my bra and panties.";
+   if (self.wearing_top ~= nothing) print "I'm rockin' a cute, little ", (name)self.wearing_top;
+   else print "I'm in a bra";
+   " and skinny jeans.";
   ],
   before [;
    Give:
     if (OnPhone(self)) "(Kaitlyn Before Give) It'd be hard to give something to ", (name)self, " when I'm on the phone with ", (PronounAcc)self, "!";
+  ],
+  orders [item number_carried;
+   Inv:
+    print "I'm carrying ";
+    objectloop (item in player) {
+        if (item hasnt worn) {
+         give item workflag;
+         number_carried++;
+        }
+        else give item ~workflag;
+    }
+    if (number_carried == 0) print "nothing";
+    else WriteListFrom(child(player), FULLINV_BIT+ENGLISH_BIT+RECURSE_BIT+WORKFLAG_BIT);
+    ".";
   ],
   after [;
    Give:
@@ -28,14 +39,11 @@ Girl britney "Britney" room_403
  with
   name 'Britney' 'Brit',
   wearing_top blue_shirt,
-  wearing_pants yoga_pants,
   bra b_bra,
-  panties b_panties,
   is "Britney's",
   destination_floor,
   destination_room,
   is_following false,
-  contact_icon contact_britney,
   initial [;
    StopDaemon(self);
    if (britney.is_following) rtrue;
@@ -66,10 +74,13 @@ Girl britney "Britney" room_403
     }
    } else print "Britney's a brunette, she's slim and athletic like me";
    print ", and she's wearing a ";
-   if ((self.wearing_top ~= nothing) && (self.wearing_pants ~= nothing)) print_ret (name)self.wearing_top, " and ", (name)self.wearing_pants, ".";
-   if ((self.wearing_top == nothing) && (self.wearing_pants ~= nothing)) "bra and ", (name)self.wearing_pants, ".";
-   if ((self.wearing_top ~= nothing) && (self.wearing_pants == nothing)) print_ret (name)self.wearing_top, " and panties.";
-   if ((self.wearing_top == nothing) && (self.wearing_pants == nothing)) "bra and panties.";
+   if (self.wearing_top ~= nothing) print (name)self.wearing_top;
+   else print "bra";
+   " and yoga pants.";
+  ],
+  actualRoom [;
+    if (OnPhone(britney)) return call_room;
+    else return parent(britney);
   ],
   before [;
    Give:
@@ -98,7 +109,7 @@ Girl britney "Britney" room_403
          igor: print_ret (BritneysVoice)"Isn't that the guy from the front desk?";
          britney:
           print (BritneysVoice)"Oh, that's a pretty good photo of me";
-          if ((o.wearing_top == nothing) || (o.wearing_pants == nothing)) print_ret (BritneysVoice)", but make sure you don't show that to anyone else!";
+          if (o.wearing_top == nothing) print_ret (BritneysVoice)", but make sure you don't show that to anyone else!";
           print_ret (BritneysVoice)".";
          kaitlyn:
           print_ret (BritneysVoice)"That's an awesome photo of you!";
@@ -148,62 +159,46 @@ Girl britney "Britney" room_403
     print_ret (BritneysVoice)"ok ", (name)noun;
    Drop:
     if ((noun ofclass Britney_Object) && (noun in britney)) {
-     if (OnPhone(britney)) move noun to call_room;
-     else move noun to location;
+     move noun to self.actualRoom();
      print_ret (BritneysVoice)"Ok.";
     }
    Take:
     if ((noun ofclass Britney_Object) && (noun notin britney)) {
-     if (OnPhone(britney)) {
-      if (noun in call_room) {
-       move noun to britney;
-       print_ret (BritneysVoice)"Ok.";
-      }
-     }
-     else {
-      if (noun in parent(britney)) {
-       move noun to britney;
-       print_ret (BritneysVoice)"Ok.";
-      }
+     if (noun in self.actualRoom()) {
+      move noun to britney;
+      print_ret (BritneysVoice)"Ok.";
      }
     }
    Look:
     ! ToDo: Add more colour?
-    if (OnPhone(britney)) print_ret (BritneysVoice)"I don't see much happening.";
-    else print_ret (BritneysVoice)"Yes, I see you, you look nice.";
+    if (britney.actualRoom() == location) print_ret (BritneysVoice)"I pretty much see the same stuff as you.";
+    print_ret (BritneysVoice)"I'm in ", (name)britney.actualRoom(), " and there's not much happening.";
    Disrobe:
-    if (~~(location ofclass Hotel_Room)) print_ret (BritneysVoice)"I can't undress in public!";
+    if (~~(self.actualRoom() ofclass Hotel_Room)) print_ret (BritneysVoice)"I can't undress in public!";
+    if (FlagOff(BRITNEY_KNOWS_ABOUT_FLUFFY)) print_ret (BritneysVoice)"Why would I do that?";
     if (noun ofclass Top) {
      DisrobeTop(actor, noun);
      rtrue;
     }
-    if (noun ofclass Pants) {
-     DisrobePants(actor, noun);
-     rtrue;
-    }
+    print_ret (BritneysVoice)"Sorry, I'm keeping these on!";
    Wear:
     if (noun ofclass Top) {
      WearTop(actor, noun);
      rtrue;
     }
-    if (noun ofclass Pants) {
-     WearPants(actor, noun);
-     rtrue;
-    }
+    print_ret (BritneysVoice)"Huh?";
    ComeHere:
     if (OnPhone(britney)) {
-     if ((self.wearing_top == nothing) || (self.wearing_pants == nothing)) print_ret (BritneysVoice)"I'm not walking out of here dressed like this!";
+     if (self.wearing_top == nothing) print_ret (BritneysVoice)"I'm not walking out of here without a shirt on!";
      if (player in basement or roof) print_ret (BritneysVoice)"That's for authorized personnel only.";
      if (player in elevator) print_ret (BritneysVoice)"Let's meet somewhere other than the elevator.";
-     !if (player in room1 or room2 or room3 or room4 or room5 or room6 or room7) "~Ok, stay there and I'll be there soon.~";
      if (location ofclass Hall or Hotel_Room) self.destination_floor = location.floor_number;
      else self.destination_floor = 1;
-     self.destination_room = location;
-     !if (player in street) self.destination_on_route = lobby;
-     !if (player in hall or room1 or room2 or room3 or room4 or room5 or room6 or room7) self.destination_on_route = hall;
+     if (location ofclass Hotel_Room) self.destination_room = location.to_hall;
+     else self.destination_room = location;
      StartDaemon(self);
      EndCall(britney);
-     print_ret (BritneysVoice)"Ok, I'll be there as soon as I can.";
+     print_ret (BritneysVoice)"Ok, see you soon, bye.";
     }
    ! Not going to implement GoTo
    FollowMe:
@@ -324,7 +319,7 @@ Guy igor "Igor" lobby
          britney: print_ret (IgorsVoice)"Yes, that's your friend, how could I forget her?";
          kaitlyn:
           print (IgorsVoice)"That's an awesome photo of you";
-          if ((o.wearing_top == nothing) || (o.wearing_pants == nothing)) print_ret (IgorsVoice)", but you shouldn't be showing that to me.";
+          if (o.wearing_top == nothing) print_ret (IgorsVoice)", but you shouldn't be showing that to me.";
           else print_ret (IgorsVoice)".";
          computer:
           SetFlag(PLAYER_KNOWS_MESSAGE);

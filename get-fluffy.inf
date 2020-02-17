@@ -16,6 +16,7 @@ Array IFID string "UUID://E9B9DC00-F85E-4EB6-9E6B-FADE2291C579//"; #Ifdef IFID; 
 !----------------------------------------------------------------------------
 ! Constants, Replace directives
 !----------------------------------------------------------------------------
+Constant MAX_SCORE = 2; ! Dialing 911 on the house phone and getting the token on the roof
 Constant MAX_CARRIED = 7;
 Constant MAX_PHONE_LENGTH = 3;
 Constant MAX_PHOTOGRAPHS = 5;
@@ -111,6 +112,8 @@ Constant PLAYER_KNOWS_MESSAGE = 6;
 Constant PLAYER_TOOK_TOPLESS_PHOTO = 7;
 Constant BRITNEY_KNOWS_ABOUT_FLUFFY = 8;
 Constant IGOR_KNOWS_ABOUT_FLUFFY = 9;
+Constant PLAYER_DIALED_911 = 10; ! So you only score one point for this
+Constant PLAYER_TOOK_TOKEN = 11; ! So you only score one point for this
 
 Statusline time;
 Replace LanguageTimeOfDay;
@@ -132,14 +135,14 @@ Include "parser";
 Object LibraryMessages
  with
   before [;
-   Inv:
-    switch (lm_n) {
-     1: "I'm carrying nothing.";
-     2: print "I'm carrying";
-      rtrue;
-     3: ":";
-     4: ".";
-    }
+   !Inv:
+   ! switch (lm_n) {
+   !  1: "I'm carrying nothing.";
+   !  2: print "I'm carrying";
+   !   rtrue;
+   !  3: ":";
+   !  4: ".";
+   ! }
    Prompt:
     MyPrompt();
     rtrue;
@@ -160,12 +163,16 @@ Array time_array --> 4;
 Array date_array --> 9;
 Array t0 --> 9;
 
-! Where and whom did you call? These will be nothing if no call active, they're used to put the NPC back where they were when you hang up
+! Who and where did you call? These will be nothing if no call active, they're used to put the NPC back where they were when you hang up
 ! Only one call at a time
-Global call_room = nothing;
 Global call_person = nothing;
+Global call_room = nothing;
 ! In Photos mode
 Global current_photo;
+
+#Ifdef NO_THIS_IS_NOT_DEFINED;
+Constant ADDITIONAL_DEBUGGING;
+#Endif;
 
 ! Classes
 Include "fluffy-classes.inf";
