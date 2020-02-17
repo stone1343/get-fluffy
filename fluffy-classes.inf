@@ -12,10 +12,7 @@ Class Guy
  class Person
  has male ~female;
 
-Class General_Object;
-
 Class Ownable_Object
- class General_Object
  with
   owner,
   initial [;
@@ -35,12 +32,7 @@ Class Ownable_Object
   ];
 
 ! Objects Britney can interact with
-Class Britney_Object
- class General_Object;
-
-! Objects Igor can interact with
-Class Igor_Object
- class General_Object;
+Class Britney_Object;
 
 Class Clothes
  with
@@ -65,22 +57,14 @@ Class Top
 Class Pants
  class Clothes
  with
-  ! Never listed in inventory
-  !invent [;
-  ! rtrue;
-  !],
   before [;
    Disrobe: print_ret (preformatted)"This is not that kind of game!";
   ];
 
 ! i.e. bras
-Class Underwear
+Class Lingerie
  class Clothes
  with
-  ! Never listed in inventory
-  !invent [;
-  ! rtrue;
-  !],
   before [;
    Disrobe: print_ret (preformatted)"Keep it PG-13!";
   ];
@@ -88,9 +72,8 @@ Class Underwear
 ! A Disappearing_Object is a special kind of object which disappears if you leave it in a Public_Room
 ! Putting it down in Public_room sets general, which starts the timer when player moves to a new room
 Class Disappearing_Object
- class General_Object
  with
-  after [;
+  before [ o;
    Drop:
     move self to location;
     print "I put down ";
@@ -103,20 +86,47 @@ Class Disappearing_Object
     }
     ".";
    Take:
+    if (self ofclass Token) {
+     if (parent(self) == slot_machine) print (blue) "What should I do with my big jackpot?";
+     else {
+      print (blue)"Cool, it's a";
+      objectloop (o ofclass Token) {
+       if (o in player) {
+        print (blue)"nother";
+        break;
+       }
+      }
+      print (blue)" slot machine token!";
+      if (FlagOff(self.foundFlag)) {
+       FlagOn(self.foundFlag);
+       score++;
+      }
+     }
+    }
+    else print "I picked up ", (the) self, ".";
     move self to player;
     give self ~general;
     StopTimer(self);
-    if (self == token && FlagOff(PLAYER_TOOK_TOKEN)) {
-     score++;
-     SetFlag(PLAYER_TOOK_TOKEN);
-    }
-    "I picked up ", (the) self, ".";
+    new_line;
+    rtrue;
   ],
   time_left,
   time_out [;
    give self ~general;
    remove self;
   ];
+
+! The logic is mainly in the Disappearing_Object class definition
+Class Token
+ class Disappearing_Object
+ with
+  initial [;
+   "Check it out, there's a ", (address)self.&name-->0, " token over there!";
+  ],
+  description [;
+   "It looks like a ", (address)self.&name-->0, " coin but it's not ", (address)self.&name-->0, " and it's not a coin.";
+  ],
+  foundFlag;
 
 Class Icon
  with
@@ -246,7 +256,7 @@ Class Hotel_Room_Door
   before [ o;
    Knock:
     if (location ofclass Hall) {
-     objectloop(o ofclass Person) {
+     objectloop (o ofclass Person) {
       if (parent(o) == self.to_room) {
        give self ~locked open;
        StartTimer(self, 1);
@@ -326,7 +336,7 @@ Class Hotel_Room_Door
  has ~open locked proper;
 
 Class Room_Key
- class Disappearing_Object Ownable_Object Britney_Object Igor_Object
+ class Disappearing_Object Ownable_Object Britney_Object
  with
   description "It has the hotel's logo, but no room number.",
   list_together 3,

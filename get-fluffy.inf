@@ -16,10 +16,11 @@ Array IFID string "UUID://E9B9DC00-F85E-4EB6-9E6B-FADE2291C579//"; #Ifdef IFID; 
 !----------------------------------------------------------------------------
 ! Constants, Replace directives
 !----------------------------------------------------------------------------
-Constant MAX_SCORE = 2; ! Dialing 911 on the house phone and getting the token on the roof
+Constant MAX_SCORE = 11; ! Saying "xyzzy" or "plugh", dialing 911 or 867-5309 on the house phone, getting to the roof, finding each of 5 tokens or playing any token
 Constant MAX_CARRIED = 7;
-Constant MAX_PHONE_LENGTH = 3;
-Constant MAX_PHOTOGRAPHS = 5;
+Constant MAX_PHONE_LENGTH = 7;
+Constant MAX_PHOTOGRAPHS = 10;
+
 Constant MODE_OFF = 0;
 Constant MODE_HOME = 1;
 Constant MODE_CONTACTS = 2;
@@ -29,6 +30,7 @@ Constant MODE_PHOTOS = 5;
 ! How many moves the phone will stay on for
 Constant SMARTPHONE_TIMEOUT = 10;
 
+! Cyrillic letters, only the ones that are used are defined
 Constant ucA = 1040;
 !Constant ucBe = ucA+1;
 Constant ucVe = ucA+2;
@@ -99,8 +101,8 @@ Constant lcShch = lcA+25;
 
 Constant heart = '@{2764}';
 
-! Override default number of flags in newflags.h
-Constant FLAGCOUNT = 16;
+! Override default number of flags in newflags.h, should be a power of 2, they start at 0
+Constant FLAGCOUNT = 32;
 ! Flags:
 Constant SMARTPHONE_LED_BLINKING = 0; ! Doesn't affect game play, instead use PLAYER_KNOWS_ABOUT_FLUFFY
 Constant PLAYER_KNOWS_ABOUT_FLUFFY = 1; ! Read the text
@@ -112,8 +114,18 @@ Constant PLAYER_KNOWS_MESSAGE = 6;
 Constant PLAYER_TOOK_TOPLESS_PHOTO = 7;
 Constant BRITNEY_KNOWS_ABOUT_FLUFFY = 8;
 Constant IGOR_KNOWS_ABOUT_FLUFFY = 9;
-Constant PLAYER_DIALED_911 = 10; ! So you only score one point for this
-Constant PLAYER_TOOK_TOKEN = 11; ! So you only score one point for this
+! Bonus points, only score once, no matter how many times you do it
+Constant PLAYER_DIALED_911 = 10;
+Constant PLAYER_DIALED_8675309 = 11;
+Constant PLAYER_GOT_TO_ROOF = 12;
+Constant PLAYER_FOUND_PLATINUM_TOKEN = 13;
+Constant PLAYER_FOUND_GOLD_TOKEN = 14;
+Constant PLAYER_FOUND_SILVER_TOKEN = 15;
+Constant PLAYER_FOUND_COPPER_TOKEN = 16;
+Constant PLAYER_FOUND_BRONZE_TOKEN = 17;
+Constant PLAYER_PLAYED_TOKEN = 18;
+Constant PLAYER_SAID_XYZZY = 19;
+Constant PLAYER_SAID_PLUGH = 20;
 
 Statusline time;
 Replace LanguageTimeOfDay;
@@ -219,3 +231,7 @@ Verb 'help'
 ! So Britney can take, even when you're on the phone with her
 Extend 'take'
  * scope=Anything -> Take;
+Verb 'xyzzy'
+ * -> Xyzzy;
+Verb 'plugh'
+ * -> Plugh;

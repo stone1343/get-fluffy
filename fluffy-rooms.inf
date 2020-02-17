@@ -16,37 +16,32 @@ Public_Room street "Las Vegas Blvd."
    }
    rtrue;
   ],
-  description [;
-   print "I can go ";
-   if (lobby has visited) "back into the hotel.";
-   "south.";
-  ],
-  s_to lobby;
+  description "I can go south.",
+  s_to lobby
+ has proper;
 
 Public_Room lobby "Lobby"
  with
   initial [;
    if (self hasnt visited) print "This is the lobby of the Timbuktu Hotel and Casino, the nicest place I could afford, it's really not that bad, but it's so-o-o Las Vegas.^^";
-   print "The man behind the front desk says,";
+   print "The man behind the front desk says, ";
    ! style_Note = Igor's voice
    glk_set_style(style_Note);
-  print " ~Welcome to the Timbuktu!~";
-   glk_set_style(style_Normal);
-   if(self hasnt visited) " While I was checking in, I chatted with him and found out his name is Igor and he's Ukrainian.";
-   else new_line;
+   print "~Welcome to the Timbuktu!";
+   if(self hasnt visited) {
+    ! 50%, "random(2) == 1" in slot machine
+    print " You should visit our casino, the slot machines have a 50% chance of winning!~";
+    glk_set_style(style_Normal);
+    print " While I was checking in, I chatted with him and found out his name is Igor and he's Ukrainian.";
+   }
+   else {
+    print "~";
+    glk_set_style(style_Normal);
+   }
+   new_line;
    rtrue;
   ],
-  description [;
-   print "I can go ";
-   if (street has visited) print "back out to the street";
-   else print "north";
-   print ", ";
-   if (elevator_vestibule has visited) print "to the elevator vestibule";
-   else print "south";
-   print " or ";
-   if (gift_shop has visited) "into the gift shop.";
-   else "west.";
-  ],
+  description "I can go north, south or west.",
   n_to street,
   s_to elevator_vestibule,
   w_to gift_shop;
@@ -57,17 +52,7 @@ Public_Room gift_shop "Gift Shop"
     if (self hasnt visited) "This is the gift shop, full of tacky, over-priced dust collectors made in China.";
     rtrue;
   ],
-  description [;
-   print "From here, I can go ";
-   if (lobby has visited) print "back to the main lobby";
-   else print "east";
-   print ", ";
-   if (elevator_vestibule has visited) print "to the elevator vestibule";
-   else print "south-east";
-   print " or ";
-   if (casino has visited) "into the casino.";
-   else "south.";
-  ],
+  description "I can go east, south-east or south.",
   e_to lobby,
   se_to elevator_vestibule,
   s_to casino;
@@ -78,37 +63,47 @@ Public_Room casino "Casino"
    if (self hasnt visited) "Wow, this could be the worst ~casino~ in the world. There's only one slot machine!";
    rtrue;
   ],
-  description [;
-   print "I can go ";
-   if (elevator_vestibule has visited) {
-    print "to the elevator vestibule";
-    if ((gift_shop has visited) && (restaurant has visited)) ", the gift shop or the restaurant.";
-   }
-   else print "east";
-   print ", ";
-   if (gift_shop has visited) print "to the gift shop";
-   else print "north";
-   print " or ";
-   if (restaurant has visited) "to the restaurant.";
-   else "south.";
-  ],
-  e_to elevator_vestibule,
+  description "I can go north, east or south.",
   n_to gift_shop,
+  e_to elevator_vestibule,
   s_to restaurant;
 
 Object -> slot_machine "slot machine"
  with
   name 'slot' 'machine',
-  description "It has a lot of flashing lights.",
+  description [ n o;
+   print "It has a lot of flashing lights";
+   n = 0;
+   objectloop (o ofclass Token) {
+    if (o in self) n++;
+   }
+   if (n > 0) {
+    if (n == 1) print " and a token";
+    else print " and ", n, " tokens";
+    print " in the tray";
+   }
+   ".";
+  ],
   before [;
    Receive:
-    if (noun == token) {
-     remove token;
-     "There's even more flashing lights and beeping sounds for a few seconds, then nothing. Well, that wasn't much fun!";
+    if (noun ofclass Token) {
+     if (FlagOff(PLAYER_PLAYED_TOKEN)) {
+      score++;
+      SetFlag(PLAYER_PLAYED_TOKEN);
+     }
+     remove noun;
+     print "There's even more flashing lights and beeping sounds for a few seconds, then ";
+     ! 50% win rate is mentioned in Igor's intro
+     if (random(2) == 1) {
+      move noun to self;
+      "a ~clunk~ sound. ", (blue)"Oooh, I think I won!!!";
+     }
+     remove noun;
+     "nothing. Well, that wasn't much fun!";
     }
     "You're not really clear on how a slot machine works, are you?";
   ]
- has scenery proper;
+ has scenery container open;
 
 Public_Room restaurant "Restaurant"
  with
@@ -116,22 +111,9 @@ Public_Room restaurant "Restaurant"
    if (self hasnt visited) "This is the restaurant, it actually looks like a nice place, lots of people enjoying their meals, but nothing very interesting for me right now.";
    rtrue;
   ],
-  description [;
-   print "I can go ";
-   if (elevator_vestibule has visited) {
-    print "to the elevator vestibule";
-   if ((casino has visited) && (nightclub has visited)) ", the restaurant or the nightclub.";
-    }
-   else print "north-east";
-   print ", ";
-   if (casino has visited) print "to the casino";
-   else print "north";
-   print " or ";
-   if (nightclub has visited) "to the nightclub.";
-   else "east.";
-  ],
-  ne_to elevator_vestibule,
+  description "I can go north, north-east or east.",
   n_to casino,
+  ne_to elevator_vestibule,
   e_to nightclub;
 
 Public_Room nightclub "Nightclub"
@@ -140,17 +122,7 @@ Public_Room nightclub "Nightclub"
    if (self hasnt visited) "This is a nightclub, it's loud and crowded with all kinds of seedy people, my favourite kind of place.";
    rtrue;
   ],
-  description [;
-   print "I can go ";
-   if (elevator_vestibule has visited) {
-    print "to the elevator vestibule";
-    if (restaurant has visited) " or the restaurant.";
-   }
-   else print "north-east";
-   print " or ";
-   if (restaurant has visited) "to the restaurant";
-   else "west";
-  ],
+  description "I can go north or west.",
   n_to elevator_vestibule,
   w_to restaurant;
 
@@ -160,7 +132,7 @@ Public_Room elevator_vestibule "Elevator Vestibule"
    if (self hasnt visited) "This is the elevator vestibule, the hub of the hotel, from here I can get to any other room on the ground floor.";
    rtrue;
   ],
-  description "The elevator's to the east.",
+  description "The lobby is north and the elevator's to the east.",
   e_to [;
    if (elevator_doors hasnt open) "The elevator's at a different floor.";
    return elevator;
@@ -322,9 +294,10 @@ Hall second_floor "Second Floor"
   n_to door_206,
   ne_to door_207;
 
-Hotel_Room_Door door_201 "Door 201"
+Hotel_Room_Door door_201 "201"
  with
-  name '201' 'room' 'door' '1//',
+ ! Removed "'room' 'door' " from all the doors, you either refer to them by the whole number or just the last digit
+  name '201' '1//',
   found_in second_floor room_201,
   to_room room_201,
   to_hall second_floor,
@@ -333,14 +306,15 @@ Hotel_Room_Door door_201 "Door 201"
 
 Hotel_Room room_201 "Room 201"
  with
+  description "What a mess!!! It looks like an entire family is staying here and housekeeping hasn't been here in days!",
   nw_to door_201,
   door_out door_201,
   floor_number 2,
   room_number 201;
 
-Hotel_Room_Door door_202 "Door 202"
+Hotel_Room_Door door_202 "202"
  with
-  name '202' 'room' 'door' '2//',
+  name '202' '2//',
   found_in second_floor room_202,
   to_room room_202,
   to_hall second_floor,
@@ -358,7 +332,7 @@ Hotel_Room room_202 "Room 202"
   floor_number 2,
   room_number 202;
 
-General_Object -> computer "computer"
+Object -> computer "computer"
  with
   name 'computer',
   initial [;
@@ -382,9 +356,9 @@ General_Object -> computer "computer"
   ]
  has static;
 
-Hotel_Room_Door door_203 "Door 203"
+Hotel_Room_Door door_203 "203"
  with
-  name '203' 'room' 'door' '3//',
+  name '203' '3//',
   found_in second_floor room_203,
   to_room room_203,
   to_hall second_floor,
@@ -398,9 +372,9 @@ Hotel_Room room_203 "Room 203"
   floor_number 2,
   room_number 203;
 
-Hotel_Room_Door door_204 "Door 204"
+Hotel_Room_Door door_204 "204"
  with
-  name '204' 'room' 'door' '4//',
+  name '204' '4//',
   found_in second_floor room_204,
   to_room room_204,
   to_hall second_floor,
@@ -414,9 +388,9 @@ Hotel_Room room_204 "Room 204"
   floor_number 2,
   room_number 204;
 
-Hotel_Room_Door door_205 "Door 205"
+Hotel_Room_Door door_205 "205"
  with
-  name '205' 'room' 'door' '5//',
+  name '205' '5//',
   found_in second_floor room_205,
   to_room room_205,
   to_hall second_floor,
@@ -430,9 +404,9 @@ Hotel_Room room_205 "Room 205"
   floor_number 2,
   room_number 205;
 
-Hotel_Room_Door door_206 "Door 206"
+Hotel_Room_Door door_206 "206"
  with
-  name '206' 'room' 'door' '6//',
+  name '206' '6//',
   found_in second_floor room_206,
   to_room room_206,
   to_hall second_floor,
@@ -446,9 +420,9 @@ Hotel_Room room_206 "Room 206"
   floor_number 2,
   room_number 206;
 
-Hotel_Room_Door door_207 "Door 207"
+Hotel_Room_Door door_207 "207"
  with
-  name '207' 'room' 'door' '7//',
+  name '207' '7//',
   found_in second_floor room_207,
   to_room room_207,
   to_hall second_floor,
@@ -462,6 +436,11 @@ Hotel_Room room_207 "Room 207"
   floor_number 2,
   room_number 207;
 
+Token -> copper_token "copper token"
+ with
+  name 'copper' 'token',
+  foundFlag PLAYER_FOUND_COPPER_TOKEN;
+
 Hall third_floor "Third Floor"
  with
   name 'third' 'floor' 'hall',
@@ -474,9 +453,9 @@ Hall third_floor "Third Floor"
   n_to door_306,
   ne_to door_307;
 
-Hotel_Room_Door door_301 "Door 301"
+Hotel_Room_Door door_301 "301"
  with
-  name '301' 'room' 'door' '1//',
+  name '301' '1//',
   found_in third_floor room_301,
   to_room room_301,
   to_hall third_floor,
@@ -494,9 +473,9 @@ Hotel_Room room_301 "Room 301"
   floor_number 3,
   room_number 301;
 
-Hotel_Room_Door door_302 "Door 302"
+Hotel_Room_Door door_302 "302"
  with
-  name '302' 'room' 'door' '2//',
+  name '302' '2//',
   found_in third_floor room_302,
   to_room room_302,
   to_hall third_floor,
@@ -510,9 +489,9 @@ Hotel_Room room_302 "Room 302"
   floor_number 3,
   room_number 302;
 
-Hotel_Room_Door door_303 "Door 303"
+Hotel_Room_Door door_303 "303"
  with
-  name '303' 'room' 'door' '3//',
+  name '303' '3//',
   found_in third_floor room_303,
   to_room room_303,
   to_hall third_floor,
@@ -526,9 +505,9 @@ Hotel_Room room_303 "Room 303"
   floor_number 3,
   room_number 303;
 
-Hotel_Room_Door door_304 "Door 304"
+Hotel_Room_Door door_304 "304"
  with
-  name '304' 'room' 'door' '4//',
+  name '304' '4//',
   found_in third_floor room_304,
   to_room room_304,
   to_hall third_floor,
@@ -542,9 +521,9 @@ Hotel_Room room_304 "Room 304"
   floor_number 3,
   room_number 304;
 
-Hotel_Room_Door door_305 "Door 305"
+Hotel_Room_Door door_305 "305"
  with
-  name '305' 'room' 'door' '5//',
+  name '305' '5//',
   found_in third_floor room_305,
   to_room room_305,
   to_hall third_floor,
@@ -558,9 +537,9 @@ Hotel_Room room_305 "Room 305"
   floor_number 3,
   room_number 305;
 
-Hotel_Room_Door door_306 "Door 306"
+Hotel_Room_Door door_306 "306"
  with
-  name '306' 'room' 'door' '6//',
+  name '306' '6//',
   found_in third_floor room_306,
   to_room room_306,
   to_hall third_floor,
@@ -574,9 +553,14 @@ Hotel_Room room_306 "Room 306"
   floor_number 3,
   room_number 306;
 
-Hotel_Room_Door door_307 "Door 307"
+Token -> silver_token "silver token"
  with
-  name '307' 'room' 'door' '7//',
+  name 'silver' 'token',
+  foundFlag PLAYER_FOUND_SILVER_TOKEN;
+
+Hotel_Room_Door door_307 "307"
+ with
+  name '307' '7//',
   found_in third_floor room_307,
   to_room room_307,
   to_hall third_floor,
@@ -602,9 +586,9 @@ Hall fourth_floor "Fourth Floor"
   n_to door_406,
   ne_to door_407;
 
-Hotel_Room_Door door_401 "Door 401"
+Hotel_Room_Door door_401 "401"
  with
-  name '401' 'room' 'door' '1//',
+  name '401' '1//',
   found_in fourth_floor room_401,
   to_room room_401,
   to_hall fourth_floor,
@@ -613,14 +597,16 @@ Hotel_Room_Door door_401 "Door 401"
 
 Hotel_Room room_401 "Room 401"
  with
+  initial "This room has been completely trashed!!!",
+  description "I guess there's been a wild party here, the room is totally destroyed! I'm glad I don't have to clean this up!",
   nw_to door_401,
   door_out door_401,
   floor_number 4,
   room_number 401;
 
-Hotel_Room_Door door_402 "Door 402"
+Hotel_Room_Door door_402 "402"
  with
-  name '402' 'room' 'door' '2//',
+  name '402' '2//',
   found_in fourth_floor room_402,
   to_room room_402,
   to_hall fourth_floor,
@@ -634,9 +620,9 @@ Hotel_Room room_402 "Room 402"
   floor_number 4,
   room_number 402;
 
-Hotel_Room_Door door_403 "Door 403"
+Hotel_Room_Door door_403 "403"
  with
-  name '403' 'room' 'door' '3//',
+  name '403' '3//',
   found_in fourth_floor room_403,
   to_room room_403,
   to_hall fourth_floor,
@@ -650,9 +636,9 @@ Hotel_Room room_403 "Room 403"
   floor_number 4,
   room_number 403;
 
-Hotel_Room_Door door_404 "Door 404"
+Hotel_Room_Door door_404 "404"
  with
-  name '404' 'room' 'door' '4//',
+  name '404' '4//',
   found_in fourth_floor room_404,
   to_room room_404,
   to_hall fourth_floor,
@@ -666,9 +652,9 @@ Hotel_Room room_404 "Room 404"
   floor_number 4,
   room_number 404;
 
-Hotel_Room_Door door_405 "Door 405"
+Hotel_Room_Door door_405 "405"
  with
-  name '405' 'room' 'door' '5//',
+  name '405' '5//',
   found_in fourth_floor room_405,
   to_room room_405,
   to_hall fourth_floor,
@@ -682,9 +668,9 @@ Hotel_Room room_405 "Room 405"
   floor_number 4,
   room_number 405;
 
-Hotel_Room_Door door_406 "Door 406"
+Hotel_Room_Door door_406 "406"
  with
-  name '406' 'room' 'door' '6//',
+  name '406' '6//',
   found_in fourth_floor room_406,
   to_room room_406,
   to_hall fourth_floor,
@@ -698,9 +684,9 @@ Hotel_Room room_406 "Room 406"
   floor_number 4,
   room_number 406;
 
-Hotel_Room_Door door_407 "Door 407"
+Hotel_Room_Door door_407 "407"
  with
-  name '407' 'room' 'door' '7//',
+  name '407' '7//',
   found_in fourth_floor room_407,
   to_room room_407,
   to_hall fourth_floor,
@@ -713,6 +699,11 @@ Hotel_Room room_407 "Room 407"
   door_out door_407,
   floor_number 4,
   room_number 407;
+
+Token -> platinum_token "platinum token"
+ with
+  name 'platinum' 'token',
+  foundFlag PLAYER_FOUND_PLATINUM_TOKEN;
 
 Hall fifth_floor "Fifth Floor"
  with
@@ -730,9 +721,9 @@ Hall fifth_floor "Fifth Floor"
    return roof;
   ];
 
-Hotel_Room_Door door_501 "Door 501"
+Hotel_Room_Door door_501 "501"
  with
-  name '501' 'room' 'door' '1//',
+  name '501' '1//',
   found_in fifth_floor room_501,
   to_room room_501,
   to_hall fifth_floor,
@@ -746,9 +737,9 @@ Hotel_Room room_501 "Room 501"
   floor_number 5,
   room_number 501;
 
-Hotel_Room_Door door_502 "Door 502"
+Hotel_Room_Door door_502 "502"
  with
-  name '502' 'room' 'door' '2//',
+  name '502' '2//',
   found_in fifth_floor room_502,
   to_room room_502,
   to_hall fifth_floor,
@@ -762,9 +753,9 @@ Hotel_Room room_502 "Room 502"
   floor_number 5,
   room_number 502;
 
-Hotel_Room_Door door_503 "Door 503"
+Hotel_Room_Door door_503 "503"
  with
-  name '503' 'room' 'door' '3//',
+  name '503' '3//',
   found_in fifth_floor room_503,
   to_room room_503,
   to_hall fifth_floor,
@@ -778,9 +769,9 @@ Hotel_Room room_503 "Room 503"
   floor_number 5,
   room_number 503;
 
-Hotel_Room_Door door_504 "Door 504"
+Hotel_Room_Door door_504 "504"
  with
-  name '504' 'room' 'door' '4//',
+  name '504' '4//',
   found_in fifth_floor room_504,
   to_room room_504,
   to_hall fifth_floor,
@@ -794,9 +785,14 @@ Hotel_Room room_504 "Room 504"
   floor_number 5,
   room_number 504;
 
-Hotel_Room_Door door_505 "Door 505"
+Token -> bronze_token "bronze token"
  with
-  name '505' 'room' 'door' '5//',
+  name 'bronze' 'token',
+  foundFlag PLAYER_FOUND_BRONZE_TOKEN;
+
+Hotel_Room_Door door_505 "505"
+ with
+  name '505' '5//',
   found_in fifth_floor room_505,
   to_room room_505,
   to_hall fifth_floor,
@@ -810,9 +806,9 @@ Hotel_Room room_505 "Room 505"
   floor_number 5,
   room_number 505;
 
-Hotel_Room_Door door_506 "Door 506"
+Hotel_Room_Door door_506 "506"
  with
-  name '506' 'room' 'door' '6//',
+  name '506' '6//',
   found_in fifth_floor room_506,
   to_room room_506,
   to_hall fifth_floor,
@@ -830,9 +826,9 @@ Hotel_Room room_506 "Room 506"
   floor_number 5,
   room_number 506;
 
-Hotel_Room_Door door_507 "Door 507"
+Hotel_Room_Door door_507 "507"
  with
-  name '507' 'room' 'door' '7//',
+  name '507' '7//',
   found_in fifth_floor room_507,
   to_room room_507,
   to_hall fifth_floor,
@@ -841,6 +837,7 @@ Hotel_Room_Door door_507 "Door 507"
 
 Hotel_Room room_507 "Room 507"
  with
+  description "Someone has written ~YOU ARE IN A MAZE OF TWISTY LITTLE PASSAGES, ALL ALIKE!!~ in red paint all over the walls!",
   sw_to door_507,
   door_out door_507,
   floor_number 5,
@@ -856,7 +853,11 @@ Room basement "Basement"
 Room roof "Roof"
  with
   initial [;
-   if (self hasnt visited) "I used the master key to go up to the roof. Being up here reminds me of that scene from The Hangover! But my weekend is *not* gonna be like that!";
+   if (FlagOff(PLAYER_GOT_TO_ROOF)) {
+    score++;
+    SetFlag(PLAYER_GOT_TO_ROOF);
+   }
+   if (self hasnt visited) print_ret (blue)"I used the master key to go up to the roof. Being up here reminds me of that scene from The Hangover! But my weekend is *not* gonna be like that!";
    rtrue;
   ],
   description [ hh;
@@ -875,13 +876,10 @@ Room roof "Roof"
   ],
   d_to fifth_floor;
 
-! The logic is all in the class definition
-Disappearing_Object -> token "token"
- class Britney_Object
+Token -> gold_token "gold token"
  with
-  name 'token' 'coin',
-  initial "Check it out, there's a token over there!",
-  description "It looks like a coin but it's not a coin.";
+  name 'gold' 'token',
+  foundFlag PLAYER_FOUND_GOLD_TOKEN;
 
 ! Might expect 'has talkable' for a phone, but this phone is basically a teleporter ;-)
 ! Telephone's general means call active
@@ -891,7 +889,8 @@ Object telephone "telephone"
   description "It's the hotel's house phone.",
   found_in lobby room_201 room_202 room_203 room_204 room_205 room_206 room_207 room_301 room_302 room_303 room_304 room_305 room_306 room_307 room_401 room_402 room_403 room_404 room_405 room_406 room_407 room_501 room_502 room_503 room_504 room_505 room_506 room_507,
   before [;
-   Drop: if (OnPhone()) "Don't be rude, you need to hang up first.";
+   ! If telephone has general, it's the one being used
+   Drop: if ((OnPhone()) && (telephone has general)) "Don't be rude, you need to hang up first.";
   ],
   after [;
    Take: "I pick up the receiver and hear a dial tone.";

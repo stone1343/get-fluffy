@@ -1,5 +1,5 @@
 
-Girl kaitlyn "Kaitlyn"
+Girl kaitlyn "Kaitlyn" street
  with
   name 'kaitlyn',
   narrative_voice 1,
@@ -15,17 +15,17 @@ Girl kaitlyn "Kaitlyn"
    Give:
     if (OnPhone(self)) "(Kaitlyn Before Give) It'd be hard to give something to ", (name)self, " when I'm on the phone with ", (PronounAcc)self, "!";
   ],
-  orders [item number_carried;
+  orders [ n o;
    Inv:
     print "I'm carrying ";
-    objectloop (item in player) {
-        if (item hasnt worn) {
-         give item workflag;
-         number_carried++;
+    objectloop (o in player) {
+        if (o hasnt worn) {
+         give o workflag;
+         n++;
         }
-        else give item ~workflag;
+        else give o ~workflag;
     }
-    if (number_carried == 0) print "nothing";
+    if (n == 0) print "nothing";
     else WriteListFrom(child(player), FULLINV_BIT+ENGLISH_BIT+RECURSE_BIT+WORKFLAG_BIT);
     ".";
   ],
@@ -34,6 +34,18 @@ Girl kaitlyn "Kaitlyn"
     if (OnPhone(self)) "(Kaitlyn After Give) It'd be hard to give something to ", (name)self, " when I'm on the phone with ", (PronounAcc)self, "!";
   ],
  has concealed proper transparent;
+
+! Obviously Kaitlyn's tits go everywhere she does
+Object k_tits "my tits"  street
+ with
+  name 'my' 'tits' 'boobs' 'breasts',
+  description "I have really great tits!",
+  article "my",
+  before [;
+   Touch, Kiss:
+    print_ret (preformatted)"This is not that kind of game.";
+  ],
+ has scenery static pluralname proper animate; ! Animate so you can try to kiss them!
 
 Girl britney "Britney" room_403
  with
@@ -46,18 +58,19 @@ Girl britney "Britney" room_403
   is_following false,
   initial [;
    StopDaemon(self);
+   ! ToDo: Is there a way to stop the extra blank line when following? I really don't want to have to print something like "Britney follows me."
    if (britney.is_following) rtrue;
    "Britney, my BFF, is here.";
   ],
-  description [ o n i;
+  description [ n o i;
    if (OnPhone(britney)) "Britney has a nice voice on the phone.";
    n = 0;
-   objectloop(o ofclass Britney_Object) {
+   objectloop (o ofclass Britney_Object) {
     if ((o in britney) && (o hasnt worn)) n++;
    }
    if (n > 0) {
     i = 0;
-    objectloop(o ofclass Britney_Object) {
+    objectloop (o ofclass Britney_Object) {
      if ((o in britney) && (o hasnt worn)) {
       switch (++i) {
        1: print "Britney's carrying ";
@@ -102,7 +115,7 @@ Girl britney "Britney" room_403
     if (noun == smartphone) {
      if (smartphone.mode == MODE_PHOTOS) {
       ! Find current photo
-      objectloop(o ofclass Photograph) {
+      objectloop (o ofclass Photograph) {
        if (o.number == current_photo) {
         switch (o.subject) {
          fluffy: print_ret (BritneysVoice)"Omigod, I love Fluffy, he's soo cute!";
@@ -126,7 +139,8 @@ Girl britney "Britney" room_403
       if (FlagOff(BRITNEY_KNOWS_ABOUT_FLUFFY)) {
        SetFlag(BRITNEY_KNOWS_ABOUT_FLUFFY);
        print_ret (BritneysVoice)"Omigod, someone took Fluffy? What are we gonna do to get him back?";
-      } print_ret (BritneysVoice)"I don't what else I can tell you to help.";
+      }
+      print_ret (BritneysVoice)"I don't what else I can tell you to help.";
     }
     print_ret (BritneysVoice)"Is that supposed to be interesting?";
    }
@@ -137,9 +151,9 @@ Girl britney "Britney" room_403
        SetFlag(BRITNEY_KNOWS_ABOUT_FLUFFY);
        print_ret (BritneysVoice)"Omigod, that's awful, Katie!!!";
       }
-      else print_ret (BritneysVoice)"Let me know if there's anything I can do to help!";
+      print_ret (BritneysVoice)"Let me know if there's anything I can do to help!";
      }
-     else print_ret (BritneysVoice)"OMG, Kaitlyn, I know you love your dog!";
+     print_ret (BritneysVoice)"OMG, Kaitlyn, I know you love your dog!";
     }
     "She doesn't seem interested.";
    Ask:
@@ -244,7 +258,8 @@ Girl britney "Britney" room_403
     elevator_vestibule:
      if (self.destination_floor > 1) {
       to_room = second_floor;
-     } else {
+     }
+     else {
       if (self.destination_room == nothing) to_room = random(lobby, gift_shop, casino, restaurant, nightclub);
       else {
        if (self.destination_room == street) to_room = lobby;
@@ -274,6 +289,7 @@ Girl britney "Britney" room_403
    }
    if (to_room ~= nothing) {
     move self to to_room;
+    move b_tits to to_room;
     if (player in to_room) {
      self.destination_room = to_room;
      if (location ofclass Hotel_Room) print "^I heard a knock on the door and let Britney in.^";
@@ -283,7 +299,20 @@ Girl britney "Britney" room_403
      StopDaemon(self);
     }
    }
-  ];
+  ]
+ has transparent;
+
+! Obviously Britney's tits go everywhere she does
+Object b_tits "Britney's tits"  room_403
+ with
+  name 'Britney^s' 'tits' 'boobs' 'breasts',
+  description "They're smaller than mine, but still awesome.",
+  article "Britney's",
+  before [;
+   Touch, Kiss:
+    print_ret (preformatted)"Focus on the game!";
+  ],
+ has scenery static pluralname proper animate; ! Animate so you can try to kiss them!
 
 Guy igor "Igor" lobby
  with
@@ -305,13 +334,13 @@ Guy igor "Igor" lobby
      move noun to igor;
      print_ret (IgorsVoice)"Thanks for getting that back to me!";
     }
-    print_ret (IgorsVoice)"No, thanks, I don't need that.";
+    print_ret (IgorsVoice)"No, thanks, you hang on to that.";
    Show:
     ! Showing to Igor...
     if (noun == smartphone) {
      if (smartphone.mode == MODE_PHOTOS) {
       ! Find current photo
-      objectloop(o ofclass Photograph) {
+      objectloop (o ofclass Photograph) {
        if (o.number == current_photo) {
         switch (o.subject) {
          fluffy: print_ret (IgorsVoice)"Oh, that's your dog, he's really cute!";
@@ -349,7 +378,7 @@ Guy igor "Igor" lobby
      if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) print_ret (IgorsVoice)"Just between you and me, I hate Russians after what they did to my country.";
      if (FlagOff(PLAYER_KNOWS_ABOUT_202)) {
       SetFlag(PLAYER_KNOWS_ABOUT_202);
-      print_ret (IgorsVoice)"I could get in trouble for telling you this, but there's two big Russian guys named Vladimir and Sergei in room 202.";
+      print_ret (IgorsVoice)"I could get in trouble for telling you this, but there's two big Russian guys named Vladimir Putkin and Sergei something in room 202.";
      }
      print_ret (IgorsVoice)"There's nothing else I can tell you about the Russians.";
     }
@@ -360,8 +389,10 @@ Guy igor "Igor" lobby
       if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) {
        SetFlag(IGOR_KNOWS_ABOUT_FLUFFY);
        print_ret (IgorsVoice)"Oh no, someone took your dog? If there's anything I can do to help, let me know.";
-      } print_ret (IgorsVoice)"So no more news, then?";
-     } print_ret (IgorsVoice)"Well, good luck with the dog show!";
+      }
+      print_ret (IgorsVoice)"So no more news, then?";
+     }
+     print_ret (IgorsVoice)"Well, good luck with the dog show!";
     }
     if (second == 'russians' or 'vlad' or 'flashback') {
      if (FlagOn(PLAYER_KNOWS_ABOUT_RUSSIANS) && FlagOn(IGOR_KNOWS_ABOUT_FLUFFY)) {

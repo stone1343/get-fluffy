@@ -1,16 +1,17 @@
 
-Room_Key k_key "room key" kaitlyn
+Room_Key k_key "my key" kaitlyn
  class Britney_Object Ownable_Object
  with
   name 'room' 'key',
   article "my",
   owner kaitlyn,
-  key_to_room room_402;
+  key_to_room room_402
+ has proper;
 
 Top yellow_shirt "yellow t-shirt" kaitlyn
  with
   name 'yellow' 'shirt' 'top' 't-shirt',
-  description "my yellow shirt",
+  description "It's my favourite yellow shirt.",
   article "my",
   owner kaitlyn
  has worn;
@@ -18,21 +19,17 @@ Top yellow_shirt "yellow t-shirt" kaitlyn
 Pants skinny_jeans "skinny jeans" kaitlyn
  with
   name 'skinny' 'jeans' 'pants',
-  description "my skinny jeans",
+  description "They're skinny jeans.",
   article "my",
  has worn pluralname;
 
 ! Clothes that are initially hidden
-Underwear k_bra "bra" thedark
+Lingerie k_bra "bra" thedark
  with
-  name 'my' 'bra' 'boobs' 'breasts' 'tits',
-  description "I like how my boobs look in this bra.",
+  name 'my' 'bra',
+  description "I love how my boobs look in this bra.",
   article "my",
-  before [;
-   Touch, Kiss:
-    print_ret (preformatted)"This is not that kind of game.";
-  ],
- has ~worn pluralname animate; ! Needs animate to kiss them
+ has ~worn;
 
 ! Might expect 'has talkable' for a phone, but this phone is basically a teleporter ;-)
 Disappearing_Object smartphone "smartphone" kaitlyn
@@ -53,24 +50,15 @@ Disappearing_Object smartphone "smartphone" kaitlyn
    Push, Touch:
     "You'll have to be more specific.";
    Drop:
+    ! If telephone hasnt general, smartphone is being used
     if ((OnPhone()) && (telephone hasnt general)) "Don't be rude, you need to hang up first.";
-    !move self to location;
-    !! Timer starts when you
-    !give self general;
-    !print "I put my smartphone down, ", (i)"carefully";
-    !if (location ofclass Public_Room) print ", knowing it may not be here when I return";
-    !".";
-   !Take:
-   ! give self ~general;
-   ! StopTimer(self);
-   ! "I pick up my smartphone.";
   ],
   change_mode [new_mode o;
    ! Switching out of Text mode, clear existing conversation
    self.mode = new_mode;
    if (self.mode ~= MODE_OFF) self.interact();
-   if (self.mode == MODE_HOME) objectloop(o ofclass Icon) move o to screen;
-   else objectloop(o ofclass Icon) remove o;
+   if (self.mode == MODE_HOME) objectloop (o ofclass Icon) move o to screen;
+   else objectloop (o ofclass Icon) remove o;
    if (self.mode == MODE_CONTACTS) move contact_britney to screen;
    else remove contact_britney;
    if (self.mode == MODE_PHOTOS) {
@@ -88,7 +76,8 @@ Disappearing_Object smartphone "smartphone" kaitlyn
     if (self.move_counter == 0) {
      self.change_mode(MODE_OFF);
      StopDaemon(self);
-     print "^My smartphone times out and turns off.^";
+     ! This should be unobtrusive, it's not like the doors swinging shut
+     !print "^My smartphone times out and turns off.^";
     }
    }
   ]
@@ -102,18 +91,16 @@ Object screen "screen" smartphone
     MODE_HOME: "The screen's got four icons, labelled Contacts, Messages, Camera and Photos.";
     ! Contacts is only for outgoing calls to Britney
     MODE_CONTACTS:
-     if (call_person == britney) "It has a picture of Britney and a Hang Up button.";
+     if (call_person == britney && telephone hasnt general) "It has a picture of Britney and a Hang Up button.";
      "Contacts:^ Britney";
     ! Text mode is only to receive the ransom message from anonymous
     MODE_MESSAGES:
      ClearFlag(SMARTPHONE_LED_BLINKING);
      SetFlag(PLAYER_KNOWS_ABOUT_FLUFFY);
-     !glk_set_style(style_Preformatted);
      print_ret (preformatted)"Message from Anonymous:^We have your dog. If you want it back, send us a topless picture of yourself. You have one hour.";
-     !glk_set_style(style_Normal);
     MODE_CAMERA: "Ready to take a photo.";
     MODE_PHOTOS:
-     objectloop(o ofclass Photograph) if (o.number == current_photo) <<Examine o>>;
+     objectloop (o ofclass Photograph) if (o.number == current_photo) <<Examine o>>;
    }
   ],
   before [;
@@ -175,24 +162,25 @@ Object contact_britney
     #Endif;
     give britney concealed;
     move britney to location;
-    give self concealed;
-    if (britney.wearing_top == nothing) move b_tits to location;
+    move b_tits to location;
+    remove self;
     print_ret (BritneysVoice)"Hey Kaitlyn, what's up?";
   ];
 
-Room_Key b_key "room key" britney
- class Britney_Object Ownable_Object General_Object
+Room_Key b_key "Britney's key" britney
+ class Britney_Object Ownable_Object
  with
   name 'Britney^s' 'room' 'key',
   article "Britney's",
   owner britney,
-  key_to_room room_403;
+  key_to_room room_403
+ has proper;
 
 ! Clothes that Britney's wearing
 Top blue_shirt "blue t-shirt" britney
  with
   name 'blue' 'shirt' 'top' 't-shirt',
-  description "her blue shirt",
+  description "It's a blue shirt.",
   article "Britney's",
   owner britney
  has worn;
@@ -200,31 +188,20 @@ Top blue_shirt "blue t-shirt" britney
 Pants yoga_pants "yoga pants" britney
  with
   name 'yoga' 'pants',
-  description "her yoga pants",
+  description "They're Britney's yoga pants.",
   article "Britney's",
  has worn pluralname;
 
 ! Clothes that are initially hidden
-Underwear b_bra "bra" thedark
+Lingerie b_bra "bra" thedark
  with
-  name 'bra',
+  name 'Britney^s' 'bra',
+  description "It's a really sexy bra.",
   article "Britney's",
  has ~worn;
 
-Object b_tits "Britney's boobs" thedark
- with
-  name 'Britney^s' 'boobs' 'breasts' 'tits',
-  description "They're smaller than mine, but still awesome.",
-  article "Britney's",
-  before [;
-   Touch, Kiss:
-    print_ret (preformatted)"Focus on the game!";
-  ],
- has scenery static pluralname proper animate; ! Animate so you can try to kiss them!
-
 ! Igor has the master key
 Disappearing_Object master_key "master key" igor
- class Igor_Object
  with
   name 'master' 'key',
   description "It has the hotel's logo, but no room number.",
@@ -234,7 +211,7 @@ Disappearing_Object master_key "master key" igor
 Top pink_shirt "pink shirt" room_402
  with
   name 'pink' 'shirt' 'top' 't-shirt',
-  description "my pink shirt",
+  description "It's that pink shirt I love so much.",
   article "my",
   owner kaitlyn
  has ~worn;
@@ -242,7 +219,7 @@ Top pink_shirt "pink shirt" room_402
 Top green_shirt "green t-shirt" room_403
  with
   name 'green' 'shirt' 'top' 't-shirt',
-  description "brit's green shirt",
+  description "It Brit's green shirt.",
   article "Britney's"
   owner britney
  has ~worn;

@@ -203,18 +203,6 @@
  glk_set_style(style_Normal);
 ];
 
-[ HackersVoice text;
- glk_set_style(style_User2);
- print (string)text;
- glk_set_style(style_Normal);
-];
-
-[ blue text;
- glk_set_style(style_User1);
- print (string)text;
- glk_set_style(style_Normal);
-];
-
 [ pink text;
  glk_set_style(style_Alert);
  print (string)text;
@@ -234,6 +222,13 @@
  glk_set_style(style_Normal);
 ];
 
+! Jenny, from the song 867-5309
+[ JennysVoice text;
+ glk_set_style(style_User2);
+ print (string)text;
+ glk_set_style(style_Normal);
+];
+
 [ preformatted text;
  glk_set_style(style_Preformatted);
  print (string)text;
@@ -242,6 +237,13 @@
 
 [ i text;
  glk_set_style(style_Emphasized);
+ print (string)text;
+ glk_set_style(style_Normal);
+];
+
+! For things that score a point or are really awesome
+[ blue text;
+ glk_set_style(style_User1);
  print (string)text;
  glk_set_style(style_Normal);
 ];
@@ -259,17 +261,20 @@
 ];
 
 [ NewRoom o;
+ move k_tits to location;
  if (britney.is_following) {
   move britney to location;
+  move b_tits to location;
  }
- ! And person you're on the smartphone with follows you
- if (call_person ~= nothing) {
-  move call_person to location;
+ ! And if you're on the smartphone with Britney, she follows you
+ if (call_person == britney) {
+  move britney to location;
+  move b_tits to location;
  }
  if (((location == elevator_vestibule) && (elevator.floor_number == 1)) || ((location == second_floor) && (elevator.floor_number == 2)) || ((location == third_floor) && (elevator.floor_number == 3)) || ((location == fourth_floor) && (elevator.floor_number == 4)) || ((location == fifth_floor) && (elevator.floor_number == 5))) give elevator_doors open;
  else if (((location == elevator_vestibule) && (elevator.floor_number ~= 1)) || ((location == second_floor) && (elevator.floor_number ~= 2)) || ((location == third_floor) && (elevator.floor_number ~= 3)) || ((location == fourth_floor) && (elevator.floor_number ~= 4)) || ((location == fifth_floor) && (elevator.floor_number ~= 5))) give elevator_doors ~open;
  ! When you move to a new room, timer starts for all Disappearing_Objects with 'general', i.e. have been dropped in a Public_Room
- objectloop(o ofclass Disappearing_Object) {
+ objectloop (o ofclass Disappearing_Object) {
   if (o has general) {
    if (parent(o) ofclass Public_Room) {
     StartTimer(o, 5);
@@ -366,7 +371,7 @@
  #Endif;
  give o ~concealed;
  move o to call_room;
- if (o == britney && o.wearing_top == nothing) move b_tits to call_room;
+ if (o == britney) move b_tits to call_room;
  call_person = nothing;
  call_room = nothing;
  #Ifdef ADDITIONAL_DEBUGGING;
@@ -375,7 +380,7 @@
  ! If hanging up house phone
  if (telephone has general) give telephone ~general;
  ! Else hanging up smartphone
- else give contact_britney ~concealed;
+ else move contact_britney to screen;
 ];
 
 ! o is optional object to to determine if you're on the phone with that person
@@ -392,7 +397,7 @@
 
 ! Verb routines
 
-[ CallNumberSub hundreds tens ones r;
+[ CallNumberSub hundreds tens ones o;
  if (OnPhone()) "I'm currently on the phone with ", (name)call_person, ".";
  ! If player isn't holding the telephone, terminate
  if (telephone notin player) "With what?";
@@ -407,7 +412,7 @@
   OutputCallInfo();
   #Endif;
   give igor concealed;
-  move igor to player;
+  move igor to location;
   print_ret (IgorsVoice)"Hello, Front Desk?";
  }
  ! 411 and 911
@@ -418,6 +423,14 @@
   }
   print_ret (preformatted)"External calls are not allowed.";
  }
+ ! 867-5309
+ if (dialed_number == 8675309) {
+  if (FlagOff(PLAYER_DIALED_8675309)) {
+   score++;
+   SetFlag(PLAYER_DIALED_8675309);
+  }
+  print_ret (JennysVoice)"Hi, this is Jenny, you know what to do!";
+ }
  ! Three-digits
  if ((dialed_number > 0) && (dialed_number <= 999)) {
   hundreds = dialed_number/100;
@@ -425,21 +438,21 @@
   ones = dialed_number%10;
   if ((hundreds == 2 or 3 or 4 or 5) && (tens == 0) && (ones == 1 or 2 or 3 or 4 or 5 or 6 or 7)) {
    ! It's a valid room number, find the room
-   objectloop (r ofclass Hotel_Room) {
-    if (r.room_number == dialed_number) {
+   objectloop (o ofclass Hotel_Room) {
+    if (o.room_number == dialed_number) {
      ! If you dialed the room you're in, terminate
-     if (player in r) "Doh! Busy signal.";
+     if (player in o) "Doh! Busy signal.";
      ! Found the room, is Britney in it?
-     if (britney in r) {
+     if (britney in o) {
       give telephone general;
-      call_room = r;
+      call_room = o;
       call_person = britney;
       #Ifdef ADDITIONAL_DEBUGGING;
       OutputCallInfo();
       #Endif;
       give britney concealed;
       move britney to location;
-      if (britney.wearing_top == nothing) move b_tits to location;
+      move b_tits to location;
       print_ret (BritneysVoice)"Hello?";
      }
      break;
@@ -466,8 +479,9 @@
 
 [ HangUpSub;
  if (~~(OnPhone())) "No call active at the moment.";
+ print "~Bye, ", (name)call_person, ".~^";
  EndCall(call_person);
- "~Bye, ", (name)call_person, ".~";
+ rtrue;
 ];
 
 [ KnockSub;
@@ -508,7 +522,7 @@
  if ((smartphone notin player) || (smartphone.mode ~= MODE_PHOTOS)) "Share what?";
  smartphone.interact();
  ! Find current photo
- objectloop(o ofclass Photograph) {
+ objectloop (o ofclass Photograph) {
   if (o.number == current_photo) {
    if (o.subject == britney or kaitlyn) {
     if (o.wearing_top == nothing) {
@@ -571,25 +585,61 @@
 ];
 
 [ HelpSub;
- "Sometimes if you think carefully, some insight might come to you.";
+ print (preformatted)"Sometimes if you think carefully, some insight might come to you";
+ if (((parent(master_key) == nothing) || (parent(smartphone) == nothing)) && (FlagOff(PLAYER_SAID_XYZZY))) print (preformatted)". Also, magic words have been known to retrieve critical objects that have been lost";
+ print_ret (preformatted)".";
+];
+
+! Reference to 'xyzzy' in The Colossal Cave, if you've lost the master key and/or your smartphone, you can get them back!
+[ XyzzySub itDidSomething;
+ if (FlagOff(PLAYER_SAID_XYZZY)) {
+  score++;
+  SetFlag(PLAYER_SAID_XYZZY);
+  itDidSomething = false;
+  if (parent(master_key) == nothing) {
+   move master_key to location;
+   print "Like magic, the master key";
+   itDidSomething = true;
+  }
+  if (parent(smartphone) == nothing) {
+   move smartphone to location;
+   if (~~itDidSomething) print "Out of nowhere,";
+   else print " and";
+   print " my smartphone";
+   itDidSomething = true;
+  }
+  if (itDidSomething) print_ret " appeared.";
+  print_ret (preformatted)"Nothing happens.";
+ }
+ print_ret (preformatted)"'Xyzzy' only works once.";
+];
+
+[ PlughSub;
+ if (FlagOff(PLAYER_SAID_PLUGH)) {
+  score++;
+  SetFlag(PLAYER_SAID_PLUGH);
+ }
+ move player to street;
+ move k_tits to street;
+ <<Look>>;
 ];
 
 [ DeathMessage;
  switch (deadflag) {
   3:
-   "Britney didn't mind me sending the topless photo of her to the Russians, but it still wasn't something I was happy about doing.
-    Anyway, we got Fluffy back and neither of us will ever forget that weekend!";
+   print "Britney didn't mind me sending the topless photo of her to the Russians, but it still wasn't something I was happy about doing.
+          Anyway, we got Fluffy back and neither of us will ever forget that weekend!";
   4:
-   "After sending my topless photo to the Russians, they returned Fluffy and immediately posted the photo online.
-    I always wanted to be famous, so this wasn't such a bad ending!";
+   print "After sending my topless photo to the Russians, they returned Fluffy and immediately posted the photo online.
+          I always wanted to be famous, so this wasn't such a bad ending!";
   5:
    print "And there, I was shocked to find Fluffy!!! I didn't know enough about ";
    if (FlagOn(PLAYER_KNOWS_ABOUT_RUSSIANS)) print "the Russians";
    else print "whoever took him";
-   " for the police to do anything, but at least I got Fluffy back! Fluffy performed well in the dog show and we all returned home safely.";
+   print" for the police to do anything, but at least I got Fluffy back! Fluffy did well in the dog show and we all returned home safely.";
   6:
-   "We rescued Fluffy, he was s-o-o-o happy to see me!!! Plus, we had all the evidence we needed to put the Russians in jail for a long, long time.
-    Fluffy came second in his class in the dog show, but after what happened that weekend, it didn't matter!";
+   print "We rescued Fluffy, he was s-o-o-o happy to see me!!! Plus, we had all the evidence we needed to put the Russians in jail for a long, long time.
+          Fluffy came second in his class in the dog show, but after what happened that weekend, it didn't matter!";
  }
 ];
 
