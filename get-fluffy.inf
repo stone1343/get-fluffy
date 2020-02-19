@@ -127,7 +127,6 @@ Constant PLAYER_PLAYED_TOKEN = 18;
 Constant PLAYER_SAID_XYZZY = 19;
 Constant PLAYER_SAID_PLUGH = 20;
 
-Statusline time;
 Replace LanguageTimeOfDay;
 Replace DrawStatusLine;
 Replace ScoreSub;
@@ -138,30 +137,8 @@ Include "parser";
 !----------------------------------------------------------------------------
 ! If overriding library messages, LibraryMessages object should go between Parser and Verblib
 !----------------------------------------------------------------------------
-[ LanguageTimeOfDay hh mm;
- print hh/10, hh%10, ":", mm/10, mm%10;
-];
-
-[ DrawStatusLine; ];
-
-Object LibraryMessages
- with
-  before [;
-   !Inv:
-   ! switch (lm_n) {
-   !  1: "I'm carrying nothing.";
-   !  2: print "I'm carrying";
-   !   rtrue;
-   !  3: ":";
-   !  4: ".";
-   ! }
-   Prompt:
-    MyPrompt();
-    rtrue;
-  ];
 
 Include "verblib";
-
 Include "smartcantgo";
 Include "newflags";
 
@@ -173,7 +150,7 @@ Global dialed_number;
 ! date/time sample code from http://www.eblong.com/zarf/glulx/datetimetest.inf
 Array time_array --> 4;
 Array date_array --> 9;
-Array t0 --> 9;
+Global endTime;
 
 ! Who and where did you call? These will be nothing if no call active, they're used to put the NPC back where they were when you hang up
 ! Only one call at a time
@@ -189,7 +166,7 @@ Constant ADDITIONAL_DEBUGGING;
 ! Classes
 Include "fluffy-classes.inf";
 
-! The rooms, the people and objects in them
+! The rooms, plus the people and objects in them
 Include "fluffy-rooms.inf";
 Include "fluffy-people.inf";
 Include "fluffy-objects.inf";

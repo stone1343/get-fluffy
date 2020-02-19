@@ -44,7 +44,11 @@ Public_Room lobby "Lobby"
   description "I can go north, south or west.",
   n_to street,
   s_to elevator_vestibule,
-  w_to gift_shop;
+  w_to gift_shop,
+  before [;
+   Go:
+    if (telephone in player) "I'm still holding the house phone, it's one of those old-fashioned ones with a cord.";
+  ];
 
 Public_Room gift_shop "Gift Shop"
  with
@@ -861,6 +865,7 @@ Room roof "Roof"
    rtrue;
   ],
   description [ hh;
+   ! ToDo: Maybe this common code can be made a function?
    CurrentTime();
    hh = date_array-->4;
    print "It's a ";

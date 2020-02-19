@@ -1,12 +1,13 @@
 
-! Glk routines
+! Glk and customization routines
 
+! For no status window, GG_STATUSWIN_ROCK should just rtrue;
 [ InitGlkWindow winrock;
  switch (winrock) {
-  ! No status window
-  GG_STATUSWIN_ROCK: rtrue;
+  GG_STATUSWIN_ROCK:
+   gg_statuswin_size = 3; ! or however many lines you want
  }
- rfalse; ! leaving out this line will lead to a messy crash!
+ rfalse; ! leaving out this line will lead to a messy crash! 
 ];
 
 [ HandleGlkEvent ev context abortres newcmd cmdlen;
@@ -42,6 +43,7 @@
 
 ! If called with no parameter, put the current time into date_array
 ! Else put the current time into the specified array
+! ToDo: I think this is always called without parameter?
 [ CurrentTime t;
  glk_current_time(time_array);
  if (t == nothing) glk_time_to_date_local(time_array, date_array);
@@ -49,7 +51,68 @@
  return date_array;
 ];
 
-! Inform routines
+[ LanguageTimeOfDay hh mm;
+ print hh/10, hh%10, ":", mm/10, mm%10;
+];
+
+[ AtXY x y;
+ glk_window_move_cursor(gg_statuswin, x, y);
+];
+
+[ DrawStatusLine width height;
+ ! If we have no status window, we must not try to redraw it.
+ if (gg_statuswin == 0) return;
+ ! If there is no player location, we shouldn't try either.
+ if (location == nothing || parent(player) == nothing) return;
+ glk_set_window(gg_statuswin);
+ glk_window_clear(gg_statuswin);
+ glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments+4);
+ width = gg_arguments-->0;
+ height = gg_arguments-->1;
+
+ ! Start drawing statusline, we know its dimentions
+ if (location ~= thedark) {
+  if (location.nw_to) { AtXY(1, 0); print "@@92"; }
+  if (location.n_to)  { AtXY(2, 0); print "|"; }
+  if (location.ne_to) { AtXY(3, 0); print "/"; }
+
+  if (location.w_to)  { AtXY(1, 1); print "-"; }
+                        AtXY(2, 1); print "o";
+  if (location.e_to)  { AtXY(3, 1); print "-"; }
+
+  if (location.sw_to) { AtXY(1, 2); print "/"; }
+  if (location.s_to)  { AtXY(2, 2); print "|"; }
+  if (location.se_to) { AtXY(3, 2); print "@@92"; }
+ }
+ ! Reverse actually makes it pink, which is a little too obtrusive
+ !style reverse;
+
+ AtXY(6, 0);
+ print "Location: ", (name)location;
+ AtXY(6, 1);
+ print "Time:     ";
+ CurrentTime();
+ LanguageTimeOfDay(date_array-->4, date_array-->5);
+ AtXY(6, 2);
+ ! Moves (sline2) not displayed
+ print "Score:    ", sline1;
+
+ if (call_person ~= nothing && call_room ~= nothing) {
+  AtXY(40, 0);
+  if (telephone has general) print "On telephone";
+  else print "On smartphone";
+  AtXY(40, 1);
+  print (name)call_person, "  ", (name)call_room;
+ }
+ AtXY(40, 2);
+ print "kt ", (name)parent(k_tits), " b ", (name)parent(britney), " bt ", (name)parent(b_tits), " i ", (name)parent(igor);
+
+ !style roman;
+ ! Stop drawing statusline
+ glk_set_window(gg_mainwin);
+ ! Out of time ;-(
+ if (glk_current_simple_time(1) > endTime) deadFlag = 7;
+];
 
 !----------------------------------------------------------------------------
 ! Initialise
@@ -59,8 +122,14 @@
   print "Your browser does not support required time features, try a more recent browser. Thanks for trying to save Fluffy!";
   quit;
  }
- ! Great sample for date/time functions
- CurrentTime(t0);
+ ! As of about 20:00 on 2020-02-18, this gives 1,582,074,336 = 0x5E4C89E0 = 0b1011110010011001000100111100000
+ !                                                                          0b1111111111111111111111111111111 = 0x7FFFFFFF = 2,147,483,647 which when plugged in to https://www.epochconverter.com/ gives:
+ !   Assuming that this timestamp is in seconds:
+ !   GMT: Tuesday, January 19, 2038 3:14:07 AM
+ !   Your time zone: Monday, January 18, 2038 10:14:07 PM GMT-05:00
+ !   Relative: In 18 years
+ ! Considering all we're doing here is ending the game in "one hour", as long as the user doesn't start the game after about 2038-01-18 21:15 GMT, we can safely ignore the 2038 bug
+ endTime = glk_current_simple_time(1) + 3600;
  notify_mode = false;
  player = kaitlyn;
  location = street;
@@ -156,15 +225,6 @@
   We arrived an hour ago and I just left him in my hotel room, 402, while I ran out for something to eat. Britney stayed in her room, right next to mine, to get settled in.^^";
  return 2;
  ! Story continues with street.initial()
-];
-
-[ MyPrompt hh mm;
- print "^";
- CurrentTime();
- hh = date_array-->4;
- mm = date_array-->5;
- LanguageTimeOfDay(hh, mm);
- print " > ";
 ];
 
 ! Pronoun routines, from http://inform-fiction.org/manual/Answers.pdf
@@ -292,7 +352,6 @@
  give actor.bra worn;
  if (actor == player) "I take off the ", (name)noun, ".";
  else {
-  move b_tits to parent(britney);
   if (FlagOff(BRITNEY_KNOWS_ABOUT_FLUFFY)) print_ret (BritneysVoice)"Ok, but... why?";
   print_ret (BritneysVoice)"Sure, but only to help you get Fluffy back!";
  }
@@ -307,7 +366,6 @@
  give noun worn;
  if (actor == player) "I put on the ", (name)noun, ".";
  else {
-  move b_tits to thedark;
   print_ret (BritneysVoice)"Thanks, I feel a little less naked now!";
  }
 ];
@@ -640,6 +698,9 @@
   6:
    print "We rescued Fluffy, he was s-o-o-o happy to see me!!! Plus, we had all the evidence we needed to put the Russians in jail for a long, long time.
           Fluffy came second in his class in the dog show, but after what happened that weekend, it didn't matter!";
+  7:
+   ! ToDo:
+   print "We ran out of time.";
  }
 ];
 

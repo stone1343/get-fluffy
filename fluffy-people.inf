@@ -288,6 +288,7 @@ Girl britney "Britney" room_403
     default: print "Britney doesn't even know where she is!^";
    }
    if (to_room ~= nothing) {
+    ! Britney's moving to a new room
     move self to to_room;
     move b_tits to to_room;
     if (player in to_room) {

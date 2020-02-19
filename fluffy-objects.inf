@@ -1,5 +1,5 @@
 
-Room_Key k_key "my key" kaitlyn
+Room_Key k_key "room key" kaitlyn
  class Britney_Object Ownable_Object
  with
   name 'room' 'key',
@@ -167,7 +167,7 @@ Object contact_britney
     print_ret (BritneysVoice)"Hey Kaitlyn, what's up?";
   ];
 
-Room_Key b_key "Britney's key" britney
+Room_Key b_key "room key" britney
  class Britney_Object Ownable_Object
  with
   name 'Britney^s' 'room' 'key',
