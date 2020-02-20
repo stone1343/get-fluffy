@@ -100,9 +100,9 @@ Constant lcShch = lcA+25;
 !Constant lcYa = lcA+31;
 
 Constant heart = '@{2764}';
-!Constant magic = '@{2728}';
+Constant magic = '@{2728}';
 !Constant smiley = '@{1F600}';
-!Constant no_entry = '@{26D4}';
+Constant no_entry = '@{26D4}';
 !Constant star1 = '@{1F31F}';
 Constant star3 = '@{2B50}';
 Constant love = '@{1F60D}';

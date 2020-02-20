@@ -668,17 +668,17 @@
   itDidSomething = false;
   if (parent(master_key) == nothing) {
    move master_key to location;
-   print "Like magic, the master key";
+   print (char)magic, " Like magic, the master key";
    itDidSomething = true;
   }
   if (parent(smartphone) == nothing) {
    move smartphone to location;
-   if (~~itDidSomething) print "Out of nowhere,";
+   if (~~itDidSomething) print (char)magic, " Out of nowhere,";
    else print " and";
    print " my smartphone";
    itDidSomething = true;
   }
-  if (itDidSomething) print_ret " appeared.";
+  if (itDidSomething) print_ret " appeared. ", (char)magic;
   print_ret (preformatted)"Nothing happens.";
  }
  print_ret (preformatted)"'Xyzzy' only works once.";
@@ -688,6 +688,7 @@
  if (FlagOff(PLAYER_SAID_PLUGH)) {
   score++;
   SetFlag(PLAYER_SAID_PLUGH);
+  print (char)magic, " Whoa!!! What just happened? ", (char)magic, "^";
  }
  move player to street;
  move k_tits to street;
