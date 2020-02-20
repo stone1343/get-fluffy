@@ -100,6 +100,15 @@ Constant lcShch = lcA+25;
 !Constant lcYa = lcA+31;
 
 Constant heart = '@{2764}';
+!Constant magic = '@{2728}';
+!Constant smiley = '@{1F600}';
+!Constant no_entry = '@{26D4}';
+!Constant star1 = '@{1F31F}';
+Constant star3 = '@{2B50}';
+Constant love = '@{1F60D}';
+!Constant heartbreak = '@{1F494}';
+!Constant hearts = '@{1F495}';
+!Constant sparkling_heart = '@{1F496}';
 
 ! Override default number of flags in newflags.h, should be a power of 2, they start at 0
 Constant FLAGCOUNT = 32;
@@ -150,7 +159,7 @@ Global dialed_number;
 ! date/time sample code from http://www.eblong.com/zarf/glulx/datetimetest.inf
 Array time_array --> 4;
 Array date_array --> 9;
-Global endTime;
+Global end_time;
 
 ! Who and where did you call? These will be nothing if no call active, they're used to put the NPC back where they were when you hang up
 ! Only one call at a time

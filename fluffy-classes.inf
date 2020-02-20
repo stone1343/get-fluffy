@@ -306,7 +306,8 @@ Class Hotel_Room_Door
     }
     if (location ofclass hall) print "enter";
     else print "exit";
-    print " the room.^";
+    ! Can leave a hanging comma here because the 'after' will finish the sentence
+    print " the room,";
     ! Must not return true, because that stops everything, which we really can't do for this action!
   ],
   after [;
@@ -314,7 +315,9 @@ Class Hotel_Room_Door
     StopTimer(self);
     give self ~open;
     if (location ofclass Hall) give self locked;
-    "^The door swings shut behind me.";
+    move k_tits to location;
+    ! Must not return true, because that stops everything, which we really can't do for this action!
+    print " the door swings shut behind me.^";
   ],
   time_left,
   time_out [;
@@ -366,6 +369,7 @@ Class Hall
 Class Hotel_Room
  class Room
  with
+  !initial "Why do I have to add this again, haven't I debugged this enough???",
   description [;
    if (self hasnt visited) "According to the floor plan on the back of the door, I'm in ", (name)self, ".";
    rtrue;

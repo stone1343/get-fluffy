@@ -59,7 +59,7 @@
  glk_window_move_cursor(gg_statuswin, x, y);
 ];
 
-[ DrawStatusLine width height;
+[ DrawStatusLine width height minutes_left;
  ! If we have no status window, we must not try to redraw it.
  if (gg_statuswin == 0) return;
  ! If there is no player location, we shouldn't try either.
@@ -69,6 +69,7 @@
  glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments+4);
  width = gg_arguments-->0;
  height = gg_arguments-->1;
+ minutes_left = end_time - glk_current_simple_time(60);
 
  ! Start drawing statusline, we know its dimentions
  if (location ~= thedark) {
@@ -88,14 +89,12 @@
  !style reverse;
 
  AtXY(6, 0);
- print "Location: ", (name)location;
+ print "Location:     ", (name)location;
  AtXY(6, 1);
- print "Time:     ";
- CurrentTime();
- LanguageTimeOfDay(date_array-->4, date_array-->5);
+ print "Minutes left: ", minutes_left;
  AtXY(6, 2);
  ! Moves (sline2) not displayed
- print "Score:    ", sline1;
+ print "Score:        ", sline1;
 
  if (call_person ~= nothing && call_room ~= nothing) {
   AtXY(40, 0);
@@ -111,7 +110,7 @@
  ! Stop drawing statusline
  glk_set_window(gg_mainwin);
  ! Out of time ;-(
- if (glk_current_simple_time(1) > endTime) deadFlag = 7;
+ if (minutes_left <= 0) deadFlag = 7;
 ];
 
 !----------------------------------------------------------------------------
@@ -122,14 +121,21 @@
   print "Your browser does not support required time features, try a more recent browser. Thanks for trying to save Fluffy!";
   quit;
  }
- ! As of about 20:00 on 2020-02-18, this gives 1,582,074,336 = 0x5E4C89E0 = 0b1011110010011001000100111100000
- !                                                                          0b1111111111111111111111111111111 = 0x7FFFFFFF = 2,147,483,647 which when plugged in to https://www.epochconverter.com/ gives:
+ ! As of about 20:00 on 2020-02-18, Unix time = 1,582,074,336 = 0x5E4C89E0 = 0b1011110010011001000100111100000
+ !                                                                           0b1111111111111111111111111111111 = 0x7FFF FFFF = 2,147,483,647
+ ! which when plugged in to https://www.epochconverter.com/ gives:
  !   Assuming that this timestamp is in seconds:
  !   GMT: Tuesday, January 19, 2038 3:14:07 AM
  !   Your time zone: Monday, January 18, 2038 10:14:07 PM GMT-05:00
  !   Relative: In 18 years
- ! Considering all we're doing here is ending the game in "one hour", as long as the user doesn't start the game after about 2038-01-18 21:15 GMT, we can safely ignore the 2038 bug
- endTime = glk_current_simple_time(1) + 3600;
+ ! Get time in integer minutes since 1970-01-01 00:00:00
+
+ ! Using factor of 60 gives minutes since 1970-01-01, 0x7FFF FFFF will overflow a 32-bit signed integer when Unix time = 0x1D FFFF FFC4 = 6053-01-23
+ ! Or another way, 0x7FFF FFFF / 3C = 222 2222, an awfully long time until this overflows
+
+ ! End time is just 60 minutes after start time
+ end_time = glk_current_simple_time(60) + 60;
+
  notify_mode = false;
  player = kaitlyn;
  location = street;
@@ -203,7 +209,7 @@
   `1234567890-=
   ~!#$%&*()_+
   []{}|;':<>^";
- print (pink) "pink
+ print (red) "red
   ABCDEFGHIJKLMNOPQRSTUVWXYZ
   abcdefghijklmnopqrstuvwxyz
   `1234567890-=
@@ -217,12 +223,17 @@
  Pause();
  ClearScreen();
  print "^This is the story of the scariest thing that ever happened to me, it all started
-  with a text message from some Russian thugs, saying they had taken my cute little dog, Fluffy.
-  But I'm getting ahead of myself, let me start at the beginning...^";
+        with a text message from some Russian thugs, saying they had taken my cute little dog, Fluffy.
+        But I'm getting ahead of myself, let me start at the beginning...^";
  banner();
  print "^My name's Kaitlyn, I'm 23 and people tell me I'm quite pretty, but I just feel like a regular small-town girl.
-  I've come to Las Vegas with my best friend, Britney, to show my Fluffy ", (char)heart, " at the Silver State Kennel Club Dog Show.
-  We arrived an hour ago and I just left him in my hotel room, 402, while I ran out for something to eat. Britney stayed in her room, right next to mine, to get settled in.^^";
+        I've come to Las Vegas with my best friend, Britney ", (char)love, ", to show my Fluffy ",;
+ glk_set_style(style_Alert);
+ print (char)heart;
+ glk_set_style(style_Normal);
+ !print (char)magic, (char)smiley, (char)no_entry, (char)star1, (char)star3, (char)love, (char)heartbreak, (char)hearts, (char)sparkling_heart, " at the Silver State Kennel Club Dog Show.
+ print (char)star3, " at the Silver State Kennel Club Dog Show.
+       We arrived an hour ago and I left him in my hotel room, 402, while I ran out for something to eat. Britney stayed in her room, right next to mine, to get settled in.^^";
  return 2;
  ! Story continues with street.initial()
 ];
@@ -263,7 +274,8 @@
  glk_set_style(style_Normal);
 ];
 
-[ pink text;
+! Style_alert
+[ red text;
  glk_set_style(style_Alert);
  print (string)text;
  glk_set_style(style_Normal);
