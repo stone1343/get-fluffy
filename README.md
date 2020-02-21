@@ -3,7 +3,7 @@
 > Welcome to the Timbuktu!<br>
 >    \- Igor
 
-An entry in [IFComp 2020](https://ifcomp.org/).
+Hopefully an entry in [IFComp 2020](https://ifcomp.org/).
 
 [Play now on GitHub Pages](https://stone1343.github.io/get-fluffy/public/index.html) (Desktop browser recommended)
 
@@ -11,7 +11,7 @@ If you've downloaded the project from GitHub, navigate to the public directory a
 
 *Get Fluffy!* seems to work on iOS or Android, but I think you'll have a better experience on a modern desktop browser.
 Being designed to play in a browser, *Get Fluffy!* can do things that would not be possible using Glulxe alone.
-It is not intended to be played with Glulxe, it will not work properly, but more importantly, you won't get the proper experience.
+It is not intended to be played with Glulxe -- it will not work properly, but more importantly, you won't get the proper experience.
 
 You don't need to compile or build anything, everything you need is provided, all ready to go. If you do want to build *Get Fluffy!*, you'll need the Inform 6 compiler and Lua interpreter.
 
