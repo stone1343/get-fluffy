@@ -73,7 +73,7 @@
   if (location.ne_to) { AtXY(3, 0); print "/"; }
 
   if (location.w_to)  { AtXY(1, 1); print "-"; }
-                        AtXY(2, 1); print "o";
+                        AtXY(2, 1); print "O";
   if (location.e_to)  { AtXY(3, 1); print "-"; }
 
   if (location.sw_to) { AtXY(1, 2); print "/"; }
