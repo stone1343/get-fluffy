@@ -87,7 +87,7 @@ Class Disappearing_Object
     ".";
    Take:
     if (self ofclass Token) {
-     if (parent(self) == slot_machine) print (blue) "What should I do with my big jackpot?";
+     if (parent(self) == slot_machine) print (blue) "What should I do with my big jackpot?", (char)smiley;
      else {
       print (blue)"Cool, it's a";
       objectloop (o ofclass Token) {
@@ -96,7 +96,7 @@ Class Disappearing_Object
         break;
        }
       }
-      print (blue)" slot machine token!";
+      print (blue)" slot machine token! ", (char)smiley;
       if (FlagOff(self.foundFlag)) {
        FlagOn(self.foundFlag);
        score++;
@@ -315,7 +315,7 @@ Class Hotel_Room_Door
     StopTimer(self);
     give self ~open;
     if (location ofclass Hall) give self locked;
-    move k_tits to location;
+    move k_boobs to location;
     ! Must not return true, because that stops everything, which we really can't do for this action!
     print " the door swings shut behind me.^";
   ],
@@ -347,7 +347,14 @@ Class Room_Key
 
 Class Room
  with
-  cant_go [; SmartCantGo(); ]
+  cant_go [;
+   SmartCantGo();
+  ],
+  each_turn [;
+   minutes_left = end_time - glk_current_simple_time(60);
+   ! Out of time ;-(
+   if (minutes_left <= 0) deadFlag = 7;
+  ]
  has light;
 
 Class Public_Room

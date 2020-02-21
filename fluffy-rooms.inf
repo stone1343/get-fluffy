@@ -100,7 +100,7 @@ Object -> slot_machine "slot machine"
      ! 50% win rate is mentioned in Igor's intro
      if (random(2) == 1) {
       move noun to self;
-      "a ~clunk~ sound. ", (blue)"Oooh, I think I won!!!";
+      "a ~clunk~ sound. ", (blue)"Oooh, I think I won!!! ", (char)smiley;
      }
      remove noun;
      "nothing. Well, that wasn't much fun!";
@@ -149,12 +149,7 @@ Public_Room elevator_vestibule "Elevator Vestibule"
   s_to nightclub,
   d_to [;
    if (master_key notin player) {
-    print (char)no_entry, (preformatted)" Authorized hotel staff only ", (char)no_entry;
-    if (FlagOn(PLAYER_KNOWS_MESSAGE)) "^If I had some sort of master key, maybe I could get down there and rescue Fluffy!";
-    else {
-     new_line;
-     rtrue;
-    }
+    print_ret (char)no_entry, (preformatted)" Authorized hotel staff only ", (char)no_entry;
    }
    print "I used the master key to go down to the basement.^";
    return basement;
@@ -211,7 +206,7 @@ Object elevator_doors "elevator doors"
   ]
  has static door scenery ~open;
 
-Object elevator "Elevator" class Public_Room
+Public_Room elevator "Elevator"
  with
   name 'elevator',
   description [;
@@ -864,7 +859,7 @@ Room roof "Roof"
     score++;
     SetFlag(PLAYER_GOT_TO_ROOF);
    }
-   if (self hasnt visited) print_ret (blue)"I used the master key to go up to the roof. Being up here reminds me of that scene from The Hangover! But my weekend is *not* gonna be like that!";
+   if (self hasnt visited) "I used the master key to go up to the roof. Being up here reminds me of that scene from The Hangover! But my weekend is *not* gonna be like that!";
    rtrue;
   ],
   description [ hh;

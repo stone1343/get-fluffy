@@ -16,7 +16,7 @@ Array IFID string "UUID://E9B9DC00-F85E-4EB6-9E6B-FADE2291C579//"; #Ifdef IFID; 
 !----------------------------------------------------------------------------
 ! Constants, Replace directives
 !----------------------------------------------------------------------------
-Constant MAX_SCORE = 11; ! Saying "xyzzy" or "plugh", dialing 911 or 867-5309 on the house phone, getting to the roof, finding each of 5 tokens or playing any token
+Constant MAX_SCORE = 10; ! Saying "xyzzy", dialing 911 or 867-5309 on the house phone, getting to the roof, finding each of 5 tokens or playing any token
 Constant MAX_CARRIED = 7;
 Constant MAX_PHONE_LENGTH = 7;
 Constant MAX_PHOTOGRAPHS = 10;
@@ -100,12 +100,12 @@ Constant lcShch = lcA+25;
 !Constant lcYa = lcA+31;
 
 Constant heart = '@{2764}';
-Constant magic = '@{2728}';
-!Constant smiley = '@{1F600}';
-Constant no_entry = '@{26D4}';
-!Constant star1 = '@{1F31F}';
-Constant star3 = '@{2B50}';
 Constant love = '@{1F60D}';
+Constant star = '@{2B50}';
+Constant magic = '@{2728}';
+Constant no_entry = '@{26D4}';
+Constant smiley = '@{1F600}';
+!Constant star1 = '@{1F31F}';
 !Constant heartbreak = '@{1F494}';
 !Constant hearts = '@{1F495}';
 !Constant sparkling_heart = '@{1F496}';
@@ -134,9 +134,8 @@ Constant PLAYER_FOUND_COPPER_TOKEN = 16;
 Constant PLAYER_FOUND_BRONZE_TOKEN = 17;
 Constant PLAYER_PLAYED_TOKEN = 18;
 Constant PLAYER_SAID_XYZZY = 19;
-Constant PLAYER_SAID_PLUGH = 20;
 
-Replace LanguageTimeOfDay;
+!Replace LanguageTimeOfDay;
 Replace DrawStatusLine;
 Replace ScoreSub;
 Replace ThinkSub;
@@ -160,6 +159,7 @@ Global dialed_number;
 Array time_array --> 4;
 Array date_array --> 9;
 Global end_time;
+Global minutes_left;
 
 ! Who and where did you call? These will be nothing if no call active, they're used to put the NPC back where they were when you hang up
 ! Only one call at a time
@@ -219,5 +219,3 @@ Extend 'take'
  * scope=Anything -> Take;
 Verb 'xyzzy'
  * -> Xyzzy;
-Verb 'plugh'
- * -> Plugh;

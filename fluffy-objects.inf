@@ -162,7 +162,7 @@ Object contact_britney
     #Endif;
     give britney concealed;
     move britney to location;
-    move b_tits to location;
+    move b_boobs to location;
     remove self;
     print_ret (BritneysVoice)"Hey Kaitlyn, what's up?";
   ];

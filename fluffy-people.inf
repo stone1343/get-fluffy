@@ -35,11 +35,11 @@ Girl kaitlyn "Kaitlyn" street
   ],
  has concealed proper transparent;
 
-! Obviously Kaitlyn's tits go everywhere she does
-Object k_tits "my tits"  street
+! Obviously Kaitlyn's boobs go everywhere she does
+Object k_boobs "my boobs"  street
  with
-  name 'my' 'tits' 'boobs' 'breasts',
-  description "I have really great tits!",
+  name 'my' 'boobs' 'breasts',
+  description "I have really great boobs!",
   article "my",
   before [;
    Touch, Kiss:
@@ -91,7 +91,7 @@ Girl britney "Britney" room_403
    else print "bra";
    " and yoga pants.";
   ],
-  actualRoom [;
+  ActualRoom [;
     if (OnPhone(britney)) return call_room;
     else return parent(britney);
   ],
@@ -173,22 +173,22 @@ Girl britney "Britney" room_403
     print_ret (BritneysVoice)"ok ", (name)noun;
    Drop:
     if ((noun ofclass Britney_Object) && (noun in britney)) {
-     move noun to self.actualRoom();
+     move noun to self.ActualRoom();
      print_ret (BritneysVoice)"Ok.";
     }
    Take:
     if ((noun ofclass Britney_Object) && (noun notin britney)) {
-     if (noun in self.actualRoom()) {
+     if (noun in self.ActualRoom()) {
       move noun to britney;
       print_ret (BritneysVoice)"Ok.";
      }
     }
    Look:
     ! ToDo: Add more colour?
-    if (britney.actualRoom() == location) print_ret (BritneysVoice)"I pretty much see the same stuff as you.";
-    print_ret (BritneysVoice)"I'm in ", (name)britney.actualRoom(), " and there's not much happening.";
+    if (britney.ActualRoom() == location) print_ret (BritneysVoice)"I pretty much see the same stuff as you.";
+    print_ret (BritneysVoice)"I'm in ", (name)britney.ActualRoom(), " and there's not much happening.";
    Disrobe:
-    if (~~(self.actualRoom() ofclass Hotel_Room)) print_ret (BritneysVoice)"I can't undress in public!";
+    if (~~(self.ActualRoom() ofclass Hotel_Room)) print_ret (BritneysVoice)"I can't undress in public!";
     if (FlagOff(BRITNEY_KNOWS_ABOUT_FLUFFY)) print_ret (BritneysVoice)"Why would I do that?";
     if (noun ofclass Top) {
      DisrobeTop(actor, noun);
@@ -290,7 +290,7 @@ Girl britney "Britney" room_403
    if (to_room ~= nothing) {
     ! Britney's moving to a new room
     move self to to_room;
-    move b_tits to to_room;
+    move b_boobs to to_room;
     if (player in to_room) {
      self.destination_room = to_room;
      if (location ofclass Hotel_Room) print "^I heard a knock on the door and let Britney in.^";
@@ -303,10 +303,10 @@ Girl britney "Britney" room_403
   ]
  has transparent;
 
-! Obviously Britney's tits go everywhere she does
-Object b_tits "Britney's tits"  room_403
+! Obviously Britney's boobs go everywhere she does
+Object b_boobs "Britney's boobs"  room_403
  with
-  name 'Britney^s' 'tits' 'boobs' 'breasts',
+  name 'Britney^s' 'boobs' 'breasts',
   description "They're smaller than mine, but still awesome.",
   article "Britney's",
   before [;
