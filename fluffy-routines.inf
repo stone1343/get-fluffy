@@ -217,7 +217,7 @@
         with a text message from some Russian thugs, saying they had taken my cute little dog, Fluffy.
         But I'm getting ahead of myself, let me start at the beginning...^";
  banner();
- print "^My name's Kaitlyn, I'm 23 and people tell me I'm hot, but I just feel like a regular small-town girl.
+ print "^My name's Kaitlyn, I'm 23 and people tell me I'm cute, but I just feel like a regular small-town girl.
         I've come to Las Vegas with my best friend, Britney ", (char)love, ", to show my Fluffy ",;
  glk_set_style(style_Alert);
  print (char)heart;
