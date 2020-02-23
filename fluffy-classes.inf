@@ -24,7 +24,7 @@ Class General_Object
     else print (the)self;
     if (location ofclass Hotel_Room) print "on the bed";
     else {
-     if (self == smartphone) print ", ", (i)" carefully";
+     if (self == smartphone) print ", ", (i)"carefully";
      if ((self ofclass Disappearing_Object) && (location ofclass Public_Room)) {
       ! Timer is started in NewRoom for Disappearing_Objects which have general
       give self general;
@@ -71,7 +71,9 @@ Class Ownable_Object
  with
   owner,
   initial [;
-   print (string)self.article, " ", (name)self;
+   if (self.owner == kaitlyn) print "My";
+   else print (string)self.article;
+   print " ", (name)self;
    " is here.";
   ],
   invent [;
@@ -170,23 +172,23 @@ Class Photograph(MAX_PHOTOGRAPHS)
   wearing_top,
   description [;
    switch (self.subject) {
-    fluffy: "It's Fluffy, he's s-o-o-o cute I love him so much!!!";
-    igor: "It's a photo of Igor.";
+    fluffy: print "It's Fluffy, he's s-o-o-o cute I love him so much!!!";
+    igor: print "It's a photo of Igor.";
     britney:
      print "It's a picture of Britney in a ";
      if (self.wearing_top) print (name)self.wearing_top;
      else print "bra";
-     " and yoga pants.";
+     print " and yoga pants.";
     laptop:
-     if (FlagOn(PLAYER_KNOWS_MESSAGE)) "It's the Russian email saying that Fluffy is in the basement.";
-     else "The laptop has a message that I can't understand.";
+     if (FlagOn(PLAYER_KNOWS_MESSAGE)) print "It's the Russian email saying that Fluffy is in the basement.";
+     else print "The laptop has a message that I can't understand.";
     kaitlyn:
      print "It's a picture of me in a ";
      if (self.wearing_top) print (name)self.wearing_top;
      else print "bra";
      print " and skinny jeans.";
-     if ((self.wearing_top == nothing)) " I like how my boobs look in this bra.";
-     " It's a cute outfit, isn't it?";
+     if ((self.wearing_top == nothing)) print " I like how my boobs look in this bra.";
+     print " It's a cute outfit, isn't it?";
    }
   ],
   create [ o;

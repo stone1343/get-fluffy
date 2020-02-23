@@ -333,7 +333,7 @@ Hotel_Room room_202 "Room 202"
   floor_number 2,
   room_number 202;
 
-Object -> laptop "laptop"
+Disappearing_Object -> laptop "laptop"
  with
   name 'laptop' 'computer',
   initial [;
@@ -892,8 +892,11 @@ Object telephone "house phone"
   found_in lobby room_201 room_202 room_203 room_204 room_205 room_206 room_207 room_301 room_302 room_303 room_304 room_305 room_306 room_307 room_401 room_402 room_403 room_404 room_405 room_406 room_407 room_501 room_502 room_503 room_504 room_505 room_506 room_507,
   before [;
    ! If telephone has general, it's the one being used
-   Drop: if ((OnPhone()) && (telephone has general)) "Don't be rude, you need to hang up first.";
-  ],
-  after [;
-   Take: "I pick up the receiver and hear a dial tone.";
+   Drop:
+    if ((OnPhone()) && (self has general)) "Don't be rude, you need to hang up first.";
+    move self to location;
+    "I put the receiver back on the hook.";
+   Take:
+    move self to player;
+    "I pick up the receiver and hear a dial tone.";
   ];

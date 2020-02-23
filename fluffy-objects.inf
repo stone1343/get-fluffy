@@ -155,13 +155,13 @@ Icon camera_icon "Camera icon" thedark
  with
   name 'camera',
   mode MODE_CAMERA,
-  label 'Camera';
+  label "Camera";
 
 Icon photos_icon "Photos icon" thedark
  with
   name 'photos',
   mode MODE_PHOTOS,
-  label 'Photos';
+  label "Photos";
 
 Object contact_britney thedark
  with
