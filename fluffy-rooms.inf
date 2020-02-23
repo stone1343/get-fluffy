@@ -16,7 +16,6 @@ Public_Room street "Las Vegas Blvd."
    }
    rtrue;
   ],
-  description "I can go south.",
   s_to lobby
  has proper;
 
@@ -41,7 +40,7 @@ Public_Room lobby "Lobby"
    new_line;
    rtrue;
   ],
-  description "I can go north, south or west.",
+  !description "I can go north, south or west.",
   n_to street,
   s_to elevator_vestibule,
   w_to gift_shop,
@@ -56,7 +55,7 @@ Public_Room gift_shop "Gift Shop"
     if (self hasnt visited) "This is the gift shop, full of tacky, over-priced dust collectors made in China.";
     rtrue;
   ],
-  description "I can go east, south-east or south.",
+  !description "I can go east, south-east or south.",
   e_to lobby,
   se_to elevator_vestibule,
   s_to casino;
@@ -67,7 +66,7 @@ Public_Room casino "Casino"
    if (self hasnt visited) "Wow, this could be the worst ~casino~ in the world. There's only one slot machine!";
    rtrue;
   ],
-  description "I can go north, east or south.",
+  !description "I can go north, east or south.",
   n_to gift_shop,
   e_to elevator_vestibule,
   s_to restaurant;
@@ -115,7 +114,7 @@ Public_Room restaurant "Restaurant"
    if (self hasnt visited) "This is the restaurant, it actually looks like a nice place, lots of people enjoying their meals, but nothing very interesting for me right now.";
    rtrue;
   ],
-  description "I can go north, north-east or east.",
+  !description "I can go north, north-east or east.",
   n_to casino,
   ne_to elevator_vestibule,
   e_to nightclub;
@@ -126,7 +125,7 @@ Public_Room nightclub "Nightclub"
    if (self hasnt visited) "This is a nightclub, it's loud and crowded with all kinds of seedy people, my favourite kind of place.";
    rtrue;
   ],
-  description "I can go north or west.",
+  !description "I can go north or west.",
   n_to elevator_vestibule,
   w_to restaurant;
 
@@ -136,7 +135,7 @@ Public_Room elevator_vestibule "Elevator Vestibule"
    if (self hasnt visited) "This is the elevator vestibule, the hub of the hotel, from here I can get to any other room on the ground floor.";
    rtrue;
   ],
-  description "The lobby is north and the elevator's to the east.",
+  !description "The lobby is north and the elevator's to the east.",
   e_to [;
    if (elevator_doors hasnt open) "The elevator's at a different floor.";
    return elevator;
@@ -334,17 +333,17 @@ Hotel_Room room_202 "Room 202"
   floor_number 2,
   room_number 202;
 
-Object -> computer "computer"
+Object -> laptop "laptop"
  with
-  name 'computer',
+  name 'laptop' 'computer',
   initial [;
-   if (FlagOff(PLAYER_HAS_SEEN_MESSAGE)) "There's a computer here and it's on!";
+   if (FlagOff(PLAYER_HAS_SEEN_MESSAGE)) "There's a laptop here and it's on!";
    rtrue;
   ],
   description [;
    if (FlagOff(PLAYER_HAS_SEEN_MESSAGE)) {
     SetFlag(PLAYER_HAS_SEEN_MESSAGE);
-    print "There's a message on the computer that I can't understand! It reads:^";
+    print "There's a message on the laptop that I can't understand! It reads:^";
     glk_set_style(style_Preformatted);
     print (char)ucVe, (char)lcEl, (char)lcA, (char)lcDe, ", ";
     print (char)lcShch, (char)lcYe, (char)lcEn, (char)lcO, (char)lcKa, " ";
@@ -354,9 +353,9 @@ Object -> computer "computer"
     glk_set_style(style_Normal);
     rtrue;
    }
-   "There's an incomprehensible message on the computer.";
-  ]
- has static;
+   "There's an incomprehensible message on the laptop.";
+  ],
+  article "Vlad's";
 
 Hotel_Room_Door door_203 "203"
  with
@@ -886,9 +885,9 @@ Token -> gold_token "gold token"
 
 ! Might expect 'has talkable' for a phone, but this phone is basically a teleporter ;-)
 ! Telephone's general means call active
-Object telephone "telephone"
+Object telephone "house phone"
  with
-  name 'house' 'phone' 'telephone' 'receiver',
+  name 'telephone' 'house' 'phone' 'receiver',
   description "It's the hotel's house phone.",
   found_in lobby room_201 room_202 room_203 room_204 room_205 room_206 room_207 room_301 room_302 room_303 room_304 room_305 room_306 room_307 room_401 room_402 room_403 room_404 room_405 room_406 room_407 room_501 room_502 room_503 room_504 room_505 room_506 room_507,
   before [;

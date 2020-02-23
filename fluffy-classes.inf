@@ -98,8 +98,8 @@ Class Disappearing_Object
       }
       print (blue)" slot machine token! ", (char)smiley;
       if (FlagOff(self.foundFlag)) {
-       FlagOn(self.foundFlag);
        score++;
+       FlagOn(self.foundFlag);
       }
      }
     }
@@ -131,6 +131,10 @@ Class Token
 Class Icon
  with
   mode,
+  label,
+  description [;
+   print_ret "It's an icon labeled ", (string)self.label, ".";
+  ],
   before [;
    Push, Touch:
     print "I ";
@@ -139,8 +143,8 @@ Class Icon
      print "picked up my smartphone and";
     }
     smartphone.change_mode(self.mode);
-    "selected ", (address)self.&name-->0, ".";
-  ],
+    "selected ", (string)self.label, ".";
+  ]
  has static;
 
 ! Dynamically created photos
@@ -158,9 +162,9 @@ Class Photograph(MAX_PHOTOGRAPHS)
      if (self.wearing_top) print (name)self.wearing_top;
      else print "bra";
      " and yoga pants.";
-    computer:
-     if (FlagOn(PLAYER_KNOWS_MESSAGE)) "It's the computer message saying that Fluffy is in the basement.";
-     else "The computer has a message that I can't understand.";
+    laptop:
+     if (FlagOn(PLAYER_KNOWS_MESSAGE)) "It's the Russian email saying that Fluffy is in the basement.";
+     else "The laptop has a message that I can't understand.";
     kaitlyn:
      print "It's a picture of me in a ";
      if (self.wearing_top) print (name)self.wearing_top;
@@ -177,14 +181,15 @@ Class Photograph(MAX_PHOTOGRAPHS)
     self.wearing_top = o.wearing_top;
     if (self.wearing_top == nothing) SetFlag(PLAYER_TOOK_TOPLESS_PHOTO);
    }
-   if (o == computer) SetFlag(PLAYER_HAS_PHOTOGRAPHED_MESSAGE);
-  ];
+   if (o == laptop) SetFlag(PLAYER_HAS_PHOTOGRAPHED_MESSAGE);
+  ]
+ has static;
 
 Class Button
  with
   before [;
    Push, Touch: "It beeps quietly when you push it.";
-  ],
+  ]
  has scenery;
 
 Class Elevator_Button
@@ -218,7 +223,7 @@ Class Basic_Door
   before [;
    Knock:
     "You knock on the door, but nothing happens.";
-  ],
+  ]
  has static scenery door openable lockable;
 
 ! A door which is always locked from the outside and shuts when you go through it
@@ -347,13 +352,18 @@ Class Room_Key
 
 Class Room
  with
+  description [;
+   rtrue;
+  ],
   cant_go [;
    SmartCantGo();
   ],
   each_turn [;
-   minutes_left = end_time - glk_current_simple_time(60);
-   ! Out of time ;-(
-   if (minutes_left <= 0) deadFlag = 7;
+   if (minutes_left ~= nothing) {
+    minutes_left = end_time - glk_current_simple_time(60);
+    ! Out of time ;-(
+    if (minutes_left <= 0) deadFlag = 7;
+   }
   ]
  has light;
 
@@ -377,10 +387,10 @@ Class Hotel_Room
  class Room
  with
   !initial "Why do I have to add this again, haven't I debugged this enough???",
-  description [;
-   if (self hasnt visited) "According to the floor plan on the back of the door, I'm in ", (name)self, ".";
-   rtrue;
-  ],
+  !description [;
+  ! if (self hasnt visited) "According to the floor plan on the back of the door, I'm in ", (name)self, ".";
+  ! rtrue;
+  !],
   door_out,
   floor_number,
   room_number,

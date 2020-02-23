@@ -39,7 +39,7 @@ Girl kaitlyn "Kaitlyn" street
 Object k_boobs "my boobs"  street
  with
   name 'my' 'boobs' 'breasts',
-  description "I have really great boobs!",
+  description "I have nice boobs!",
   article "my",
   before [;
    Touch, Kiss:
@@ -53,25 +53,38 @@ Girl britney "Britney" room_403
   wearing_top blue_shirt,
   bra b_bra,
   is "Britney's",
-  destination_floor,
-  destination_room,
+  ! destination_room is for ComeHere
+  destination_room nothing,
+  ! destination_floor is just for helping figure out where to move, the one that matters is destination_room
+  destination_floor nothing,
   is_following false,
   initial [;
-   StopDaemon(self);
-   ! ToDo: Is there a way to stop the extra blank line when following? I really don't want to have to print something like "Britney follows me."
-   if (britney.is_following) rtrue;
-   "Britney, my BFF, is here.";
+   ! ToDo If I call Britney while she's on her way to meet me...
+
+   ! Kaitlyn walks into the room where Britney is while she's on her way somewhere
+   ! Brit stops going wherever she was going, with no feedback
+   if (self.destination_room ~= nothing) {
+    self.destination_room = nothing;
+    StopDaemon(self);
+   }
+   if (OnPhone(self)) {
+    EndCall(self);
+    "Britney's here so I hang up the phone.";
+   }
+    ! ToDo: Is there a way to stop the extra blank line when following? I really don't like printing this
+   if (self.is_following) rtrue; !"Britney follows me.";
+   print_ret (string)random("Britney's here!", "There's Britney!", "Hey, girlfriend!", "My BFF's here!");
   ],
   description [ n o i;
-   if (OnPhone(britney)) "Britney has a nice voice on the phone.";
+   if (OnPhone(self)) "Britney has a nice voice on the phone.";
    n = 0;
    objectloop (o ofclass Britney_Object) {
-    if ((o in britney) && (o hasnt worn)) n++;
+    if ((o in self) && (o hasnt worn)) n++;
    }
    if (n > 0) {
     i = 0;
     objectloop (o ofclass Britney_Object) {
-     if ((o in britney) && (o hasnt worn)) {
+     if ((o in self) && (o hasnt worn)) {
       switch (++i) {
        1: print "Britney's carrying ";
        default: if (i < n) print ", ";
@@ -92,23 +105,23 @@ Girl britney "Britney" room_403
    " and yoga pants.";
   ],
   ActualRoom [;
-    if (OnPhone(britney)) return call_room;
-    else return parent(britney);
+    if (OnPhone(self)) return call_room;
+    else return parent(self);
   ],
   before [;
-   Give:
-    if (OnPhone(self)) "It'd be hard to give something to ", (name)self, " when I'm on the phone with ", (PronounAcc)self, "!";
-   Show:
-    if (OnPhone(self)) "It's hard to show something to ", (name)self, " when I'm on the phone with ", (PronounAcc)self, "!";
+   Give, Show:
+    if (OnPhone(self)) "It's hard to do that when I'm on the phone with her!";
+   Push, Touch:
+    if (~~OnPhone(self) && parent(contact_britney) == screen) <Push contact_britney>;
   ],
   life [ o;
    Give:
     ! Giving to Britney...
     if (noun ofclass Britney_Object) {
-     move noun to britney;
-     print_ret (BritneysVoice)"Thanks.";
+     move noun to self;
+     print_ret (BritneysVoice)"Thanks!";
     }
-    print_ret (BritneysVoice)"No thanks.";
+    print_ret (BritneysVoice)"No, thanks.";
    Show:
     ! Showing to Britney...
     ! if (call_person == self) "It's hard to show something to ", (name)self, " when I'm on the phone with ", (PronounAcc)self, "!";
@@ -126,7 +139,7 @@ Girl britney "Britney" room_403
           print_ret (BritneysVoice)".";
          kaitlyn:
           print_ret (BritneysVoice)"That's an awesome photo of you!";
-         computer:
+         laptop:
           if (FlagOff(PLAYER_KNOWS_MESSAGE)) print_ret (BritneysVoice)"Hey, Igor's Ukrainian, maybe he'd know what that means.";
           print_ret (BritneysVoice)"We need to go there and find Fluffy!";
          default: print_ret (BritneysVoice)"That's a nice photo.";
@@ -167,26 +180,26 @@ Girl britney "Britney" room_403
   ],
   orders [;
    Give:
-    if (OnPhone(britney)) print_ret (BritneysVoice)"Remind me when I see you again.";
-    if (noun notin britney) print_ret (BritneysVoice)"But, Kaitlyn, I don't have that.";
+    if (OnPhone(self)) print_ret (BritneysVoice)"Remind me when I see you again.";
+    if (noun notin self) print_ret (BritneysVoice)"But, Kaitlyn, I don't have that.";
     move noun to player;
-    print_ret (BritneysVoice)"ok ", (name)noun;
+    print_ret (BritneysVoice)"Sure, here you go.";
    Drop:
-    if ((noun ofclass Britney_Object) && (noun in britney)) {
-     move noun to self.ActualRoom();
+    if (noun notin self) print_ret (BritneysVoice)"I don't have that, Kaitlyn.";
+    move noun to self.ActualRoom();
+    print_ret (BritneysVoice)"Ok.";
+   Take:
+    if (noun in self) print_ret (BritneysVoice)"Kaitlyn, I already have that.";
+    if ((noun ofclass Britney_Object) && (noun in self.ActualRoom())) {
+     move noun to self;
      print_ret (BritneysVoice)"Ok.";
     }
-   Take:
-    if ((noun ofclass Britney_Object) && (noun notin britney)) {
-     if (noun in self.ActualRoom()) {
-      move noun to britney;
-      print_ret (BritneysVoice)"Ok.";
-     }
-    }
    Look:
-    ! ToDo: Add more colour?
-    if (britney.ActualRoom() == location) print_ret (BritneysVoice)"I pretty much see the same stuff as you.";
-    print_ret (BritneysVoice)"I'm in ", (name)britney.ActualRoom(), " and there's not much happening.";
+    if (self.ActualRoom() == location) print_ret (BritneysVoice)"I see the same stuff as you, girlfriend!";
+    glk_set_style(style_BlockQuote);
+    print "I'm in ", (name)britney.ActualRoom(), " and there's not much happening.^";
+    glk_set_style(style_Normal);
+    rtrue;
    Disrobe:
     if (~~(self.ActualRoom() ofclass Hotel_Room)) print_ret (BritneysVoice)"I can't undress in public!";
     if (FlagOff(BRITNEY_KNOWS_ABOUT_FLUFFY)) print_ret (BritneysVoice)"Why would I do that?";
@@ -194,36 +207,42 @@ Girl britney "Britney" room_403
      DisrobeTop(actor, noun);
      rtrue;
     }
-    print_ret (BritneysVoice)"Sorry, I'm keeping these on!";
+    print_ret (BritneysVoice)"Sorry, but no!";
    Wear:
     if (noun ofclass Top) {
      WearTop(actor, noun);
      rtrue;
     }
     print_ret (BritneysVoice)"Huh?";
+   ! Only works when you're on the phone with her
    ComeHere:
-    if (OnPhone(britney)) {
-     if (self.wearing_top == nothing) print_ret (BritneysVoice)"I'm not walking out of here without a shirt on!";
-     if (player in basement or roof) print_ret (BritneysVoice)"That's for authorized personnel only.";
-     if (player in elevator) print_ret (BritneysVoice)"Let's meet somewhere other than the elevator.";
-     if (location ofclass Hall or Hotel_Room) self.destination_floor = location.floor_number;
-     else self.destination_floor = 1;
-     if (location ofclass Hotel_Room) self.destination_room = location.to_hall;
-     else self.destination_room = location;
-     StartDaemon(self);
-     EndCall(britney);
-     print_ret (BritneysVoice)"Ok, see you soon, bye.";
-    }
-   ! Not going to implement GoTo
+    if (~~(OnPhone(self))) print_ret (BritneysVoice)"Uhh, Kaitlyn, I am here!";
+    if (self.wearing_top == nothing) print_ret (BritneysVoice)"I'm not walking out of here without a shirt!";
+    if (player in basement or roof) print_ret (BritneysVoice)"That's for hotel staff only.";
+    if (player in elevator) print_ret (BritneysVoice)"Let's meet somewhere other than the elevator.";
+    if (location ofclass Hall or Hotel_Room) self.destination_floor = location.floor_number;
+    else self.destination_floor = 1;
+    if (location ofclass Hotel_Room) self.destination_room = location.to_hall;
+    else self.destination_room = location;
+    StartDaemon(self);
+    EndCall(self);
+    if (location ofclass Hotel_Room) print_ret (BritneysVoice)"Ok, I'll wait for you in the hall, bye.";
+    else print_ret (BritneysVoice)"Ok, see you soon, bye.";
+   ! These next 2 only make sense when you're in the same room
    FollowMe:
-    britney.is_following = true;
+    if (self.ActualRoom() ~= location) print_ret (BritneysVoice)"Do you mean for me to come to you?";
+    if (self.is_following) "Yeah, you already said that.";
+    self.is_following = true;
     print_ret (BritneysVoice)"Sure, I'll come with you.";
    StayHere:
-    britney.is_following = false;
+    if (self.ActualRoom() ~= location) print_ret (BritneysVoice)"Do you mean for me to stay where I am?";
+    if (~~(self.is_following)) print_ret (BritneysVoice)"That was my plan.";
+    self.is_following = false;
     print_ret (BritneysVoice)"Ok, I'll stay here.";
    NotUnderstood: print_ret (BritneysVoice)"I don't understand.";
   ],
   daemon [ to_room;
+   ! to_room is the room she'll move to this turn
    to_room = nothing;
    switch (parent(self)) {
     room_501, room_502, room_503, room_504, room_505, room_506, room_507:
@@ -256,57 +275,51 @@ Girl britney "Britney" room_403
       else to_room = self.destination_room;
      }
     elevator_vestibule:
-     if (self.destination_floor > 1) {
-      to_room = second_floor;
-     }
+     if (self.destination_floor > 1) to_room = second_floor;
      else {
-      if (self.destination_room == nothing) to_room = random(lobby, gift_shop, casino, restaurant, nightclub);
-      else {
-       if (self.destination_room == street) to_room = lobby;
-       else to_room = self.destination_room;
-      }
+      if (self.destination_room == street) to_room = lobby;
+      else to_room = self.destination_room;
      }
     lobby:
-     if (self.destination_room == nothing) to_room = random(gift_shop, elevator_vestibule);
-     else {
-      if (self.destination_room == street) to_room = street;
-      else to_room = elevator_vestibule;
-     }
+     if (self.destination_room == street or gift_shop) to_room = self.destination_room;
+     else to_room = elevator_vestibule;
     gift_shop:
-     if (self.destination_room == nothing) to_room = random(lobby, elevator_vestibule, casino);
+     if (self.destination_room == lobby or casino) to_room = self.destination_room;
      else to_room = elevator_vestibule;
     casino:
-     if (self.destination_room == nothing) to_room = random(gift_shop, elevator_vestibule, restaurant);
+     if (self.destination_room == gift_shop or restaurant) to_room = self.destination_room;
      else to_room = elevator_vestibule;
     restaurant:
-     if (self.destination_room == nothing) to_room = random(casino, elevator_vestibule, nightclub);
+     if (self.destination_room == casino or nightclub) to_room = self.destination_room;
      else to_room = elevator_vestibule;
     nightclub:
-     if (self.destination_room == nothing) to_room = random(restaurant, elevator_vestibule);
+     if (self.destination_room == restaurant) to_room = self.destination_room;
      else to_room = elevator_vestibule;
     street: to_room = lobby;
-    default: print "Britney doesn't even know where she is!^";
    }
    if (to_room ~= nothing) {
     ! Britney's moving to a new room
     move self to to_room;
     move b_boobs to to_room;
+    ! Britney arrived where Kaitlyn is
     if (player in to_room) {
-     self.destination_room = to_room;
-     if (location ofclass Hotel_Room) print "^I heard a knock on the door and let Britney in.^";
-     else print "^Just then, Britney arrived.^";
+     self.destination_room = nothing;
+     StopDaemon(self);
+     "^Just then, Britney arrived.";
     }
+    ! She arrived at her destination, stop without any feedback to player
     if (parent(self) == self.destination_room) {
+     self.destination_room = nothing;
      StopDaemon(self);
     }
    }
   ]
- has transparent;
+ has transparent; ! Transparent so you can see her clothes
 
 ! Obviously Britney's boobs go everywhere she does
 Object b_boobs "Britney's boobs"  room_403
  with
-  name 'Britney^s' 'boobs' 'breasts',
+  name 'Britney^s' 'boobs' 'Brit^s' 'breasts',
   description "They're smaller than mine, but still awesome.",
   article "Britney's",
   before [;
@@ -339,6 +352,13 @@ Guy igor "Igor" lobby
    Show:
     ! Showing to Igor...
     if (noun == smartphone) {
+     if (smartphone.mode == MODE_MESSAGES) {
+      if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) {
+       SetFlag(IGOR_KNOWS_ABOUT_FLUFFY);
+       print_ret (IgorsVoice)"I'm so sorry someone took your dog! If there's anything I can do to help, let me know, I'm always here.";
+      }
+      print_ret (IgorsVoice)"I don't know what else I can tell you to help.";
+     }
      if (smartphone.mode == MODE_PHOTOS) {
       ! Find current photo
       objectloop (o ofclass Photograph) {
@@ -351,7 +371,7 @@ Guy igor "Igor" lobby
           print (IgorsVoice)"That's an awesome photo of you";
           if (o.wearing_top == nothing) print_ret (IgorsVoice)", but you shouldn't be showing that to me.";
           else print_ret (IgorsVoice)".";
-         computer:
+         laptop:
           SetFlag(PLAYER_KNOWS_MESSAGE);
           print_ret (IgorsVoice)"Oh, that's Russian, it means, ~Vlad, the dog's in the basement.~";
          default: print_ret (IgorsVoice)"That's a nice photo.";
@@ -360,19 +380,18 @@ Guy igor "Igor" lobby
        }
       }
      }
-     if (smartphone.mode == MODE_MESSAGES) {
-      if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) {
-       SetFlag(IGOR_KNOWS_ABOUT_FLUFFY);
-       print_ret (IgorsVoice)"I'm so sorry someone took your dog! If there's anything I can do to help, let me know, I'm always here.";
-      }
-      print_ret (IgorsVoice)"I don't know what else I can tell you to help.";
-     }
      print_ret (IgorsVoice)"Is that supposed to be interesting?";
     }
+    if (noun == laptop) {
+     if (FlagOn(PLAYER_KNOWS_MESSAGE)) print_ret (IgorsVoice)"Like I said, your dog must be in the basement.";
+     FlagOn(PLAYER_KNOWS_MESSAGE);
+     print_ret (IgorsVoice)"Yeah, that's Russian, it means, ~Vlad, the dog's in the basement.~";
+    }
+    print_ret (IgorsVoice)"I'm afraid I can't tell you much about that.";
    Ask:
-    if (second == 'britney') print_ret (IgorsVoice)"Not sure, miss, did you try her room?";
+    if (second == 'britney' or 'brit') print_ret (IgorsVoice)"Not sure, miss, did you try her room?";
     if (second == 'fluffy') {
-     if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) print_ret (IgorsVoice)"I think your dog is very cute, good luck in the dog show!";
+     if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) print_ret (IgorsVoice)"Your dog is very cute, good luck in the dog show!";
      print_ret (IgorsVoice)"Sorry, I don't know anything else about your dog.";
     }
     if (second == 'russians' or 'vlad' or 'vladimir') {
@@ -400,12 +419,11 @@ Guy igor "Igor" lobby
       print_ret (IgorsVoice)"Yeah, there's a couple Russian guys that checked in yesterday.";
      }
     }
-    if (second == 'message' or 'computer') {
+    if (second == 'message' or 'laptop' or 'computer') {
      if (FlagOn(PLAYER_HAS_SEEN_MESSAGE)) {
       if (FlagOff(PLAYER_KNOWS_MESSAGE)) {
        ! You can't adequately describe the message unless you're looking at the computer
        if (location == room_202) {
-        SetFlag(PLAYER_KNOWS_MESSAGE);
         "It takes a while to describe it to Igor, but eventually he figures out that it means Fluffy's in the basement.";
        }
        print_ret (IgorsVoice)"That sounds like it's in Russian.";
@@ -415,7 +433,7 @@ Guy igor "Igor" lobby
      ! (name) - no, nothing - no, (string) - no
      ! Can't figure this out, so brute force
      if (second == 'message') "What message?";
-     else "What computer?";
+     else "What ", second, "?";
     }
     "He doesn't seem interested.";
   ],

@@ -16,7 +16,7 @@ Array IFID string "UUID://E9B9DC00-F85E-4EB6-9E6B-FADE2291C579//"; #Ifdef IFID; 
 !----------------------------------------------------------------------------
 ! Constants, Replace directives
 !----------------------------------------------------------------------------
-Constant MAX_SCORE = 10; ! Saying "xyzzy", dialing 911 or 867-5309 on the house phone, getting to the roof, finding each of 5 tokens or playing any token
+Constant MAX_SCORE = 11; ! Saying 'xyzzy' or 'plugh', dialing 911 or 867-5309 on the house phone, getting to the roof, finding each of 5 tokens or playing any token
 Constant MAX_CARRIED = 7;
 Constant MAX_PHONE_LENGTH = 7;
 Constant MAX_PHOTOGRAPHS = 10;
@@ -112,17 +112,16 @@ Constant smiley = '@{1F600}';
 
 ! Override default number of flags in newflags.h, should be a power of 2, they start at 0
 Constant FLAGCOUNT = 32;
-! Flags:
-Constant SMARTPHONE_LED_BLINKING = 0; ! Doesn't affect game play, instead use PLAYER_KNOWS_ABOUT_FLUFFY
-Constant PLAYER_KNOWS_ABOUT_FLUFFY = 1; ! Read the text
-Constant PLAYER_KNOWS_ABOUT_RUSSIANS = 2; ! Had flashback
-Constant PLAYER_KNOWS_ABOUT_202 = 3; ! Igor has revealed Vlad and Sergei's room number
-Constant PLAYER_HAS_SEEN_MESSAGE = 4;
-Constant PLAYER_HAS_PHOTOGRAPHED_MESSAGE = 5; ! Just an interim state?
-Constant PLAYER_KNOWS_MESSAGE = 6;
-Constant PLAYER_TOOK_TOPLESS_PHOTO = 7;
-Constant BRITNEY_KNOWS_ABOUT_FLUFFY = 8;
-Constant IGOR_KNOWS_ABOUT_FLUFFY = 9;
+! Flags for steps in solving the crime
+Constant PLAYER_KNOWS_ABOUT_FLUFFY = 0; ! Read the text
+Constant PLAYER_KNOWS_ABOUT_RUSSIANS = 1; ! Had flashback
+Constant PLAYER_KNOWS_ABOUT_202 = 2; ! Igor has revealed Vlad and Sergei's room number
+Constant PLAYER_HAS_SEEN_MESSAGE = 3;
+Constant PLAYER_HAS_PHOTOGRAPHED_MESSAGE = 4;
+Constant PLAYER_KNOWS_MESSAGE = 5;
+Constant PLAYER_TOOK_TOPLESS_PHOTO = 6;
+Constant BRITNEY_KNOWS_ABOUT_FLUFFY = 7;
+Constant IGOR_KNOWS_ABOUT_FLUFFY = 8;
 ! Bonus points, only score once, no matter how many times you do it
 Constant PLAYER_DIALED_911 = 10;
 Constant PLAYER_DIALED_8675309 = 11;
@@ -134,6 +133,10 @@ Constant PLAYER_FOUND_COPPER_TOKEN = 16;
 Constant PLAYER_FOUND_BRONZE_TOKEN = 17;
 Constant PLAYER_PLAYED_TOKEN = 18;
 Constant PLAYER_SAID_XYZZY = 19;
+Constant PLAYER_SAID_PLUGH = 20;
+! Other flags
+Constant SMARTPHONE_LED_BLINKING = 21; ! Doesn't affect game play, instead use PLAYER_KNOWS_ABOUT_FLUFFY
+Constant PLAYER_HAS_EXAMINED_SMARTPHONE = 22;
 
 !Replace LanguageTimeOfDay;
 Replace DrawStatusLine;
@@ -143,8 +146,31 @@ Replace ThinkSub;
 Include "parser";
 
 !----------------------------------------------------------------------------
-! If overriding library messages, LibraryMessages object should go between Parser and Verblib
+! If overriding library messages, LibraryMessages object goes between Parser and Verblib
 !----------------------------------------------------------------------------
+
+Object LibraryMessages
+ with before [;
+  Answer, Attack, Blow, Burn, Buy, Climb, Close, Consult, Cut, Dig, Drink, Eat, Fill, Jump, Pull, Rub, Search, Sleep, Swim, Swing, SwitchOn, SwitchOff, Taste, ThrowAt, Tie, Touch, Wake, WakeOther, Wave, WaveHands:
+   Nonsense();
+   rtrue;
+  Miscellany:
+   switch (lm_n) {
+    27, 30, 37, 38, 39:
+     Nonsense();
+     rtrue;
+    35: "I remind myself to be more specific.";
+   }
+  Pray: "Nothing happens.";
+  ! Christina Aguilera "Beautiful", Lady Gaga "Born This Way", Spice Girls "Never Give Up On The Good Times", Katy Perry "Hot N Cold"
+  Restart:
+   switch (lm_n) {
+    1: "Start a new diary? (y/n)";
+   }
+  Sing: print_ret (string)random("~I am beautiful^No matter what they say^Words can't bring me down...~", "~I'm on the right track, baby, I was born this way-ay...~",
+                                 "~Never give up on the good times^Livin' it up is a state of mind...~",
+                                 "~'Cause you're hot then you're cold^You're yes then you're no^You're in then you're out^You're up then you're down...~");
+ ];
 
 Include "verblib";
 Include "smartcantgo";
@@ -159,7 +185,11 @@ Global dialed_number;
 Array time_array --> 4;
 Array date_array --> 9;
 Global end_time;
-Global minutes_left;
+! Uninitialized until you see the text message
+Global minutes_left = nothing;
+
+Global help_level;
+Global nonsense_level;
 
 ! Who and where did you call? These will be nothing if no call active, they're used to put the NPC back where they were when you hang up
 ! Only one call at a time
@@ -168,9 +198,12 @@ Global call_room = nothing;
 ! In Photos mode
 Global current_photo;
 
-#Ifdef NO_THIS_IS_NOT_DEFINED;
-Constant ADDITIONAL_DEBUGGING;
-#Endif;
+!! wintype_TextBuffer
+!Global gg_tbwin = 0;
+!Constant GG_TBWIN_ROCK 210;
+!! wintype_Graphics
+!Global gg_grwin = 0;
+!Constant GG_GRWIN_ROCK 212;
 
 ! Classes
 Include "fluffy-classes.inf";
@@ -219,3 +252,5 @@ Extend 'take'
  * scope=Anything -> Take;
 Verb 'xyzzy'
  * -> Xyzzy;
+Verb 'plugh'
+ * -> Plugh;

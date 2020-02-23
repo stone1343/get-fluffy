@@ -12,6 +12,7 @@ Top yellow_shirt "yellow t-shirt" kaitlyn
  with
   name 'yellow' 'shirt' 'top' 't-shirt',
   description "It's my favourite yellow shirt.",
+  invent "my yellow shirt",
   article "my",
   owner kaitlyn
  has worn;
@@ -35,13 +36,17 @@ Lingerie k_bra "bra" thedark
 Disappearing_Object smartphone "smartphone" kaitlyn
  with
   owner kaitlyn,
-  name 'phone' 'smartphone' 'cell' 'cellular' 'mobile' 'screen' 'display',
+  name 'smartphone' 'cell' 'cellular' 'mobile' 'screen' 'display',
   initial "~Hey, there's my smartphone!~",
   description [;
-   if (self.mode ~= MODE_OFF) <Examine screen>;
-   else print "I love my smartphone, it's got a full HD screen and, below the screen, is the Home button.^";
-   if (FlagOn(SMARTPHONE_LED_BLINKING)) print_ret "^Hey, the notification light is blinking!";
-   rtrue;
+   if (FlagOn(SMARTPHONE_LED_BLINKING) && FlagOff(PLAYER_HAS_EXAMINED_SMARTPHONE)) {
+    SetFlag(PLAYER_HAS_EXAMINED_SMARTPHONE);
+    print "I love my smartphone, it's got a full HD screen and, below the screen, is the Home button.";
+    if (FlagOn(SMARTPHONE_LED_BLINKING)) print "^^Hey, the notification light is blinking!";
+    new_line;
+    rtrue;
+   }
+   else <<Examine screen>>;
   ],
   invent "my smartphone", ! So inventory doesn't list the screen, buttons, icons, etc
   article "my",
@@ -59,6 +64,7 @@ Disappearing_Object smartphone "smartphone" kaitlyn
    if (self.mode ~= MODE_OFF) self.interact();
    if (self.mode == MODE_HOME) objectloop (o ofclass Icon) move o to screen;
    else objectloop (o ofclass Icon) remove o;
+   if (self.mode == MODE_MESSAGES) ClearFlag(SMARTPHONE_LED_BLINKING);
    if (self.mode == MODE_CONTACTS) move contact_britney to screen;
    else remove contact_britney;
    if (self.mode == MODE_PHOTOS) {
@@ -87,38 +93,45 @@ Object screen "screen" smartphone
  with
   description [ o;
    switch (smartphone.mode) {
-    MODE_OFF: "It's off.";
-    MODE_HOME: "The screen's got four icons, labelled Contacts, Messages, Camera and Photos.";
+    MODE_OFF: print "It's off.";
+    MODE_HOME: print "The screen's got four icons, Messages, Contacts, Camera and Photos.";
     ! Contacts is only for outgoing calls to Britney
     MODE_CONTACTS:
-     if (call_person == britney && telephone hasnt general) "It has a picture of Britney and a Hang Up button.";
-     "Contacts:^ Britney";
+     if (call_person == britney && telephone hasnt general) print "It has a picture of Britney and a Hang Up button.";
+     print "Contacts:^ Britney^^(I need to get more friends!)";
     ! Text mode is only to receive the ransom message from anonymous
     MODE_MESSAGES:
-     ClearFlag(SMARTPHONE_LED_BLINKING);
      SetFlag(PLAYER_KNOWS_ABOUT_FLUFFY);
+     if (minutes_left == nothing) {
+      ! End time is just 60 minutes after start time
+      minutes_left = 60;
+      end_time = glk_current_simple_time(60) + minutes_left;
+     }
      print_ret (preformatted)"Message from Anonymous:^We have your dog. If you want it back, send us a topless picture of yourself. You have one hour.";
-    MODE_CAMERA: "Ready to take a photo.";
+    MODE_CAMERA: print "Camera's ready to take a photo.";
     MODE_PHOTOS:
-     objectloop (o ofclass Photograph) if (o.number == current_photo) <<Examine o>>;
+     objectloop (o ofclass Photograph) if (o.number == current_photo) <Examine o>;
    }
+   if (FlagOn(SMARTPHONE_LED_BLINKING)) print "^^The notification light is blinking.";
+   new_line;
+   rtrue;
   ],
   before [;
    Push, Touch: "You'll have to be more specific.";
-   Take: "That would be vandalism and you're not that kind of person, are you?";
   ]
- has container transparent;
+ has container transparent static;
 
-Object home_button "home" smartphone
+Object home_button "Home button" smartphone
  with
-  name 'home',
+  name 'Home',
+  description "It's round, black and slightly recessed.",
   before [;
    Push, Touch:
     if (smartphone notin player) move smartphone to player;
     switch (smartphone.mode) {
      MODE_OFF: print "I pressed the Home button.^";
      MODE_HOME: print "Nothing happens.^";
-     default: print "Back to home screen.^";
+     default: print "Back to Home screen.^";
     }
     smartphone.change_mode(MODE_HOME);
     rtrue;
@@ -126,27 +139,31 @@ Object home_button "home" smartphone
  has static;
 
 ! The icons have to be moved to the screen when in MODE_HOME, otherwise removed so you can't interact with them
-Icon contacts_icon "contacts"
+Icon messages_icon "Messages icon" thedark
  with
-  mode MODE_CONTACTS,
-  name 'Contacts';
-
-Icon messages_icon "messages"
- with
+  name 'messages',
   mode MODE_MESSAGES,
-  name 'Messages';
+  label "Messages";
 
-Icon camera_icon "camera"
+Icon contacts_icon "Contacts icon" thedark
  with
+  name 'contacts',
+  mode MODE_CONTACTS,
+  label "Contacts";
+
+Icon camera_icon "Camera icon" thedark
+ with
+  name 'camera',
   mode MODE_CAMERA,
-  name 'Camera';
+  label 'Camera';
 
-Icon photos_icon "photos"
+Icon photos_icon "Photos icon" thedark
  with
+  name 'photos',
   mode MODE_PHOTOS,
-  name 'Photos';
+  label 'Photos';
 
-Object contact_britney
+Object contact_britney thedark
  with
   name 'Britney',
   before [;
@@ -154,12 +171,10 @@ Object contact_britney
     if (OnPhone()) "I'm currently on the phone with ", (name)call_person, ".";
     if ((smartphone notin actor) || (smartphone.mode ~= MODE_CONTACTS)) "With what?";
     if (player in parent(britney)) print_ret "She's standing right in front of me!";
-    smartphone.interact();
+    ! You can stay on the phone with Brit as long as you want
+    StopDaemon(smartphone);
     call_room = parent(britney);
     call_person = britney;
-    #Ifdef ADDITIONAL_DEBUGGING;
-    OutputCallInfo();
-    #Endif;
     give britney concealed;
     move britney to location;
     move b_boobs to location;
@@ -181,6 +196,7 @@ Top blue_shirt "blue t-shirt" britney
  with
   name 'blue' 'shirt' 'top' 't-shirt',
   description "It's a blue shirt.",
+  invent "Britney's blue shirt",
   article "Britney's",
   owner britney
  has worn;

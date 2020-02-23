@@ -55,6 +55,7 @@
  glk_window_move_cursor(gg_statuswin, x, y);
 ];
 
+! gg_statuswin is wintype_TextGrid, you can address individual (row, column)
 [ DrawStatusLine width height;
  ! If we have no status window, we must not try to redraw it.
  if (gg_statuswin == 0) return;
@@ -66,37 +67,40 @@
  width = gg_arguments-->0;
  height = gg_arguments-->1;
 
- ! Start drawing statusline, we know its dimentions
+ ! Start drawing statusline, we know its dimensions
  if (location ~= thedark) {
-  if (location.nw_to) { AtXY(1, 0); print "@@92"; }
-  if (location.n_to)  { AtXY(2, 0); print "|"; }
-  if (location.ne_to) { AtXY(3, 0); print "/"; }
+  ! (row, column) coordinates are weird because the East and West dashes need to be doubled up
+  if (location.nw_to) { AtXY(2, 0); print "@@92"; }
+  if (location.n_to)  { AtXY(3, 0); print "|"; }
+  if (location.ne_to) { AtXY(4, 0); print "/"; }
 
-  if (location.w_to)  { AtXY(1, 1); print "-"; }
-                        AtXY(2, 1); print "O";
-  if (location.e_to)  { AtXY(3, 1); print "-"; }
+  if (location.w_to)  { AtXY(1, 1); print "--"; }
+                        AtXY(3, 1); print "O";
+  if (location.e_to)  { AtXY(4, 1); print "--"; }
 
-  if (location.sw_to) { AtXY(1, 2); print "/"; }
-  if (location.s_to)  { AtXY(2, 2); print "|"; }
-  if (location.se_to) { AtXY(3, 2); print "@@92"; }
+  if (location.sw_to) { AtXY(2, 2); print "/"; }
+  if (location.s_to)  { AtXY(3, 2); print "|"; }
+  if (location.se_to) { AtXY(4, 2); print "@@92"; }
  }
 
- AtXY(6, 0);
+ AtXY(8, 0);
  print "Location:     ", (name)location;
- AtXY(6, 1);
- print "Minutes left: ", minutes_left;
- AtXY(6, 2);
+ AtXY(8, 1);
  ! Moves (sline2) not displayed
  print "Score:        ", sline1;
+ if (minutes_left ~= nothing) {
+  AtXY(8, 2);
+  print "Minutes left: ", minutes_left;
+ }
 
  if (call_person ~= nothing && call_room ~= nothing) {
-  AtXY(40, 0);
+  AtXY(42, 0);
   if (telephone has general) print "On telephone";
   else print "On smartphone";
-  AtXY(40, 1);
+  AtXY(42, 1);
   print (name)call_person, "  ", (name)call_room;
  }
- AtXY(40, 2);
+ AtXY(42, 2);
  print "kb ", (name)parent(k_boobs), " b ", (name)parent(britney), " bb ", (name)parent(b_boobs), " bar ", (name)britney.ActualRoom();
  if (britney.destination_room ~= nothing) print " bdr ", (name)britney.destination_room;
  print " i ", (name)parent(igor);
@@ -123,13 +127,32 @@
  ! Using factor of 60 gives minutes since 1970-01-01, 0x7FFF FFFF will overflow a 32-bit signed integer when Unix time = 0x1D FFFF FFC4 = 6053-01-23
  ! Or another way, 0x7FFF FFFF / 3C = 222 2222, an awfully long time until this overflows
 
- ! End time is just 60 minutes after start time
- minutes_left = 60;
- end_time = glk_current_simple_time(60) + minutes_left;
-
  notify_mode = false;
  player = kaitlyn;
  location = street;
+
+! if (gg_grwin == 0) {
+!  ! For winmethod, use one of:
+!  !  - winmethod_Above
+!  !  - winmethod_Below
+!  !  - winmethod_Left
+!  !  - winmethod_Right
+!  ! plus one of:
+!  !  - winmethod_Fixed
+!  !  - winmethod_Proportional
+!  ! wintype:
+!  !  - wintype_TextBuffer
+!  !  - wintype_TextGrid
+!  !  - wintype_Graphics
+!  gg_grwin = glk_window_open(gg_mainwin, ((winmethod_Right+winmethod_Fixed)), 152, wintype_Graphics, GG_GRWIN_ROCK);
+! }
+! ! Image is defined in image_info_map in get-fluffy.html
+! glk_image_draw(gg_grwin, 1, 0, 0);
+! Pause();
+! if (gg_grwin ~= 0) {
+!  glk_window_close(gg_grwin, 0);
+!  gg_grwin = 0;
+! }
 
  SetFlag(SMARTPHONE_LED_BLINKING);
  Photograph.create(fluffy);
@@ -213,16 +236,16 @@
  #Endif;
  Pause();
  ClearScreen();
+
  print "^This is the story of the scariest thing that ever happened to me, it all started
-        with a text message from some Russian thugs, saying they had taken my cute little dog, Fluffy.
+        with a text message from some Russian thugs, saying they'd taken my cute little dog, Fluffy.
         But I'm getting ahead of myself, let me start at the beginning...^";
  banner();
- print "^My name's Kaitlyn, I'm 23 and people tell me I'm cute, but I just feel like a regular small-town girl.
+ print "^My name's Kaitlyn, I'm 23 and people tell me I'm cute, but I just feel like a regular girl.
         I've come to Las Vegas with my best friend, Britney ", (char)love, ", to show my Fluffy ",;
  glk_set_style(style_Alert);
  print (char)heart;
  glk_set_style(style_Normal);
- !print (char)magic, (char)smiley, (char)no_entry, (char)star1, (char)star3, (char)love, (char)heartbreak, (char)hearts, (char)sparkling_heart, " at the Silver State Kennel Club Dog Show.
  print (char)star, " at the Silver State Kennel Club Dog Show.
        We arrived an hour ago and I left Fluffy in my hotel room, 402, while I ran out for something to eat. Britney stayed in her room, right next to mine, to get settled in.^^";
  return 2;
@@ -380,7 +403,8 @@
  if (scope_stage == 2) {
   objectloop (o ofclass Object) PlaceInScope(o); rtrue;
  }
- "No such in game.";
+ if (nonsense_level > 0) print "Now ";
+ "I'm trying to take things that don't exist.";
 ];
 
 [ Anybody o;
@@ -388,7 +412,9 @@
  if (scope_stage == 2) {
   objectloop (o ofclass Person) PlaceInScope(o); rtrue;
  }
- "No person with that name.";
+ if (nonsense_level > 0) print "Part of my nonsense game is";
+ else print "I'm";
+ " making up names of people that don't exist.";
 ];
 
 ! Originally from DM4, modified to return an integer
@@ -413,35 +439,20 @@
  return GPR_PREPOSITION;
 ];
 
-#Ifdef ADDITIONAL_DEBUGGING;
-[ OutputCallInfo;
- print "call_person ";
- if (call_person == nothing ) print "nothing^";
- else print (name)call_person,"^";
- print "call_room ";
- if (call_room == nothing ) print "nothing^";
- else print (name)call_room,"^";
-];
-#Endif;
-
 ! Doesn't print anything, caller is responible for that
 [ EndCall o;
- #Ifdef ADDITIONAL_DEBUGGING;
- print "EndCall ",(name)o,"^";
- OutputCallInfo();
- #Endif;
  give o ~concealed;
  move o to call_room;
  if (o == britney) move b_boobs to call_room;
  call_person = nothing;
  call_room = nothing;
- #Ifdef ADDITIONAL_DEBUGGING;
- OutputCallInfo();
- #Endif;
  ! If hanging up house phone
  if (telephone has general) give telephone ~general;
  ! Else hanging up smartphone
- else move contact_britney to screen;
+ else {
+  move contact_britney to screen;
+  smartphone.interact();
+ }
 ];
 
 ! o is optional object to to determine if you're on the phone with that person
@@ -552,13 +563,13 @@
 [ PhotographSub o;
  if (OnPhone(noun)) "How should I photograph ", (name)noun, "when I'm on the phone with ", (PronounAcc)noun, "?";
  if ((smartphone notin player) || (smartphone.mode ~= MODE_CAMERA)) "With what?";
- if (noun ~= kaitlyn or britney or igor or computer) "I decide not to waste photos on that.";
+ if (noun ~= kaitlyn or britney or igor or laptop) "I decide not to waste photos on that.";
  smartphone.interact();
  o = Photograph.create(noun);
  if (o == nothing) "Crap, SD card is full.";
  if (noun == player) "I take a selfie.";
  else if (noun == britney or igor) "I take a picture of ", (name)noun,".";
- else "I take a picture of the secret message on the computer.";
+ else "I take a picture of the secret message on the laptop.";
 ];
 
 ! Previous
@@ -622,7 +633,7 @@
 [ ThinkSub;
  ! ToDo: Any other possible improvements?
  ! Guide user to the preferred ending, even if you've taken a topless photo or have lost the master key
- if (FlagOff(PLAYER_KNOWS_ABOUT_FLUFFY)) "I should check my messages.";
+ if (FlagOff(PLAYER_KNOWS_ABOUT_FLUFFY)) "I know, I should check my messages.";
  if (FlagOff(PLAYER_KNOWS_ABOUT_RUSSIANS)) "Maybe I should explore the hotel a little more.";
  if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) "Would Igor help if he knew Fluffy's been dognapped?";
  if (FlagOff(PLAYER_KNOWS_ABOUT_202)) "Maybe Igor could tell me something about this Vlad guy.";
@@ -645,10 +656,16 @@
  "I might have to send the photo to those scumbags.";
 ];
 
+! Everything this prints is "preformatted"
 [ HelpSub;
- print (preformatted)"Sometimes if you think carefully, some insight might come to you";
- if (((parent(master_key) == nothing) || (parent(smartphone) == nothing)) && (FlagOff(PLAYER_SAID_XYZZY))) print (preformatted)". Also, magic words have been known to retrieve critical objects that have been lost";
- print_ret (preformatted)".";
+ glk_set_style(style_Preformatted);
+ switch (help_level++) {
+  0: print "ToDo, about IF and some commands, people and subjects...";
+  default:
+   print "Sometimes, if you think carefully, some insight might come to you.";
+   if (((parent(master_key) == nothing) || (parent(smartphone) == nothing)) && (FlagOff(PLAYER_SAID_XYZZY))) print " Also, magic words have been known to retrieve critical objects that have been lost.";
+ }
+ glk_set_style(style_Normal);
 ];
 
 ! Reference to 'xyzzy' in The Colossal Cave, if you've lost the master key and/or your smartphone, you can get them back!
@@ -670,24 +687,59 @@
    itDidSomething = true;
   }
   if (itDidSomething) print_ret " appeared. ", (char)magic;
-  print_ret (preformatted)"Nothing happens.";
  }
- print_ret (preformatted)"'Xyzzy' only works once.";
+ ! "Nothing happens"
+ <<Pray>>;
 ];
 
-![ PlughSub;
-! if (FlagOff(PLAYER_SAID_PLUGH)) {
-!  score++;
-!  SetFlag(PLAYER_SAID_PLUGH);
-!  print (char)magic, " Whoa!!! What just happened? ", (char)magic, "^";
+[ PlughSub;
+ if (FlagOff(PLAYER_SAID_PLUGH)) {
+  score++;
+  SetFlag(PLAYER_SAID_PLUGH);
+ }
+ Nonsense();
+];
+
+! This eventually becomes 'meta', Kaitlyn realizes she's being manipulated
+[ Nonsense;
+! if (gg_tbwin == 0) {
+!  gg_tbwin = glk_window_open(gg_mainwin, ((winmethod_Below+winmethod_Fixed)), 5, wintype_TextBuffer, GG_TBWIN_ROCK);
 ! }
-! move player to street;
-! move k_boobs to street;
-! <<Look>>;
-!];
+! glk_set_window(gg_tbwin);
+! glk_window_clear(gg_tbwin);
+ switch (nonsense_level++) {
+  0: print "Sometimes I say things that make no sense, just for fun... Plugh!";
+  1, 2, 3: print (string)random("More nonsense...", "Again with the gibberish...", "There I go again...");
+  ! Synonyms for 'nonsense', mostly from http://phrontistery.info/nonsense.html
+  4, 5, 6, 7, 8, 9, 10, 11, 12: print (string)random("Hooey!", "Malarkey!", "Poppycock!", "Mumbo-jumbo!", "Jabberwocky!", "Baloney!", "Balderdash!", "Flim-flam!", "Hogwash!");
+  ! From https://examples.yourdictionary.com/examples-of-gibberish.html
+  13, 14, 15, 16: print (string)random("Supercalifragilisticexpialidocious!", "Gollygoops!", "Piggly-wiggly!", "Woopsiedoo!");
+  17: print "I keep saying things that make no sense!";
+  18: print "Why can't I stop saying silly things?";
+  19: print "I'm starting to question my sanity!";
+  20: print "Or maybe I'm not in control of my own actions?";
+  21: print "Could there be something out there making me say these things?";
+  22: print "Maybe 'free will' really is an illusion!";
+  23: print "Am I losing my mind?";
+  24: print "I'm starting to be convinced there's something, or someone, out there pulling the strings.";
+  25: print "Whoever it is out there, I hope they're enjoying making me squirm!";
+  26: print "I give up, I'm just a pawn of some 'superior' being.";
+  27: print "Hey, you, out there, enough!!";
+  28: print "Screw you, 'god' or whatever you call yourself!";
+  29: print "I'm not listening to you anymore.";
+  default: print "La-la-la-la, not listening!";
+ }
+! glk_set_window(gg_mainwin);
+! Pause();
+! if (gg_tbwin ~= 0) {
+!  glk_window_close(gg_tbwin, 0);
+!  gg_tbwin = 0;
+! }
+ new_line;
+ rtrue;
+];
 
 [ DeathMessage;
- ! Clear the statu
  glk_set_window(gg_statuswin);
  ! Blank out the compass rose
  AtXY(1, 0); spaces 3;
@@ -713,14 +765,15 @@
    else print "whoever took him";
    print" for the police to do anything, but at least I got Fluffy back! Fluffy did well in the dog show and we all returned home safely.";
   6:
-   print "We rescued Fluffy, he was s-o-o-o happy to see me!!! Plus, we had all the evidence we needed to put the Russians in jail for a long, long time.
-          Fluffy came second in his class in the dog show, but after what happened that weekend, it didn't matter!";
+   print "We rescued Fluffy, he was s-o-o-o happy to see me!!!";
+   if (laptop in player) print " Plus, we had all the evidence we needed to put the Russians in jail for a long, long time.";
+   print " Fluffy came second in his class in the dog show, but after what happened that weekend, I didn't care!";
   7:
-   ! ToDo:
-   print "We ran out of time.";
+   print "I ran out of time, but fortunately, hotel staff found Fluffy and returned him to me! The scumbag Russians got away";
  }
 ];
 
 [ ScoreSub;
  "You got ", score, " of ", MAX_SCORE, " bonus points!";
+ ! ToDo, enhance for "you have a long way to go", "close" or "congrats"
 ];
