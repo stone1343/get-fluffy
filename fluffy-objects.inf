@@ -34,13 +34,13 @@ Lingerie k_bra "bra" thedark
 
 ! Might expect 'has talkable' for a phone, but this phone is basically a teleporter ;-)
 Disappearing_Object smartphone "smartphone" kaitlyn
+ class Ownable_Object
  with
-  owner kaitlyn,
   name 'smartphone' 'cell' 'cellular' 'mobile' 'screen' 'display',
   initial "~Hey, there's my smartphone!~",
   description [;
-   if (FlagOn(SMARTPHONE_LED_BLINKING) && FlagOff(PLAYER_HAS_EXAMINED_SMARTPHONE)) {
-    SetFlag(PLAYER_HAS_EXAMINED_SMARTPHONE);
+   if (FlagOn(SMARTPHONE_LED_BLINKING) && FlagOff(EXAMINE_SCREEN_NOT_SMARTPHONE)) {
+    SetFlag(EXAMINE_SCREEN_NOT_SMARTPHONE);
     print "I love my smartphone, it's got a full HD screen and, below the screen, is the Home button.";
     if (FlagOn(SMARTPHONE_LED_BLINKING)) print "^^Hey, the notification light is blinking!";
     new_line;
@@ -50,6 +50,7 @@ Disappearing_Object smartphone "smartphone" kaitlyn
   ],
   invent "my smartphone", ! So inventory doesn't list the screen, buttons, icons, etc
   article "my",
+  owner kaitlyn,
   mode MODE_OFF,
   before [;
    Push, Touch:
@@ -59,7 +60,6 @@ Disappearing_Object smartphone "smartphone" kaitlyn
     if ((OnPhone()) && (telephone hasnt general)) "Don't be rude, you need to hang up first.";
   ],
   change_mode [new_mode o;
-   ! Switching out of Text mode, clear existing conversation
    self.mode = new_mode;
    if (self.mode ~= MODE_OFF) self.interact();
    if (self.mode == MODE_HOME) objectloop (o ofclass Icon) move o to screen;
@@ -72,19 +72,19 @@ Disappearing_Object smartphone "smartphone" kaitlyn
    }
   ],
   interact [;
+   if (FlagOff(EXAMINE_SCREEN_NOT_SMARTPHONE)) SetFlag(EXAMINE_SCREEN_NOT_SMARTPHONE);
    self.move_counter = SMARTPHONE_TIMEOUT;
    StartDaemon(self);
   ],
-  move_counter,
+  move_counter 0,
+  ! If you're on the phone, the daemon should be stopped
   daemon [;
-   if (call_person == nothing) {
-    self.move_counter--;
-    if (self.move_counter == 0) {
-     self.change_mode(MODE_OFF);
-     StopDaemon(self);
-     ! This should be unobtrusive, it's not like the doors swinging shut
-     !print "^My smartphone times out and turns off.^";
-    }
+   self.move_counter--;
+   if (self.move_counter == 0) {
+    self.change_mode(MODE_OFF);
+    StopDaemon(self);
+    ! This should be unobtrusive, it's not like the doors swinging shut
+    !print "^My smartphone times out and turns off.^";
    }
   ]
  has container transparent;
@@ -183,7 +183,6 @@ Object contact_britney thedark
   ];
 
 Room_Key b_key "room key" britney
- class Britney_Object Ownable_Object
  with
   name 'Britney^s' 'room' 'key',
   article "Britney's",
@@ -218,10 +217,12 @@ Lingerie b_bra "bra" thedark
 
 ! Igor has the master key
 Disappearing_Object master_key "master key" igor
+ class Ownable_Object
  with
   name 'master' 'key',
   description "It has the hotel's logo, but no room number.",
-  article "Igor's";
+  article "Igor's",
+  owner igor;
 
 ! Objects in hotel rooms
 Top pink_shirt "pink shirt" room_402

@@ -104,6 +104,7 @@
  print "kb ", (name)parent(k_boobs), " b ", (name)parent(britney), " bb ", (name)parent(b_boobs), " bar ", (name)britney.ActualRoom();
  if (britney.destination_room ~= nothing) print " bdr ", (name)britney.destination_room;
  print " i ", (name)parent(igor);
+ if (smartphone.move_counter ~= 0) print " spmc ", smartphone.move_counter;
  glk_set_window(gg_mainwin);
 ];
 

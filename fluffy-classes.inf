@@ -12,21 +12,72 @@ Class Guy
  class Person
  has male ~female;
 
+! Defines the Drop and Take routines for all objects
+Class General_Object
+ with
+  before [ o;
+   Drop:
+    move self to location;
+    print "I put ";
+    if (~~(location ofclass Hotel_Room)) print "down ";
+    if (self ofclass Ownable_Object) print (string)self.article, " ", (name)self;
+    else print (the)self;
+    if (location ofclass Hotel_Room) print "on the bed";
+    else {
+     if (self == smartphone) print ", ", (i)" carefully";
+     if ((self ofclass Disappearing_Object) && (location ofclass Public_Room)) {
+      ! Timer is started in NewRoom for Disappearing_Objects which have general
+      give self general;
+      print ", knowing it may not be here when I return";
+     }
+    }
+    ".";
+   Take:
+    if (self ofclass Token) {
+     if (parent(self) == slot_machine) print (blue)"What should I do with my big jackpot?", (char)smiley;
+     else {
+      print (blue)"Cool, it's a";
+      objectloop (o ofclass Token) {
+       if (o in player) {
+        print (blue)"nother";
+        break;
+       }
+      }
+      ! ToDo: As a disappearing object, it's not correct that they'll stay in the tray forever
+      print (blue)" slot machine token! ", (char)smiley;
+      if (FlagOff(self.foundFlag)) {
+       score++;
+       FlagOn(self.foundFlag);
+      }
+     }
+    }
+    else {
+     print "I picked up ";
+     if (self ofclass Ownable_Object) print (string)self.article, " ", (name)self;
+     else print (the)self;
+     print ".";
+    }
+    move self to player;
+    if (self ofclass Disappearing_Object) {
+     give self ~general;
+     StopTimer(self);
+    }
+    new_line;
+    rtrue;
+  ];
+
+
 Class Ownable_Object
  with
   owner,
   initial [;
-   if (self.owner == kaitlyn) print "My ";
-   else print "Britney's ";
-   print (name)self;
+   print (string)self.article, " ", (name)self;
    " is here.";
   ],
   invent [;
    ! Don't include clothes you're wearing
    if (self hasnt worn) {
-    if (self.owner == kaitlyn) print "my ";
-    else print "Britney's ";
-    print (name)self;
+    print (string)self.article, " ", (name)self;
    }
    rtrue;
   ];
@@ -40,7 +91,7 @@ Class Clothes
  has clothing;
 
 Class Top
- class Clothes Ownable_Object Britney_Object
+ class General_Object Ownable_Object Britney_Object Clothes
  with
   before [;
    Disrobe:
@@ -72,44 +123,8 @@ Class Lingerie
 ! A Disappearing_Object is a special kind of object which disappears if you leave it in a Public_Room
 ! Putting it down in Public_room sets general, which starts the timer when player moves to a new room
 Class Disappearing_Object
+ class General_Object
  with
-  before [ o;
-   Drop:
-    move self to location;
-    print "I put down ";
-    if (self == smartphone) print "my smartphone, ", (i)" carefully";
-    else print (the)self;
-    if (location ofclass Public_Room) {
-     ! Timer is started in NewRoom for Disappearing_Objects which have general
-     give self general;
-     print ", knowing it may not be here when I return";
-    }
-    ".";
-   Take:
-    if (self ofclass Token) {
-     if (parent(self) == slot_machine) print (blue) "What should I do with my big jackpot?", (char)smiley;
-     else {
-      print (blue)"Cool, it's a";
-      objectloop (o ofclass Token) {
-       if (o in player) {
-        print (blue)"nother";
-        break;
-       }
-      }
-      print (blue)" slot machine token! ", (char)smiley;
-      if (FlagOff(self.foundFlag)) {
-       score++;
-       FlagOn(self.foundFlag);
-      }
-     }
-    }
-    else print "I picked up ", (the) self, ".";
-    move self to player;
-    give self ~general;
-    StopTimer(self);
-    new_line;
-    rtrue;
-  ],
   time_left,
   time_out [;
    give self ~general;

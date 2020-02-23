@@ -136,7 +136,7 @@ Constant PLAYER_SAID_XYZZY = 19;
 Constant PLAYER_SAID_PLUGH = 20;
 ! Other flags
 Constant SMARTPHONE_LED_BLINKING = 21; ! Doesn't affect game play, instead use PLAYER_KNOWS_ABOUT_FLUFFY
-Constant PLAYER_HAS_EXAMINED_SMARTPHONE = 22;
+Constant EXAMINE_SCREEN_NOT_SMARTPHONE = 22;
 
 !Replace LanguageTimeOfDay;
 Replace DrawStatusLine;
