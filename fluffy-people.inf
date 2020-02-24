@@ -373,7 +373,7 @@ Guy igor "Igor" lobby
           else print_ret (IgorsVoice)".";
          laptop:
           SetFlag(PLAYER_KNOWS_MESSAGE);
-          print_ret (IgorsVoice)"Oh, that's Russian, it means, ~Vlad, the dog's in the basement.~";
+          print_ret (IgorsVoice)"Oh, that's Russian, it says, ~Vlad, the dog's in the basement.~";
          default: print_ret (IgorsVoice)"That's a nice photo.";
         }
         break;
