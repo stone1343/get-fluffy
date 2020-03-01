@@ -23,8 +23,8 @@ Constant MAX_PHOTOGRAPHS = 10;
 
 Constant MODE_OFF = 0;
 Constant MODE_HOME = 1;
-Constant MODE_CONTACTS = 2;
-Constant MODE_MESSAGES = 3;
+Constant MODE_MESSAGES = 2;
+Constant MODE_CONTACTS = 3;
 Constant MODE_CAMERA = 4;
 Constant MODE_PHOTOS = 5;
 ! How many moves the phone will stay on for

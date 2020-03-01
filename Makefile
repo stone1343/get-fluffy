@@ -1,6 +1,7 @@
 
 INFORM = inform +include_path=./,inform6lib-6.12.3/
-LUA = lua game2js.lua
+#GAME2JS = lua game2js.lua
+GAME2JS = python3 public/quixe/tools/game2js.py --giload
 INF = get-fluffy.inf fluffy-classes.inf fluffy-rooms.inf fluffy-people.inf fluffy-objects.inf fluffy-routines.inf
 ULX = get-fluffy.ulx
 ifdef OS
@@ -19,7 +20,7 @@ $(ULX): $(INF)
 
 # Build the .js for Quixe
 $(JS): $(ULX)
-	$(LUA) $(ULX)>$(JS)
+	$(GAME2JS) $(ULX)>$(JS)
 
 clean:
 	$(RM) $(ULX) $(JS)

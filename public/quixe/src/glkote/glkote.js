@@ -1,5 +1,5 @@
 /* GlkOte -- a Javascript display library for IF interfaces
- * GlkOte Library: version 2.2.3.
+ * GlkOte Library: version 2.2.4.
  * Designed by Andrew Plotkin <erkyrath@eblong.com>
  * <http://eblong.com/zarf/glk/glkote.html>
  * 
@@ -43,7 +43,7 @@
 
 
 /* Put everything inside the GlkOte namespace. */
-GlkOte = function() {
+var GlkOte = function() {
 
 /* Module global variables */
 var game_interface = null;
@@ -51,6 +51,7 @@ var dom_context = undefined;
 var windowport_id = 'windowport';
 var gameport_id = 'gameport';
 var generation = 0;
+var generation_sent = -1;
 var disabled = false;
 var loading_visible = null;
 var error_visible = false;
@@ -62,11 +63,14 @@ var last_known_focus = 0;
 var last_known_paging = 0;
 var windows_paging_count = 0;
 var graphics_draw_queue = [];
+var request_timer = null;
+var request_timer_interval = null;
 var resize_timer = null;
 var retry_timer = null;
 var perform_paging = true;
 var detect_external_links = false;
 var regex_external_links = null;
+var debug_out_handler = null;
 
 /* Some handy constants */
 /* A non-breaking space character. */
@@ -270,7 +274,37 @@ function glkote_init(iface) {
     }
   }
 
-  send_response('init', null, current_metrics);
+  if (iface.debug_commands) {
+    var debugmod = window.GiDebug;
+    if (iface.debug_commands != true)
+      debugmod = iface.debug_commands;
+    if (!debugmod) {
+      glkote_log('The debug_commands option is set, but there is no GiDebug module.');
+    }
+    else {
+      debugmod.init(evhan_debug_command);
+      debug_out_handler = debugmod.output;
+      if (iface.debug_console_open)
+        debugmod.open();
+    }
+  }
+
+  if (!iface.font_load_delay) {
+    /* Normal case: start the game (interpreter) immediately. */
+    send_response('init', null, current_metrics);
+  }
+  else {
+    /* Delay case: wait a tiny interval, then re-check the window metrics
+       and *then* start the game. We might need to do this if the window
+       fonts were not cached or loaded with the DOM. (Lectrote, for example,
+       because of the way it loads font preferences.) */
+    disabled = true;
+    defer_func(function() {
+      disabled = false;
+      current_metrics = measure_window();
+      send_response('init', null, current_metrics);
+    });
+  }
 }
 
 /* Work out various pixel measurements used to compute window sizes:
@@ -296,8 +330,9 @@ function measure_window() {
   if (!gameport.length)
     return 'Cannot find gameport element #'+gameport_id+' in this document.';
 
-  /* Backwards compatibility grace note: if the HTML file includes an
-     old-style #layouttestpane div, we discard it. */
+  /* If the HTML file includes an #layouttestpane div, we discard it.
+     We used to do metrics measurements from a predefined div with
+     that name. Nowadays, it's sometimes used as a hidden font-preloader. */
   $('#layouttestpane', dom_context).remove();
 
   /* Exclude padding and border. */
@@ -422,6 +457,27 @@ function measure_window() {
   return metrics;
 }
 
+/* Compare two metrics objects; return whether they're "roughly"
+   similar. (We only care about window size and some of the font
+   metrics, because those are the fields likely to change out
+   from under the library.)
+*/
+function metrics_match(met1, met2) {
+  if (met1.width != met2.width)
+    return false;
+  if (met1.height != met2.height)
+    return false;
+  if (met1.gridcharwidth != met2.gridcharwidth)
+    return false;
+  if (met1.gridcharheight != met2.gridcharheight)
+    return false;
+  if (met1.buffercharwidth != met2.buffercharwidth)
+    return false;
+  if (met1.buffercharheight != met2.buffercharheight)
+    return false;
+  return true;
+}
+
 /* Create invisible divs in the gameport which will fire events if the
    gameport changes size. (For any reason, including document CSS changes.
    We need this to detect Lectrote's margin change, for example.)
@@ -510,8 +566,13 @@ function glkote_update(arg) {
     autorestore = arg.autorestore;
   delete arg.autorestore; /* keep it out of the recording */
 
-  if (recording)
+  if (recording) {
     recording_send(arg);
+  }
+
+  if (arg.debugoutput && debug_out_handler) {
+    debug_out_handler(arg.debugoutput);
+  }
 
   if (arg.type == 'error') {
     glkote_error(arg.message);
@@ -571,6 +632,10 @@ function glkote_update(arg) {
     accept_contentset(arg.content);
   if (arg.input != null)
     accept_inputset(arg.input);
+
+  /* Note that a timer value of null is different from undefined. */
+  if (arg.timer !== undefined)
+    accept_timerrequest(arg.timer);
 
   if (arg.specialinput != null)
     accept_specialinput(arg.specialinput);
@@ -965,22 +1030,6 @@ function close_one_window(win) {
     moreel.remove();
 }
 
-/* Regular expressions used in twiddling runs of whitespace. */
-var regex_initial_whitespace = new RegExp('^ ');
-var regex_final_whitespace = new RegExp(' $');
-var regex_long_whitespace = new RegExp('  +', 'g'); /* two or more spaces */
-
-/* Given a run of N spaces (N >= 2), return N-1 non-breaking spaces plus
-   a normal one. */
-function func_long_whitespace(match) {
-  var len = match.length;
-  if (len == 1)
-    return ' ';
-  /* Evil trick I picked up from Prototype. Gives len-1 copies of NBSP. */
-  var res = new Array(len).join(NBSP);
-  return res + ' ';
-}
-
 /* Handle all of the window content changes. */
 function accept_contentset(arg) {
   jQuery.map(arg, accept_one_content);
@@ -1088,16 +1137,14 @@ function accept_one_content(arg) {
        a new paragraph. (If the flag is false, the line gets appended
        to the previous paragraph.)
 
-       We have to keep track of two flags per paragraph div. The blankpara
+       We have to keep track of a flag per paragraph div. The blankpara
        flag indicates whether this is a completely empty paragraph (a
        blank line). We have to drop a NBSP into empty paragraphs --
        otherwise they'd collapse -- and so this flag lets us distinguish
        between an empty paragraph and one which truly contains a NBSP.
        (The difference is, when you append data to a truly empty paragraph,
        you have to delete the placeholder NBSP.)
-
-       The endswhite flag indicates whether the paragraph ends with a
-       space (or is completely empty). See below for why that's important. */
+    */
 
     for (ix=0; ix<text.length; ix++) {
       var textarg = text[ix];
@@ -1112,28 +1159,19 @@ function accept_one_content(arg) {
         /* Create a new paragraph div */
         divel = $('<div>', { 'class': 'BufferLine' });
         divel.data('blankpara', true);
-        divel.data('endswhite', true);
         win.frameel.append(divel);
       }
       if (textarg.flowbreak)
         divel.addClass('FlowBreak');
       if (!content || !content.length) {
         if (divel.data('blankpara'))
-          divel.text(NBSP);
+          divel.append($('<span>', { 'class':'BlankLineSpan' }).text(NBSP));
         continue;
       }
       if (divel.data('blankpara')) {
         divel.data('blankpara', false);
         divel.empty();
       }
-      /* We must munge long strings of whitespace to make sure they aren't
-         collapsed. (This wouldn't be necessary if "white-space: pre-wrap"
-         were widely implemented. Mind you, these days it probably *is*,
-         but why update working code, right?)
-         The rule: if we find a block of spaces, turn all but the last one
-         into NBSP. Also, if a div's last span ends with a space (or the
-         div has no spans), and a new span begins with a space, turn that
-         into a NBSP. */
       for (sx=0; sx<content.length; sx++) {
         var rdesc = content[sx];
         var rstyle, rtext, rlink;
@@ -1185,7 +1223,6 @@ function accept_one_content(arg) {
                 el = ael;
               }
               divel.append(el);
-              divel.data('endswhite', false);
               continue;
             }
             glkote_log('Unknown special entry in line data: ' + rdesc.special);
@@ -1203,10 +1240,6 @@ function accept_one_content(arg) {
         }
         var el = $('<span>',
           { 'class': 'Style_' + rstyle } );
-        rtext = rtext.replace(regex_long_whitespace, func_long_whitespace);
-        if (divel.data('endswhite')) {
-          rtext = rtext.replace(regex_initial_whitespace, NBSP);
-        }
         if (rlink == undefined) {
           insert_text_detecting(el, rtext);
         }
@@ -1218,7 +1251,6 @@ function accept_one_content(arg) {
           el.append(ael);
         }
         divel.append(el);
-        divel.data('endswhite', regex_final_whitespace.test(rtext));
       }
     }
 
@@ -1450,6 +1482,30 @@ function accept_inputset(arg) {
       cursel.append(inputel);
     }
   });
+}
+
+/* Handle the change in the timer request. The argument is either null
+   (cancel the timer) or a positive value in milliseconds (reset and restart
+   the timer with that interval).
+*/
+function accept_timerrequest(arg) {
+  /* Cancel timer, if there is one. Note that if the game passes us a
+     timer value equal to our current interval, we will still reset and
+     restart the timer. */
+  if (request_timer) {
+    window.clearTimeout(request_timer);
+    request_timer = null;
+    request_timer_interval = null;
+  }
+
+  if (!arg) {
+    /* No new timer. */
+  }
+  else {
+    /* Start a new timer. */
+    request_timer_interval = arg;
+    request_timer = window.setTimeout(evhan_timer_event, request_timer_interval);
+  }
 }
 
 function accept_specialinput(arg) {
@@ -2007,10 +2063,17 @@ function send_response(type, win, val, val2) {
   if (disabled && type != 'specialresponse')
     return;
 
+  if (generation <= generation_sent
+    && !(type == 'init' || type == 'refresh')) {
+    glkote_log('Not sending repeated generation number: ' + generation);
+    return;
+  }
+
   var winid = 0;
   if (win)
     winid = win.id;
   var res = { type: type, gen: generation };
+  generation_sent = generation;
 
   if (type == 'line') {
     res.window = win.id;
@@ -2038,14 +2101,24 @@ function send_response(type, win, val, val2) {
     res.response = val;
     res.value = val2;
   }
+  else if (type == 'debuginput') {
+    res.value = val;
+  }
   else if (type == 'redraw') {
     res.window = win.id;
   }
-  else if (type == 'init' || type == 'arrange') {
+  else if (type == 'init') {
+    res.metrics = val;
+    res.support = ['timer', 'graphics', 'graphicswin', 'hyperlinks'];
+  }
+  else if (type == 'arrange') {
     res.metrics = val;
   }
 
-  if (!(type == 'init' || type == 'refresh' || type == 'specialresponse')) {
+  /* Save partial inputs, unless this is an event which disables
+     or ignores the UI. */
+  if (!(type == 'init' || type == 'refresh'
+      || type == 'specialresponse' || type == 'debuginput')) {
     jQuery.each(windowdic, function(tmpid, win) {
       var savepartial = (type != 'line' && type != 'char') 
                         || (win.id != winid);
@@ -2065,6 +2138,7 @@ function send_response(type, win, val, val2) {
     recording_state.input = res;
     recording_state.timestamp = (new Date().getTime());
   }
+
   game_interface.accept(res);
 }
 
@@ -2257,15 +2331,10 @@ function doc_resize_real() {
   }
 
   var new_metrics = measure_window();
-  if (new_metrics.width == current_metrics.width
-    && new_metrics.height == current_metrics.height) {
+  if (metrics_match(new_metrics, current_metrics)) {
     /* If the metrics haven't changed, skip the arrange event. Necessary on
        mobile webkit, where the keyboard popping up and down causes a same-size
-       resize event.
-
-       This is not ideal; it means we'll miss metrics changes caused by
-       font-size changes. (Admittedly, we don't have any code to detect those
-       anyhow, so small loss.) */
+       resize event. */
     return;
   }
   current_metrics = new_metrics;
@@ -2829,12 +2898,40 @@ function build_evhan_hyperlink(winid, linkval) {
   };
 }
 
+/* Event handler for the request_timer timeout that we set in 
+   accept_timerrequest().
+*/
+function evhan_timer_event() {
+  if ((!request_timer) || (!request_timer_interval)) {
+    /* This callback should have been cancelled before firing, so we
+       shouldn't even be here. */
+    return;
+  }
+
+  /* It's a repeating timer, so set it again. */
+  request_timer = window.setTimeout(evhan_timer_event, request_timer_interval);
+  
+  if (disabled) {
+    /* Can't handle the timer while the UI is disabled, so we punt.
+       It will fire again someday. */
+    return;
+  }
+
+  send_response('timer');
+}
+
+/* Event handler for the GiDebug command callback. 
+*/
+function evhan_debug_command(cmd) {
+  send_response('debuginput', null, cmd);
+}
+
 /* ---------------------------------------------- */
 
 /* End of GlkOte namespace function. Return the object which will
    become the GlkOte global. */
 return {
-  version:  '2.2.3',
+  version:  '2.2.4',
   init:     glkote_init, 
   update:   glkote_update,
   extevent: glkote_extevent,
@@ -2848,5 +2945,8 @@ return {
 };
 
 }();
+
+// Node-compatible behavior
+try { exports.GlkOte = GlkOte; } catch (ex) {};
 
 /* End of GlkOte library. */

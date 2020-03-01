@@ -84,7 +84,7 @@
  }
 
  AtXY(8, 0);
- print "Location:     ", (name)location;
+ print (name)location;
  AtXY(8, 1);
  ! Moves (sline2) not displayed
  print "Score:        ", sline1;
@@ -94,17 +94,18 @@
  }
 
  if (call_person ~= nothing && call_room ~= nothing) {
-  AtXY(42, 0);
-  if (telephone has general) print "On telephone";
-  else print "On smartphone";
-  AtXY(42, 1);
-  print (name)call_person, "  ", (name)call_room;
+  AtXY(28, 0);
+  if (telephone has general) print "Telephone";
+  else print "Smartphone";
+  AtXY(28, 1);
+  print (name)call_person, " ", (name)call_room;
  }
- AtXY(42, 2);
+ AtXY(28, 2);
  print "kb ", (name)parent(k_boobs), " b ", (name)parent(britney), " bb ", (name)parent(b_boobs), " bar ", (name)britney.ActualRoom();
  if (britney.destination_room ~= nothing) print " bdr ", (name)britney.destination_room;
  print " i ", (name)parent(igor);
- if (smartphone.move_counter ~= 0) print " spmc ", smartphone.move_counter;
+ AtXY(40, 0);
+ print smartphone.mode, " ", smartphone.move_counter;
  glk_set_window(gg_mainwin);
 ];
 

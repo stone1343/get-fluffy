@@ -60,7 +60,7 @@
 
 /* Put everything inside the Quixe namespace. */
 
-Quixe = function() {
+var Quixe = function() {
 
 /* Create the "self" object. (No relation to the Inform "self" global.) */
 var self = {};
@@ -92,6 +92,7 @@ function quixe_prepare(image, all_options) {
     game_signature = ls.join('');
 
     if (all_options) {
+        opt_log_execution_time = all_options.log_execution_time;
         opt_rethrow_exceptions = all_options.rethrow_exceptions;
         opt_do_vm_autosave = all_options.do_vm_autosave;
         opt_clear_vm_autosave = all_options.clear_vm_autosave;
@@ -132,10 +133,16 @@ function quixe_init() {
 }
 
 /* This is called by the page after a "blocking" operation completes.
-   (That is, a user event has triggered the completion of glk_select().)
+   (That is, a user event has triggered the completion of glk_select()
+   or glk_fileref_create_by_prompt().)
    It executes until the next glk_select() or glk_exit().
+
+   The argument is only defined when resuming from an operation that
+   returns a value -- i.e. glk_fileref_create_by_prompt(). But we ignore
+   it anyhow, because that return value was handled by GiDispa. (See
+   SetResumeStore() below.)
 */
-function quixe_resume() {
+function quixe_resume(argument) {
     try {
         self.done_executing = self.vm_stopped;
         execute_loop();
@@ -1022,6 +1029,8 @@ function oputil_record_funcop(funcop) {
    "0", and holdvars with a "_".)
 */
 function oputil_store(context, funcop, operand) {
+    var holdvar;
+
     switch (funcop.mode) {
 
     case 8: /* push on stack */
@@ -2530,6 +2539,7 @@ var opcode_table = {
     },
 
     0x1C2: function(context, operands) { /* jflt */
+        var valf0, valf1;
         valf0 = oputil_decode_float(context, operands[0]);
         valf1 = oputil_decode_float(context, operands[1]);
         context.code.push("if ("+valf0+" < "+valf1+") {");
@@ -2538,6 +2548,7 @@ var opcode_table = {
     },
 
     0x1C3: function(context, operands) { /* jfle */
+        var valf0, valf1;
         valf0 = oputil_decode_float(context, operands[0]);
         valf1 = oputil_decode_float(context, operands[1]);
         context.code.push("if ("+valf0+" <= "+valf1+") {");
@@ -2546,6 +2557,7 @@ var opcode_table = {
     },
 
     0x1C4: function(context, operands) { /* jfgt */
+        var valf0, valf1;
         valf0 = oputil_decode_float(context, operands[0]);
         valf1 = oputil_decode_float(context, operands[1]);
         context.code.push("if ("+valf0+" > "+valf1+") {");
@@ -2554,6 +2566,7 @@ var opcode_table = {
     },
 
     0x1C5: function(context, operands) { /* jfge */
+        var valf0, valf1;
         valf0 = oputil_decode_float(context, operands[0]);
         valf1 = oputil_decode_float(context, operands[1]);
         context.code.push("if ("+valf0+" >= "+valf1+") {");
@@ -5467,6 +5480,7 @@ self.encode_float = encode_float;
 
 var game_image = null; /* the original game image, as an array of bytes */
 var game_signature = null; /* string, containing the first 64 bytes of image */
+var opt_log_execution_time = null;
 var opt_rethrow_exceptions = null;
 var opt_do_vm_autosave = null;
 var opt_clear_vm_autosave = null;
@@ -5665,7 +5679,7 @@ self.vm_restart = vm_restart;
 
 /* Run-length-encode an array, for Quetzal. */
 function compress_bytes(arr) {
-    result = [];
+    var result = [];
     var i = 0;
     while (i < arr.length) {
         var zeroes = 0;
@@ -5688,7 +5702,7 @@ function compress_bytes(arr) {
 
 /* Run-length-decode an array, for Quetzal. */
 function decompress_bytes(arr) {
-    result = [];
+    var result = [];
     var i = 0;
     while (i < arr.length) {
         var b = arr[i++];
@@ -5709,7 +5723,7 @@ function decompress_bytes(arr) {
    The ID should be a 4-character string.
 */
 function pack_iff_chunks(chunks) {
-    bytes = [];
+    var bytes = [];
     for (var ix = 0; ix < chunks.length; ix++) {
         var key = chunks[ix].key;
         var chunk = chunks[ix].chunk;
@@ -5734,7 +5748,7 @@ function pack_iff_chunks(chunks) {
    The order of chunks is not preserved.
 */
 function unpack_iff_chunks(bytes) {
-    chunks = {};
+    var chunks = {};
     var pos = 0;
     while (pos < bytes.length) {
         if ((pos + 8) > bytes.length) {
@@ -5775,7 +5789,7 @@ function vm_save(streamid) {
     if (!str)
         return false;
     
-    chunks = [];
+    var chunks = [];
     
     chunks.push({ key:"IFhd", chunk:game_image.slice(0, 128) });
     
@@ -6714,7 +6728,9 @@ function execute_loop() {
 
     Glk.update();
 
-    qlog("### done executing; path time = " + (pathend-pathstart) + " ms");
+    if (opt_log_execution_time) {
+        qlog("event executed in " + (pathend-pathstart) + " ms");
+    }
 }
 
 /* End of Quixe namespace function. Return the object which will
@@ -6741,5 +6757,8 @@ return {
 };
 
 }();
+
+// Node-compatible behavior
+try { exports.Quixe = Quixe; } catch (ex) {};
 
 /* End of Quixe library. */

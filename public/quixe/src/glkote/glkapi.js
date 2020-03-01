@@ -1,5 +1,5 @@
 /* GlkAPI -- a Javascript Glk API for IF interfaces
- * GlkOte Library: version 2.2.3.
+ * GlkOte Library: version 2.2.4.
  * Glk API which this implements: version 0.7.4.
  * Designed by Andrew Plotkin <erkyrath@eblong.com>
  * <http://eblong.com/zarf/glk/glkote.html>
@@ -40,7 +40,7 @@
 
 /* Put everything inside the Glk namespace. */
 
-Glk = function() {
+var Glk = function() {
 
 /* The VM interface object. */
 var VM = null;
@@ -125,6 +125,8 @@ function accept_ui_event(obj) {
     switch (obj.type) {
     case 'init':
         content_metrics = obj.metrics;
+        /* We ignore the support array. This library is updated in sync
+           with GlkOte, so we know what it supports. */
         VM.init();
         break;
 
@@ -134,11 +136,20 @@ function accept_ui_event(obj) {
             res = option_extevent_hook(obj.value);
         }
         if (!res && obj.value == 'timer') {
+            /* Timer events no longer come in this way, but we'll still
+               accept them. */
+            gli_timer_started = Date.now();
             res = { type: Const.evtype_Timer };
         }
         if (res && res.type) {
             handle_external_input(res);
         }
+        break;
+
+    case 'timer':
+        gli_timer_started = Date.now();
+        var res = { type: Const.evtype_Timer };
+        handle_external_input(res);
         break;
 
     case 'hyperlink':
@@ -216,6 +227,7 @@ function handle_external_input(res) {
     if (!gli_selectref)
         return;
 
+    /* This also handles timer input. */
     var val1 = 0;
     var val2 = 0;
     if (res.val1)
@@ -585,6 +597,12 @@ function update() {
     dataobj.windows = winarray;
     dataobj.content = contentarray;
     dataobj.input = inputarray;
+
+    if (gli_timer_lastsent != gli_timer_interval) {
+        //qlog("### timer update: " + gli_timer_interval);
+        dataobj.timer = gli_timer_interval;
+        gli_timer_lastsent = gli_timer_interval;
+    }
 
     if (ui_specialinput) {
         //qlog("### special input: " + ui_specialinput.type);
@@ -1032,7 +1050,7 @@ function restore_allstate(res)
                     str.fstream.fseek(obj.filepos, Const.seekmode_Start);
                 }
 
-                str.buffer4 = new str.fstream.BufferClass(4);
+                str.buffer4 = str.fstream.BufferClass.alloc(4);
             }
             break;
 
@@ -2711,8 +2729,8 @@ var gli_api_display_rocks = 1;
 
 /* A positive number if the timer is set. */
 var gli_timer_interval = null; 
-var gli_timer_id = null; /* Currently active setTimeout ID */
-var gli_timer_started = null; /* When the setTimeout began */
+var gli_timer_started = null; /* when the setTimeout began */
+var gli_timer_lastsent = null; /* last interval sent to GlkOte */
 
 function gli_new_window(type, rock) {
     var win = {};
@@ -2834,7 +2852,7 @@ function gli_window_put_string(win, val) {
                 continue;
             }
 
-            lineobj = win.lines[win.cursory];
+            var lineobj = win.lines[win.cursory];
             lineobj.dirty = true;
             lineobj.chars[win.cursorx] = ch;
             lineobj.styles[win.cursorx] = win.style;
@@ -3016,7 +3034,7 @@ function gli_window_close(win, recurse) {
 
 function gli_window_rearrange(win, box) {
     var width, height, oldwidth, oldheight;
-    var min, max, diff, splitwid, ix, cx, lineobj;
+    var min, max, diff, split, splitwid, ix, cx, lineobj;
     var box1, box2, ch1, ch2;
 
     geometry_changed = true;
@@ -3401,7 +3419,7 @@ function gli_put_char(str, ch) {
                         /* String.fromCharCode chokes on astral characters;
                            do it the hard way */
                         var arr8 = UniArrayToUTF8([ch]);
-                        var buf = new str.fstream.BufferClass(arr8);
+                        var buf = str.fstream.BufferClass.from(arr8);
                         str.fstream.fwrite(buf);
                     }
                 }
@@ -3432,7 +3450,7 @@ function gli_put_char(str, ch) {
                 var len = arr.length;
                 if (len > str.buflen-str.bufpos)
                     len = str.buflen-str.bufpos;
-                for (ix=0; ix<len; ix++)
+                for (var ix=0; ix<len; ix++)
                     str.buf[str.bufpos+ix] = arr[ix];
                 str.bufpos += len;
                 if (str.bufpos > str.bufeof)
@@ -3480,19 +3498,19 @@ function gli_put_array(str, arr, allbytes) {
     case strtype_File:
         if (str.streaming) {
             if (!str.unicode) {
-                var buf = new str.fstream.BufferClass(arr);
+                var buf = str.fstream.BufferClass.from(arr);
                 str.fstream.fwrite(buf);
             }
             else {
                 if (!str.isbinary) {
                     /* cheap UTF-8 stream */
                     var arr8 = UniArrayToUTF8(arr);
-                    var buf = new str.fstream.BufferClass(arr8);
+                    var buf = str.fstream.BufferClass.from(arr8);
                     str.fstream.fwrite(buf);
                 }
                 else {
                     /* cheap big-endian stream */
-                    var buf = new str.fstream.BufferClass(4*arr.length);
+                    var buf = str.fstream.BufferClass.alloc(4*arr.length);
                     for (ix=0; ix<arr.length; ix++) {
                         buf.writeUInt32BE(arr[ix], 4*ix, true);
                     }
@@ -3735,6 +3753,7 @@ function gli_get_line(str, buf, want_unicode) {
         return 0;
 
     var len = buf.length;
+    var lx, ch;
     var gotnewline;
 
     switch (str.type) {
@@ -3889,18 +3908,18 @@ function glk_put_jstring_stream(str, val, allbytes) {
         if (str.streaming) {
             if (!str.unicode) {
                 // if !allbytes, we just give up on non-Latin-1 characters
-                var buf = new str.fstream.BufferClass(val, 'binary');
+                var buf = str.fstream.BufferClass.from(val, 'binary');
                 str.fstream.fwrite(buf);
             }
             else {
                 if (!str.isbinary) {
                     /* cheap UTF-8 stream */
-                    var buf = new str.fstream.BufferClass(val); // utf8
+                    var buf = str.fstream.BufferClass.from(val); // utf8
                     str.fstream.fwrite(buf);
                 }
                 else {
                     /* cheap big-endian stream */
-                    var buf = new str.fstream.BufferClass(4*val.length);
+                    var buf = str.fstream.BufferClass.alloc(4*val.length);
                     for (ix=0; ix<val.length; ix++) {
                         buf.writeUInt32BE(val.charCodeAt(ix), 4*ix, true);
                     }
@@ -3987,26 +4006,6 @@ function gli_set_hyperlink(str, val) {
         if (str.win.echostr)
             gli_set_hyperlink(str.win.echostr, val);
     }
-}
-
-function gli_timer_callback() {
-    if (ui_disabled) {
-        if (has_exited) {
-            /* The game shut down and left us hanging. */
-            GlkOte.log("### dropping timer event...");
-            gli_timer_id = null;
-            return;
-        }
-        else {
-            /* Put off dealing with this for a half-second. */
-            GlkOte.log("### procrastinating timer event...");
-            gli_timer_id = setTimeout(gli_timer_callback, 500);
-            return;
-        }
-    }
-    gli_timer_id = setTimeout(gli_timer_callback, gli_timer_interval);
-    gli_timer_started = Date.now();
-    GlkOte.extevent('timer');
 }
 
 /* The catalog of Glk API functions. */
@@ -4647,7 +4646,7 @@ function glk_stream_open_file(fref, fmode, rock) {
         throw('glk_stream_open_file: illegal filemode');
 
     if (fmode == Const.filemode_Read && !Dialog.file_ref_exists(fref.ref))
-        throw('glk_stream_open_file: file not found for reading: ' + fref.ref.filename);
+        return null;
 
     if (!Dialog.streaming) {
         var content = null;
@@ -4698,7 +4697,7 @@ function glk_stream_open_file(fref, fmode, rock) {
         str.streaming = true;
         str.fstream = fstream;
         /* We'll want a Buffer object around for short and writes. */
-        str.buffer4 = new fstream.BufferClass(4);
+        str.buffer4 = fstream.BufferClass.alloc(4);
     }
 
     return str;
@@ -4895,7 +4894,7 @@ function glk_fileref_create_temp(usage, rock) {
     var filetype = (usage & Const.fileusage_TypeMask);
     var filetypename = FileTypeMap[filetype];
     var ref = Dialog.file_construct_temp_ref(filetypename);
-    fref = gli_new_fileref(ref.filename, usage, rock, ref);
+    var fref = gli_new_fileref(ref.filename, usage, rock, ref);
     return fref;
 }
 
@@ -4903,7 +4902,7 @@ function glk_fileref_create_by_name(usage, filename, rock) {
     /* Filenames that do not come from the user must be cleaned up. */
     filename = Dialog.file_clean_fixed_name(filename, (usage & Const.fileusage_TypeMask));
 
-    fref = gli_new_fileref(filename, usage, rock, null);
+    var fref = gli_new_fileref(filename, usage, rock, null);
     return fref;
 }
 
@@ -4966,7 +4965,7 @@ function gli_fileref_create_by_prompt_callback(obj) {
 
     if (window.GiDispa)
         GiDispa.prepare_resume(fref);
-    VM.resume();
+    VM.resume(fref);
 }
 
 function glk_fileref_destroy(fref) {
@@ -5107,24 +5106,23 @@ function glk_select(eventref) {
 }
 
 function glk_select_poll(eventref) {
-    /* Because the Javascript interpreter is single-threaded, the
-       gli_timer_callback function cannot have run since the last
-       glk_select call. */
+    /* Because the Javascript interpreter is single-threaded, we cannot
+       have gotten a timer event since the last glk_select call. */
 
     eventref.set_field(0, Const.evtype_None);
     eventref.set_field(1, null);
     eventref.set_field(2, 0);
     eventref.set_field(3, 0);
 
-    if (gli_timer_interval && !(gli_timer_id === null)) {
+    if (gli_timer_interval) {
         var now = Date.now();
         if (now - gli_timer_started > gli_timer_interval) {
-            /* We're past the timer interval, even though the callback
-               hasn't run. Let's pretend it has, reset it, and return
-               a timer event. */
-            clearTimeout(gli_timer_id);
-            gli_timer_id = setTimeout(gli_timer_callback, gli_timer_interval);
+            /* We're past the timer interval, even though we got no
+               event. Let's pretend we did, reset it, and return a
+               timer event. */
             gli_timer_started = Date.now();
+            /* Resend timer request at next update. */
+            gli_timer_lastsent = null;
 
             eventref.set_field(0, Const.evtype_Timer);
         }
@@ -5293,18 +5291,12 @@ function glk_cancel_mouse_event(win) {
 }
 
 function glk_request_timer_events(msec) {
-    if (!(gli_timer_id === null)) {
-        clearTimeout(gli_timer_id);
-        gli_timer_id = null;
-        gli_timer_started = null;
-    }
-
     if (!msec) {
         gli_timer_interval = null;
+        gli_timer_started = null;
     }
     else {
         gli_timer_interval = msec;
-        gli_timer_id = setTimeout(gli_timer_callback, gli_timer_interval);
         gli_timer_started = Date.now();
     }
 }
@@ -5910,7 +5902,7 @@ function glk_stream_open_file_uni(fref, fmode, rock) {
         throw('glk_stream_open_file_uni: illegal filemode');
 
     if (fmode == Const.filemode_Read && !Dialog.file_ref_exists(fref.ref))
-        throw('glk_stream_open_file_uni: file not found for reading: ' + fref.ref.filename);
+        return null;
 
     if (!Dialog.streaming) {
         var content = null;
@@ -5961,7 +5953,7 @@ function glk_stream_open_file_uni(fref, fmode, rock) {
         str.streaming = true;
         str.fstream = fstream;
         /* We'll want a Buffer object around for short and writes. */
-        str.buffer4 = new fstream.BufferClass(4);
+        str.buffer4 = fstream.BufferClass.alloc(4);
     }
 
     return str;
@@ -6185,7 +6177,7 @@ function glk_date_to_simple_time_local(dateref, factor) {
 /* End of Glk namespace function. Return the object which will
    become the Glk global. */
 return {
-    version: '2.2.3', /* GlkOte/GlkApi version */
+    version: '2.2.4', /* GlkOte/GlkApi version */
     init : init,
     update : update,
     save_allstate : save_allstate,
@@ -6328,5 +6320,8 @@ return {
 };
 
 }();
+
+// Node-compatible behavior
+try { exports.Glk = Glk; } catch (ex) {};
 
 /* End of Glk library. */
