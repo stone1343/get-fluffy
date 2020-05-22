@@ -159,7 +159,7 @@ Object LibraryMessages
     27, 30, 37, 38, 39:
      Nonsense();
      rtrue;
-    35: "I remind myself to be more specific.";
+    !35: "I remind myself to be more specific.";
    }
   Pray: "Nothing happens.";
   ! Christina Aguilera "Beautiful", Lady Gaga "Born This Way", Spice Girls "Never Give Up On The Good Times", Katy Perry "Hot N Cold"

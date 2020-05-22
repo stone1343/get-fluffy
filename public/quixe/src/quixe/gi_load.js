@@ -3,7 +3,7 @@
  * <http://eblong.com/zarf/glulx/quixe/>
  *
  * 
- * This Javascript library is copyright 2010-2016 by Andrew Plotkin.
+ * This Javascript library is copyright 2010-2020 by Andrew Plotkin.
  * It is distributed under the MIT license; see the "LICENSE" file.
  *
  * This library loads a game image (by one of several possible methods)
@@ -227,7 +227,7 @@ function load_run(optobj, image, imageoptions) {
             image = decode_base64(image);
             break;
         case 'raw':
-            image = decode_text(image);
+            image = decode_raw_text(image);
             break;
         case 'array':
             /* Leave image alone */

@@ -400,7 +400,7 @@
 
 ! Used for parsing grammar
 
-[ Anything o;
+[ Anything * o;
  if (scope_stage == 1) rfalse;
  if (scope_stage == 2) {
   objectloop (o ofclass Object) PlaceInScope(o); rtrue;
@@ -409,7 +409,7 @@
  "I'm trying to take things that don't exist.";
 ];
 
-[ Anybody o;
+[ Anybody * o;
  if (scope_stage == 1) rfalse;
  if (scope_stage == 2) {
   objectloop (o ofclass Person) PlaceInScope(o); rtrue;
