@@ -6,13 +6,21 @@ to other semi-standard names get created upon installation (e.g.
 verblib.h gets symlinked to Verblib.h and VerbLib.h) -- except on
 Cygwin, where case doesn't seem to matter.
 
-Version 6.12.3 (20 March 2019)
+Version 6.12.3 (12 May 2019)
 ==============================
 
 This is a maintenance release focusing almost entirely on bug fixes.
 
 Bugs fixed
 ----------
+
+* Fixed a longstanding problem of abiguity of HER as a posessive versus
+  HER as an object pronoun not being handled correctly.  This could
+  previously lead to fatal errors (if strict error checking not used) or
+  complaints of an "in" or "notin" test being performed on a routine or
+  string.
+
+* Fixed a problem that prevented ENTER DOOR from being accepted.
 
 * Fixed assorted grammatical inconsistencies.
 

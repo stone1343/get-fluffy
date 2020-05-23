@@ -1,7 +1,7 @@
 ! ==============================================================================
 !   ENGLISH:  Language Definition File
 !
-!   Supplied for use with Inform 6 -- Release 6.12.3 -- Serial number 190320
+!   Supplied for use with Inform 6 -- Release 6.12.3 -- Serial number 190512
 !
 !   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2019
 !
@@ -63,7 +63,7 @@ CompassDirection -> u_obj  with short_name "up above",  door_dir u_to,
                                 name 'u//' 'up' 'ceiling' 'above' 'sky';
 CompassDirection -> d_obj  with short_name "ground",    door_dir d_to,
                                 name 'd//' 'down' 'floor' 'below' 'ground';
-#endif; ! WITHOUT_DIRECTIONS
+#Endif; ! WITHOUT_DIRECTIONS
 
 CompassDirection -> in_obj  with short_name "inside",  door_dir in_to;
 CompassDirection -> out_obj with short_name "outside", door_dir out_to;
@@ -285,6 +285,15 @@ Array LanguageGNAsToArticles --> 0 0 0 1 1 1 0 0 0 1 1 1;
       'l//':   print "look";
       'x//':   print "examine";
       'z//':   print "wait";
+! CompassDirection
+      'n//':   print "north";
+      's//':   print "south";
+      'e//':   print "east";
+      'w//':   print "west";
+      'ne//':   print "northeast";
+      'nw//':   print "northwest";
+      'se//':   print "southeast";
+      'sw//':   print "southwest";
       default: rfalse;
     }
     rtrue;
@@ -363,6 +372,7 @@ Constant DARKNESS__TX   = "Darkness";
 
 Constant THOSET__TX     = "those things";
 Constant THAT__TX       = "that";
+Constant THE__TX        = "the";
 Constant OR__TX         = " or ";
 Constant NOTHING__TX    = "nothing";
 Constant IS__TX         = " is";
@@ -378,6 +388,23 @@ Constant WHOM__TX       = "whom ";
 Constant WHICH__TX      = "which ";
 Constant COMMA__TX      = ", ";
 Constant COLON__TX      = ": ";
+
+! For EnterSub()
+Constant STAND__TX	= 'stand';
+Constant SIT__TX	= 'sit';
+Constant LIE__TX	= 'lie';
+
+Constant LIBERROR__TX   = "Library error ";
+Constant TERP__TX       = "Interpreter ";
+Constant VER__TX        = "Version ";
+Constant STDTERP__TX    = "Standard interpreter ";
+Constant TERPVER__TX	= "Interpreter version ";
+Constant LIBSER__TX	= "Library Serial Number ";
+Constant VM__TX		= "VM ";
+Constant RELEASE__TX    = "Release ";
+Constant SERNUM__TX     = "Serial number ";
+Constant INFORMV__TX    = "Inform v";
+Constant LIBRARYV__TX   = " Library v";
 
 ! ----------------------------------------------------------------------------
 ! FYI on nominative pronouns versus accusative pronouns...
@@ -439,7 +466,7 @@ Constant COLON__TX      = ": ";
 ];
 
 ! Nominative
-[ CTheyreorThats obj;
+[ CTheyreOrThats obj;
     if (obj == player) {
 	if (player provides narrative_voice) {
 	    if (player.narrative_voice == 1) { Tense("I'm", "I was"); return; }
@@ -467,7 +494,7 @@ Constant COLON__TX      = ": ";
 
 [ nop x; x = x; ];      ! print rule to absorb unwanted return value
 
-[ SubjectNotPlayer obj reportage v2 v3 past;
+[ SubjectNotPlayer obj reportage nocaps v2 v3 past;
     if (past && player provides narrative_tense && player.narrative_tense == PAST_TENSE) {
         v2 = past;
         v3 = past;
@@ -486,8 +513,21 @@ Constant COLON__TX      = ": ";
             else {print (the) obj, " ", (string) v3; return;}
     }
    else
-        if (obj has pluralname) { print (The) obj, " ", (string) v2; return;}
-        else                    { print (The) obj, " ", (string) v3; return;}
+        if (obj has pluralname) {
+	    if (nocaps)
+		print (the) obj;
+	    else
+		print (The) obj;
+	    print " ", (string) v2;
+	    return;
+	}
+        else {
+	    if (nocaps)
+		print (the) obj;
+	    else
+		print (The) obj;
+	    print " ", (string) v3; return;
+	}
 ];
 
 [ CSubjectVoice obj v1 v2 v3 past;
@@ -531,7 +571,7 @@ Constant COLON__TX      = ": ";
         if (nocaps) { print "you ", (string) v2; return; }
 	print "You ", (string) v2; return;
     }
-    SubjectNotPlayer(obj, reportage, v2, v3);
+    SubjectNotPlayer(obj, reportage, nocaps, v2, v3);
 ];
 
 [ CSubjectIs obj reportage nocaps;
@@ -547,7 +587,7 @@ Constant COLON__TX      = ": ";
         else Tense("You're", "You were");
         return;
     }
-    SubjectNotPlayer(obj, reportage, "are", "is", "was");
+    SubjectNotPlayer(obj, reportage, nocaps, "are", "is", "was");
 ];
 
 [ CSubjectIsnt obj reportage nocaps;
@@ -563,7 +603,7 @@ Constant COLON__TX      = ": ";
         else Tense("You aren't", "You weren't");
 	return;
     }
-    SubjectNotPlayer(obj, reportage, "aren't", "isn't", "wasn't");
+    SubjectNotPlayer(obj, reportage, nocaps, "aren't", "isn't", "wasn't");
 ];
 
 [ CSubjectHas obj reportage nocaps;
@@ -579,7 +619,7 @@ Constant COLON__TX      = ": ";
         else Tense("You've", "You'd");
         return;
     }
-    SubjectNotPlayer(obj, reportage, "have", "has", "had");
+    SubjectNotPlayer(obj, reportage, nocaps, "have", "has", "had");
 ];
 
 [ CSubjectWill obj reportage nocaps;
@@ -595,7 +635,7 @@ Constant COLON__TX      = ": ";
         else Tense("You'll", "You'd");
         return;
     }
-    SubjectNotPlayer(obj, reportage, "will", "will", "would");
+    SubjectNotPlayer(obj, reportage, nocaps, "will", "will", "would");
 ];
 
 [ CSubjectCan obj reportage nocaps;
@@ -830,6 +870,9 @@ Constant COLON__TX      = ": ";
         1:  CSubjectIsnt(actor,true); " wearing ", (ThatOrThose) x1, ".";
         2:  CSubjectVerb(actor,false,false,"take off",0,"takes off", "took off");
             " ", (the) x1, ".";
+        3:  "(first taking ", (the) x1, " off)";
+        4: CSubjectVerb(actor,false,false, "will need to", 0, 0, "had to");
+           " remove ", (the) noun, " first.";
     }
   Drink:    print "There";
             Tense("'s", " was");
@@ -839,8 +882,7 @@ Constant COLON__TX      = ": ";
         2:  CSubjectVerb(actor, false, false, "haven't got", 0, "hasn't got",
                          "didn't have");
             " ", (the) x1, ".";
-        3:  "(first taking ", (the) x1, " off)";
-        4:  "Dropped.";
+        3:  "Dropped.";
     }
   Eat: switch (n) {
         1:  CSubjectIs(x1,true); " plainly inedible.";
@@ -1270,7 +1312,7 @@ Constant COLON__TX      = ": ";
   Remove: switch (n) {
         1:  CSubjectIs  (x1,true); " unfortunately closed.";
         2:  print "But ";
-            CSubjectIsnt(x1,true); " there now.";
+            CSubjectIsnt(x1,true,true); " there now.";
         3:  "Removed.";
     }
   Restart: switch (n) {
@@ -1286,6 +1328,36 @@ Constant COLON__TX      = ": ";
             " nothing by this.";
         2:  DecideAgainst();
     }
+  RunTimeError: print "** ";
+	switch (n) {
+	1:  print "Preposition not found (this should not occur)";
+	2:  print "Property value not routine or string: ~", (property) x2,
+		"~ of ~", (name) x1, "~ (", x1, ")";
+	3:  print "Entry in property list not routine or string: ~",
+		(property) x2, "~ list of ~", (name) x1, "~ (", x1, ")";
+	4:  print "Too many timers/daemons are active simultaneously.
+		The limit is the library constant MAX_TIMERS
+		(currently ", MAX_TIMERS, ") and should be increased";
+	5:  print "Object ~", (name) x1, "~ has no ~", (property) x2,
+		"~ property";
+	7:  print "The object ~", (name) x1, "~ can only be used as a player
+		object if it has the ~number~ property";
+	8:  print "Attempt to take random entry from an empty table array";
+	9:  print x1, " is not a valid direction property number";
+	10: print "The player-object is outside the object tree";
+	11: print "The room ~", (name) x1, "~ has no ~", (property) x2,
+		"~ property";
+	12: print "Tried to set a non-existent pronoun using SetPronoun";
+	13: print "A 'topic' token can only be followed by a preposition";
+	14: print "Overflowed buffer limit of ", x1,
+		" using '@@64output_stream 3' ", (string) x2;
+	15: print "LoopWithinObject broken because the object ",
+		(name) x1, " was moved while the loop passed through it.";
+	16: print "Attempt to use illegal narrative_voice of ", x1, ".";
+	default:
+	    print "(unexplained)";
+    }
+    print " **";
   Save: switch (n) {
         1:  "Save failed.";
         2:  "Ok.";

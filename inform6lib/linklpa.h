@@ -1,7 +1,7 @@
 ! ==============================================================================
 !   LINKLPA:  Link declarations of common properties and attributes.
 !
-!   Supplied for use with Inform 6 -- Release 6.12.3 -- Serial number 190320
+!   Supplied for use with Inform 6 -- Release 6.12.3 -- Serial number 190512
 !
 !   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2019
 !
@@ -32,13 +32,6 @@ Constant WORD_HIGHBIT = $80000000;
 ! ------------------------------------------------------------------------------
 
 Attribute animate;
-#Ifdef USE_MODULES;
-    #Iffalse (animate == 0);
-    Message error "Please move your Attribute declarations after the Include ~Parser~ line:
-                   otherwise it will be impossible to USE_MODULES";
-    #Endif;
-#Endif;
-
 Attribute absent;       Attribute non_floating alias absent;
 Attribute clothing;
 Attribute concealed;
@@ -89,13 +82,6 @@ Property u_to;
 Property d_to;
 Property in_to;
 Property out_to;
-
-#Ifdef USE_MODULES;
-    #Iffalse (7 >= n_to);
-    Message error "Please move your Property declarations after the Include ~Parser~ line:
-                   otherwise it will be impossible to USE_MODULES";
-    #Endif;
-#Endif;
 
 Property door_to;
 Property with_key;

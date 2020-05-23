@@ -1,7 +1,7 @@
 ! ==============================================================================
 !   VERBLIB:  Front end to standard verbs library.
 !
-!   Supplied for use with Inform 6 -- Release 6.12.3 -- Serial number 190320
+!   Supplied for use with Inform 6 -- Release 6.12.3 -- Serial number 190512
 !
 !   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2019
 !
@@ -72,17 +72,17 @@ Object LibraryMessages;
     }
     if (Headline) print (string) Headline;
     #Ifdef TARGET_ZCODE;
-    print "Release ", (HDR_GAMERELEASE-->0) & $03ff, " / Serial number ";
+    print (string) RELEASE__TX, (HDR_GAMERELEASE-->0) & $03ff, " / ", (string) SERNUM__TX;
     for (i=0 : i<6 : i++) print (char) HDR_GAMESERIAL->i;
     #Ifnot; ! TARGET_GLULX;
-    print "Release ";
+    print (string) RELEASE__TX;
     @aloads ROM_GAMERELEASE 0 i;
     print i;
-    print " / Serial number ";
+    print " / ", (string) SERNUM__TX;
     for (i=0 : i<6 : i++) print (char) ROM_GAMESERIAL->i;
     #Endif; ! TARGET_
-    print " / Inform v"; inversion;
-    print " Library v", (string) LibRelease, " ";
+    print " / ", (string) INFORMV__TX; inversion;
+    print (string) LIBRARYV__TX, (string) LibRelease, " ";
     #Ifdef STRICT_MODE;
     print "S";
     #Endif; ! STRICT_MODE
@@ -106,7 +106,7 @@ Object LibraryMessages;
     #Ifdef TARGET_ZCODE;
     ix = 0; ! shut up compiler warning
     if (standard_interpreter > 0) {
-        print "Standard interpreter ", standard_interpreter/256, ".", standard_interpreter%256,
+        print (string) STDTERP__TX, standard_interpreter/256, ".", standard_interpreter%256,
             " (", HDR_TERPNUMBER->0;
         #Iftrue (#version_number == 6);
         print (char) '.', HDR_TERPVERSION->0;
@@ -116,7 +116,7 @@ Object LibraryMessages;
         print ") / ";
         }
     else {
-        print "Interpreter ", HDR_TERPNUMBER->0, " Version ";
+        print (string) TERP__TX, HDR_TERPNUMBER->0, (string) VER__TX;
         #Iftrue (#version_number == 6);
         print HDR_TERPVERSION->0;
         #Ifnot;
@@ -127,12 +127,12 @@ Object LibraryMessages;
 
     #Ifnot; ! TARGET_GLULX;
     @gestalt 1 0 ix;
-    print "Interpreter version ", ix / $10000, ".", (ix & $FF00) / $100,
+    print (string) TERPVER__TX, ix / $10000, ".", (ix & $FF00) / $100,
       ".", ix & $FF, " / ";
     @gestalt 0 0 ix;
-    print "VM ", ix / $10000, ".", (ix & $FF00) / $100, ".", ix & $FF, " / ";
+    print (string) VM__TX, ix / $10000, ".", (ix & $FF00) / $100, ".", ix & $FF, " / ";
     #Endif; ! TARGET_;
-    print "Library serial number ", (string) LibSerial, "^";
+    print (string) LIBSER__TX, (string) LibSerial, "^";
     #Ifdef LanguageVersion;
     print (string) LanguageVersion, "^";
     #Endif; ! LanguageVersion
@@ -143,36 +143,13 @@ Object LibraryMessages;
     #Ifdef LanguageError;
     LanguageError(n, p1, p2);
     #Ifnot;
+
+    print "** ", (string) LIBERROR__TX, n, " (", p1, ", ", p2, ") **";
     #Ifdef DEBUG;
-    print "** Library error ", n, " (", p1, ", ", p2, ") **^** ";
-    switch (n) {
-      1:    print "preposition not found (this should not occur)";
-      2:    print "Property value not routine or string: ~", (property) p2, "~ of ~", (name) p1,
-                  "~ (", p1, ")";
-      3:    print "Entry in property list not routine or string: ~", (property) p2, "~ list of ~",
-                  (name) p1, "~ (", p1, ")";
-      4:    print "Too many timers/daemons are active simultaneously.
-                  The limit is the library constant MAX_TIMERS
-                  (currently ", MAX_TIMERS, ") and should be increased";
-      5:    print "Object ~", (name) p1, "~ has no ~", (property) p2, "~ property";
-      7:    print "The object ~", (name) p1, "~ can only be used as a player object if it has
-                  the ~number~ property";
-      8:    print "Attempt to take random entry from an empty table array";
-      9:    print p1, " is not a valid direction property number";
-      10:   print "The player-object is outside the object tree";
-      11:   print "The room ~", (name) p1, "~ has no ~", (property) p2, "~ property";
-      12:   print "Tried to set a non-existent pronoun using SetPronoun";
-      13:   print "A 'topic' token can only be followed by a preposition";
-      14:   print "Overflowed buffer limit of ", p1, " using '@@64output_stream 3' ", (string) p2;
-      15:   print "LoopWithinObject broken because the object ", (name) p1, " was moved while the loop passed through it.";
-      16:   print "Attempt to use illegal narrative_voice of ", p1, ".";
-      default:
-            print "(unexplained)";
-    }
-    " **";
-    #Ifnot;
-    "** Library error ", n, " (", p1, ", ", p2, ") **";
-    #Endif; ! DEBUG
+    L__M(##RunTimeError, n, p1, p2);
+    #Endif;
+    print "^";
+
     #Endif; ! LanguageError
 ];
 
@@ -1775,7 +1752,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     if (res >= 2) rtrue;
     ks = keep_silent; keep_silent = 1; <Disrobe obj, actor>; keep_silent = ks;
     if (obj has worn && obj in actor) rtrue;
-    if (res == 0 && ~~keep_silent) L__M(##Drop, 3, obj);
+    if (res == 0 && ~~keep_silent) L__M(##Disrobe, 3, obj);
     rfalse;
 ];
 
@@ -1811,10 +1788,11 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     if (noun == actor)         return L__M(##PutOn, 4, noun);
     if (noun in parent(actor)) return L__M(##Drop, 1, noun);
     if (noun notin actor && ~~ImplicitTake(noun)) return L__M(##Drop, 2, noun);
+    if (noun has worn && no_implicit_actions) return L__M(##Disrobe, 4, noun);
     if (noun has worn && ImplicitDisrobe(noun)) return;
     move noun to parent(actor);
     if (AfterRoutines() || keep_silent) return;
-    L__M(##Drop, 4, noun);
+    L__M(##Drop, 3, noun);
 ];
 
 [ PutOnSub ancestor;
@@ -1970,7 +1948,12 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 ! ----------------------------------------------------------------------------
 
 [ EnterSub ancestor j ks;
-    if (noun has door || noun in compass) <<Go noun, actor>>;
+    if (noun has door || noun in compass) {
+	if (verb_word == STAND__TX or SIT__TX or LIE__TX)
+	    return L__M(##Enter, 2, noun, verb_word);
+	<<Go noun, actor>>;
+    }
+
     if (actor in noun) return L__M(##Enter, 1, noun);
     if (noun hasnt enterable) return L__M(##Enter, 2, noun, verb_word);
 
@@ -2067,11 +2050,21 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
         }
     }
 
-    thedir = noun.door_dir;
-    if (metaclass(thedir) == Routine) thedir = RunRoutines(noun, door_dir);
+    if (noun.door_dir ~= nothing) {
+	thedir = noun.door_dir;
+	if (metaclass(thedir) == Routine)
+	    thedir = RunRoutines(noun, door_dir);
+	next_loc = i.thedir;
+    } else
+	next_loc = noun;
 
-    next_loc = i.thedir; k = metaclass(next_loc);
-    if (k == String) { print (string) next_loc; new_line; rfalse; }
+    k = metaclass(next_loc);
+
+    if (k == String) {
+	print (string) next_loc;
+	new_line; rfalse;
+    }
+
     if (k == Routine) {
         next_loc = RunRoutines(i, thedir);
         if (next_loc == 1) rtrue;
@@ -2082,6 +2075,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
         else                              L__M(##Go, 2);
         rfalse;
     }
+
     if (next_loc has door) {
         if (next_loc has concealed) return L__M(##Go, 2);
         if (next_loc hasnt open && ImplicitOpen(next_loc)) {
@@ -2409,7 +2403,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     L__M(##Lock, 5, noun);
 ];
 
-[ SwitchonSub;
+[ SwitchOnSub;
     if (ObjectIsUntouchable(noun)) return;
     if (noun hasnt switchable) return L__M(##SwitchOn, 1, noun);
     if (noun has on)           return L__M(##SwitchOn, 2, noun);
@@ -2419,7 +2413,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     L__M(##SwitchOn, 3, noun);
 ];
 
-[ SwitchoffSub;
+[ SwitchOffSub;
     if (ObjectIsUntouchable(noun)) return;
     if (noun hasnt switchable) return L__M(##SwitchOff, 1, noun);
     if (noun hasnt on)         return L__M(##SwitchOff, 2, noun);

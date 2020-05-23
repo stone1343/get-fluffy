@@ -1,7 +1,7 @@
 ! ==============================================================================
 !   PARSER:  Front end to parser.
 !
-!   Supplied for use with Inform 6 -- Release 6.12.3 -- Serial number 190320
+!   Supplied for use with Inform 6 -- Release 6.12.3 -- Serial number 190512
 !
 !   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2019
 !
@@ -63,10 +63,7 @@ System_file;
 Message fatalerror "*** Library 6.12.3 needs Inform v6.33 or later to work ***";
 #Endif; ! VN_
 
-Constant LibSerial       "190320";
-Constant LibRelease      "6.12.3pre";
-Constant LIBRARY_VERSION  612;
-Constant Grammar__Version 2;
+Include "version";
 
 Constant BEFORE_PARSER   10;
 Constant AFTER_PARSER    20;
@@ -154,6 +151,7 @@ Fake_Action TheSame;
 Fake_Action PluralFound;
 Fake_Action ListMiscellany;
 Fake_Action Miscellany;
+Fake_Action RunTimeError;
 Fake_Action Prompt;
 Fake_Action NotUnderstood;
 Fake_Action Going;
@@ -794,7 +792,6 @@ Object  thedark "(darkness object)"
 
 ! If you want to use the third-person of the narrative voice, you will
 ! need to replace this selfobj with your own.
-
 Class  SelfClass
   with name ',a' ',b' ',c' ',d' ',e',
         short_name  YOURSELF__TX,
@@ -805,7 +802,7 @@ Class  SelfClass
         each_turn NULL,
         time_out NULL,
         describe NULL,
-        article "the",
+        article THE__TX,
         add_to_scope 0,
         capacity 100,
         parse_name 0,
@@ -1434,7 +1431,7 @@ Object  InformParser "(Inform Parser)"
     w2 = a_table-->(3*oops_from - 1); ! Length of word to go
     #Endif; ! TARGET_
 
-#IfDef OOPS_CHECK;
+#Ifdef OOPS_CHECK;
     print "[~";
     for (i=0 : i<w2 : i++) for (i=0 : i<w2 : i++) print (char)a_buffer->(i+w);
     print "~ --> ~";
@@ -1457,12 +1454,12 @@ Object  InformParser "(Inform Parser)"
 
     for (i=0 : i<x2 : i++) {
         a_buffer->(i+w) = buffer2->(i+x1);
-#IfDef OOPS_CHECK;
+#Ifdef OOPS_CHECK;
         print (char) buffer2->(i+x1);
 #Endif;
     }
 
-#IfDef OOPS_CHECK;
+#Ifdef OOPS_CHECK;
         print "~]^^";
 #Endif;
 
@@ -2834,7 +2831,7 @@ Constant UNLIT_BIT  =  32;
         #Endif; ! DEBUG
         l = NounDomain(actors_location, actor, token);
         if (l == REPARSE_CODE) return l;                  ! Reparse after Q&A
-        if (l ~= nothing && l ~= 1 && l notin actor && token == MULTIHELD_TOKEN or MULTIEXCEPT_TOKEN) {
+        if ((metaclass(l) == Class || metaclass(l) == Object) && l ~= 1 && l notin actor && token == MULTIHELD_TOKEN or MULTIEXCEPT_TOKEN) {
 	    if (ImplicitTake(l)) {
 		etype = NOTHELD_PE;
 		jump FailToken;
@@ -2855,7 +2852,7 @@ Constant UNLIT_BIT  =  32;
                 wn = desc_wn;
                 jump TryAgain2;
             }
-            if (etype ~=TOOFEW_PE && (multiflag || etype ~= MULTI_PE))
+            if ((etype ~=TOOFEW_PE && etype ~= VAGUE_PE) && (multiflag || etype ~= MULTI_PE))
                 etype = CantSee();
             jump FailToken;
         } ! Choose best error
@@ -5305,13 +5302,17 @@ Object  InformLibrary "(Inform Library)"
     if (lightflag == 0) location = thedark;
 
     if (j ~= 2) Banner();
-#ifndef NOINITIAL_LOOK;
+#Ifndef NOINITIAL_LOOK;
     <Look>;
-#endif;
+#Endif;
     before_first_turn = false;
 ];
 
 [ GameEpilogue;
+    if (score ~= last_score) {
+	if (notify_mode == 1) NotifyTheScore();
+	last_score = score;
+    }
     print "^^    ";
     #Ifdef TARGET_ZCODE;
     #IfV5; style bold; #Endif; ! V5
@@ -6908,7 +6909,7 @@ Array StorageForShortName -> WORDSIZE + SHORTNAMEBUF_LEN;
     PrintCapitalised(a, b, false, true, true);
 ];
 
-[ CapitRule str no_caps;
+[ Cap str no_caps;
     if (no_caps) print (string) str;
     else         PrintCapitalised(str,0,true);
 ];
@@ -6917,7 +6918,7 @@ Array StorageForShortName -> WORDSIZE + SHORTNAMEBUF_LEN;
     if (o provides articles) {
         artval=(o.&articles)-->(acode+short_name_case*LanguageCases);
         if (capitalise)
-            print (CapitRule) artval;
+            print (Cap) artval;
         else
             print (string) artval;
         if (pluralise) return;
@@ -6967,7 +6968,7 @@ Array StorageForShortName -> WORDSIZE + SHORTNAMEBUF_LEN;
     }
     #Endif; ! TARGET_
 
-    CapitRule (artform-->acode, ~~capitalise); ! print article
+    Cap (artform-->acode, ~~capitalise); ! print article
     if (pluralise) return;
     print (PSN__) o;
 ];

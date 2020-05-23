@@ -1,5 +1,5 @@
 
-INFORM = inform +include_path=./,inform6lib-6.12.3/
+INFORM = inform +include_path=./,inform6lib/
 #GAME2JS = lua game2js.lua
 GAME2JS = python3 public/quixe/tools/game2js.py --giload
 INF = get-fluffy.inf fluffy-classes.inf fluffy-rooms.inf fluffy-people.inf fluffy-objects.inf fluffy-routines.inf

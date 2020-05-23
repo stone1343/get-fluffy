@@ -1,7 +1,7 @@
 ! ==============================================================================
 !   INFIX:  Support for the optional library debugger extension "Infix".
 !
-!   Supplied for use with Inform 6 -- Release 6.12.3 -- Serial number 190320
+!   Supplied for use with Inform 6 -- Release 6.12.3 -- Serial number 190512
 !
 !   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2019
 !
@@ -112,14 +112,14 @@ Array  infix_text -> 128;
 
     i2 = range2-range1; it2 = infix_text+WORDSIZE;
     for (i=0 : i<=i2 : i++) {
-        #ifdef TARGET_ZCODE;
+        #Ifdef TARGET_ZCODE;
         infix_text-->0 = 62; @output_stream 3 infix_text;
         if (t) print (string) t-->i; else PrintingRule(i+range1);
         @output_stream -3;
-        #ifnot; ! TARGET_GLULX
+        #Ifnot; ! TARGET_GLULX
         if (t) PrintToBuffer(infix_text, 62, t-->i);
         else PrintToBuffer(infix_text, 62, PrintingRule, i+range1);
-        #endif; ! TARGET_
+        #Endif; ! TARGET_
         k = infix_text-->0;
         if (k ~= wl) jump XL;
         if (itlc->(it2->0) ~= itlc->(wa->0)) jump XL;
@@ -587,11 +587,11 @@ Array InfixRV_commas --> 32;
                     (InfixRV_lop-->lvalside)-->(InfixRV_rop-->lvalside) = acc;
               default:
                 w = InfixRV_lvals-->lvalside; if (w == -1) return -1;
-                #ifdef TARGET_ZCODE;
+                #Ifdef TARGET_ZCODE;
                 @storew #globals_array w acc;
-                #ifnot;
+                #Ifnot;
                 @astore #globals_array w acc;
-                #endif;
+                #Endif;
             }
             switch(InfixRV_rvals-->maxi) {
               'post++': acc--;
@@ -854,14 +854,14 @@ Array InfixRV_commas --> 32;
         new_line;
       INFIXTT_NAMEDOBJECT:
         print "~", (name) noun, "~ (", noun, ")^"; if (brief) return;
-        <<Showobj noun>>;
+        <<ShowObj noun>>;
       INFIXTT_CONSTANT:
         if (brief) "; == ", noun;
         switch (infix_data1 & 15) {
             nothing:
                 print "; Constant ", (InfixPrintConstant) infix_parsed_lvalue,
                 " == ", noun, "^";
-            2: <<Showobj noun>>;
+            2: <<ShowObj noun>>;
             1:
                 print "Class ", (name) noun, "^";
                 objectloop (a ofclass noun) {
@@ -908,7 +908,7 @@ Array InfixRV_commas --> 32;
             if (a & 128) print "noun ";
         }
         new_line;
-        if (a & 1) <<Showverb noun>>;
+        if (a & 1) <<ShowVerb noun>>;
       INFIXTT_ROUTINE:
         if (brief) "; == ", noun;
         print "; Routine ", (InfixPrintRoutine) infix_parsed_lvalue, " (number ",
@@ -1049,11 +1049,11 @@ Array InfixRV_commas --> 32;
         for (j=0,k=1 : j<infix_parsed_lvalue%8 : j++) k=k*2;
         l = #routine_flags_array->i;
         l = l | k;
-        #ifdef TARGET_ZCODE;
+        #Ifdef TARGET_ZCODE;
         @storeb #routine_flags_array i l;
-        #ifnot; ! TARGET_GLULX
+        #Ifnot; ! TARGET_GLULX
         @astoreb #routine_flags_array i l;
-        #endif; ! TARGET_
+        #Endif; ! TARGET_
        "; Watching routine ", (InfixPrintRoutine) infix_parsed_lvalue, ".";
     }
     if (metaclass(noun) == Object) {
@@ -1070,19 +1070,19 @@ Array InfixRV_commas --> 32;
         for (j=0,k=1 : j<infix_parsed_lvalue%8 : j++) k=k*2;
         l = #routine_flags_array->i;
         l = l & (~k);
-        #ifdef TARGET_ZCODE;
+        #Ifdef TARGET_ZCODE;
         @storeb #routine_flags_array i l;
-        #ifnot; ! TARGET_GLULX
+        #Ifnot; ! TARGET_GLULX
         @astoreb #routine_flags_array i l;
-        #endif; ! TARGET
+        #Endif; ! TARGET
        "; Not watching ", (InfixPrintRoutine) infix_parsed_lvalue, ".";
     }
     if (metaclass(noun) == Object) {
-        #ifdef TARGET_ZCODE;
+        #Ifdef TARGET_ZCODE;
         @clear_attr noun infix__watching;
-        #ifnot; ! TARGET_GLULX
+        #Ifnot; ! TARGET_GLULX
         @astorebit noun (infix__watching+8) 0;
-        #endif; ! TARGET_
+        #Endif; ! TARGET_
        "; Not watching object ~", (name) noun, "~ (", noun, ").";
     }
     InfixDescribeWatchSub();

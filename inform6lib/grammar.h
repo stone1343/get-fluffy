@@ -1,7 +1,7 @@
 ! ==============================================================================
 !   GRAMMAR:  Grammar table entries for the standard verbs library.
 !
-!   Supplied for use with Inform 6 -- Release 6.12.3 -- Serial number 190320
+!   Supplied for use with Inform 6 -- Release 6.12.3 -- Serial number 190512
 !
 !   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2019
 !   This code is licensed under either the traditional Inform license as
@@ -110,7 +110,7 @@ Verb meta 'changes'
 
 Verb meta 'gonear'
     * anynumber                                 -> GoNear
-    * noun                                      -> Gonear;
+    * noun                                      -> GoNear;
 
 
 Verb meta 'goto'
@@ -135,12 +135,12 @@ Verb meta 'showdict' 'dict'
     * topic                                     -> ShowDict;
 
 Verb meta 'showobj'
-    *                                           -> Showobj
-    * anynumber                                 -> Showobj
-    * multi                                     -> Showobj;
+    *                                           -> ShowObj
+    * anynumber                                 -> ShowObj
+    * multi                                     -> ShowObj;
 
 Verb meta 'showverb'
-    * special                                   -> Showverb;
+    * special                                   -> ShowVerb;
 
 Verb meta 'timers' 'daemons'
     *                                           -> TimersOn
@@ -434,11 +434,11 @@ Verb 'swing'
     * 'on' noun                                 -> Swing;
 
 Verb 'switch'
-    * noun                                      -> Switchon
-    * noun 'on'                                 -> Switchon
-    * noun 'off'                                -> Switchoff
-    * 'on' noun                                 -> Switchon
-    * 'off' noun                                -> Switchoff;
+    * noun                                      -> SwitchOn
+    * noun 'on'                                 -> SwitchOn
+    * noun 'off'                                -> SwitchOff
+    * 'on' noun                                 -> SwitchOn
+    * 'off' noun                                -> SwitchOff;
 
 Verb 'take' 'carry' 'hold'
     * multi                                     -> Take
@@ -468,10 +468,10 @@ Verb 'transfer'
 
 Verb 'turn' 'rotate' 'screw' 'twist' 'unscrew'
     * noun                                      -> Turn
-    * noun 'on'                                 -> Switchon
-    * noun 'off'                                -> Switchoff
-    * 'on' noun                                 -> Switchon
-    * 'off' noun                                -> Switchoff;
+    * noun 'on'                                 -> SwitchOn
+    * noun 'off'                                -> SwitchOff
+    * 'on' noun                                 -> SwitchOn
+    * 'off' noun                                -> SwitchOff;
 
 Verb 'unlock'
     * noun 'with' held                          -> Unlock;
