@@ -12,14 +12,15 @@ If you've downloaded the project from GitHub, navigate to the public directory a
 *Get Fluffy!* seems to work on iOS or Android, but I think you'll have a better experience on a modern desktop browser.
 It is not intended to be played with Glulxe -- it will not work properly, but more importantly, you won't get the proper experience.
 
-You don't need to compile or build anything, everything you need is provided, all ready to go. If you do want to build *Get Fluffy!*, you'll need the Inform 6 compiler and Lua interpreter.
+You don't need to compile or build anything, everything you need is provided, all ready to go. If you do want to build *Get Fluffy!*, you'll need the Inform 6 compiler
+and Lua interpreter (Windows) or Python 3 (Linux).
+* **make clean**, delete game files
+* **make**, compile game files
 
-On Windows, you can:
-* **compile**, create the game files
+On Windows:
 * **play**, open public\index.html with your default browser
 
-On Linux, you can:
-* **make**
+On Linux:
 * **./play**, open public/index.html with your default browser
 
 Some known inconsistencies:
