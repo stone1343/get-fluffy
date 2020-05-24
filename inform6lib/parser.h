@@ -4378,7 +4378,7 @@ Constant SCORE__DIVISOR     = 20;
         #Endif; ! DEBUG
         rtrue;
     }
-    if (quality < match_length) rtrue;
+    if (quality <= match_length) rtrue;
     if (quality > match_length) { match_length = quality; number_matched = 0; }
     else {
         if (number_matched >= MATCH_LIST_SIZE) rtrue;
@@ -4776,7 +4776,6 @@ Constant MAX_DECIMAL_BASE 214748364;
           default:    return GPR_FAIL;
         }
         if (digit >= base) return GPR_FAIL;
-        digit_count++;
         switch (base) {
           16:     if (digit_count > 2*WORDSIZE)  return GPR_FAIL;
           2:      if (digit_count > 8*WORDSIZE)  return GPR_FAIL;
