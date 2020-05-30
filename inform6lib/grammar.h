@@ -1,9 +1,9 @@
 ! ==============================================================================
 !   GRAMMAR:  Grammar table entries for the standard verbs library.
 !
-!   Supplied for use with Inform 6 -- Release 6.12.3 -- Serial number 190512
+!   Supplied for use with Inform 6 -- Release 6.12.4pre -- Serial number 200528
 !
-!   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2019
+!   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2020
 !   This code is licensed under either the traditional Inform license as
 !   described by the DM4 or the Artistic License version 2.0.  See the
 !   file COPYING in the distribution archive or at
@@ -88,9 +88,13 @@ Verb meta 'version'
 
 #Ifndef NO_PLACES;
 Verb meta 'objects'
-    *                                           -> Objects;
+    *                                           -> Objects
+    * 'tall'                                    -> ObjectsTall
+    * 'wide'                                    -> ObjectsWide;
 Verb meta 'places'
-    *                                           -> Places;
+    *                                           -> Places
+    * 'tall'                                    -> PlacesTall
+    * 'wide'                                    -> PlacesWide;
 #Endif; ! NO_PLACES
 
 ! ------------------------------------------------------------------------------
@@ -177,7 +181,7 @@ Verb meta 'glklist'
 !  And now the game verbs.
 ! ------------------------------------------------------------------------------
 
-[ ADirection; if (noun in compass) rtrue; rfalse; ];
+[ ADirection; if (noun in Compass) rtrue; rfalse; ];
 
 Verb 'answer' 'say' 'shout' 'speak'
     * topic 'to' creature                       -> Answer;
@@ -547,6 +551,8 @@ Stub PrintTaskName     1;
 Stub PrintVerb         1;
 Stub TimePasses        0;
 Stub UnknownVerb       1;
+Stub AfterSave         1;
+Stub AfterRestore      1;
 
 #Ifdef TARGET_GLULX;
 Stub HandleGlkEvent    2;

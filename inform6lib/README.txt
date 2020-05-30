@@ -1,5 +1,5 @@
-This is version 6.12.2 of the Inform Library,
-Copyright Graham Nelson 1993-2004, David Griffith 2012-2018
+This is version 6.12.3 of the Inform Library,
+Copyright Graham Nelson 1993-2004, David Griffith 2012-2020
 Full release notes and instructions are available at
 http://www.inform-fiction.org
 and

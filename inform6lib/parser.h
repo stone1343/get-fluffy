@@ -1,9 +1,9 @@
 ! ==============================================================================
 !   PARSER:  Front end to parser.
 !
-!   Supplied for use with Inform 6 -- Release 6.12.3 -- Serial number 190512
+!   Supplied for use with Inform 6 -- Release 6.12.4pre -- Serial number 200528
 !
-!   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2019
+!   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2020
 !
 !   This code is licensed under either the traditional Inform license as
 !   described by the DM4 or the Artistic License version 2.0.  See the
@@ -314,6 +314,10 @@ Global inventory_stage = 1;         ! 1 or 2 according to the context in which
                                     ! "invent" routines of objects are called
 Global inventory_style;             ! List-writer style currently used while
                                     ! printing inventories
+
+Global objects_style;               ! List-writer style currently used while
+Global places_style;                ! printing objects handled or places visited
+
 ! ------------------------------------------------------------------------------
 !   Menus and printing
 ! ------------------------------------------------------------------------------
@@ -1730,14 +1734,14 @@ Object  InformParser "(Inform Parser)"
 
     if (verb_word == 0 || ((verb_word->#dict_par1) & DICT_VERB) == 0) {
 
-        ! So is the first word an object contained in the special object "compass"
+        ! So is the first word an object contained in the special object "Compass"
         ! (i.e., a direction)?  This needs use of NounDomain, a routine which
         ! does the object matching, returning the object number, or 0 if none found,
         ! or REPARSE_CODE if it has restructured the parse table so the whole parse
         ! must be begun again...
 
         wn = verb_wordnum; indef_mode = false; token_filter = 0;
-        l = NounDomain(compass, 0, NOUN_TOKEN);
+        l = NounDomain(Compass, 0, NOUN_TOKEN);
         if (l == REPARSE_CODE) jump ReParse;
 
         ! If it is a direction, send back the results:
@@ -3149,7 +3153,7 @@ Constant UNLIT_BIT  =  32;
 
     number_of_classes = 0;
 
-    if (match_length == 0 && indef_mode && indef_wanted ~= 100)
+    if (match_length == 0 && indef_mode && indef_wanted > 0 && indef_wanted < 100)
         number_matched = 0;  ! ask question for 'take three'
     if (number_matched == 1) i = match_list-->0;
     if (number_matched > 1) {
@@ -3762,9 +3766,9 @@ Constant SCORE__DIVISOR     = 20;
                 if (its_owner == actors_location) its_score = its_score + l_s;
                 else {
                     #Ifdef TRADITIONAL_TAKE_ALL;
-                    if (its_owner ~= compass) its_score = its_score + SCORE__NOTCOMPASS;
+                    if (its_owner ~= Compass) its_score = its_score + SCORE__NOTCOMPASS;
                     #Ifnot;
-                    if (its_owner ~= compass)
+                    if (its_owner ~= Compass)
                         if (take_all_rule && its_owner &&
                             its_owner has static or scenery &&
                               (its_owner has supporter ||
@@ -3858,7 +3862,7 @@ Constant SCORE__DIVISOR     = 20;
 [ Identical o1 o2 p1 p2 n1 n2 i j flag;
     if (o1 == o2) rtrue;  ! This should never happen, but to be on the safe side
     if (o1 == 0 || o2 == 0) rfalse;  ! Similarly
-    if (parent(o1) == compass || parent(o2) == compass) rfalse; ! Saves time
+    if (parent(o1) == Compass || parent(o2) == Compass) rfalse; ! Saves time
 
     !  What complicates things is that o1 or o2 might have a parsing routine,
     !  so the parser can't know from here whether they are or aren't the same.
@@ -3946,7 +3950,7 @@ Constant SCORE__DIVISOR     = 20;
         if (i >= REPARSE_CODE)
             print (address) No__Dword(i-REPARSE_CODE);
         else
-            if (i in compass && LanguageVerbLikesAdverb(verb_word))
+            if (i in Compass && LanguageVerbLikesAdverb(verb_word))
                 LanguageDirection (i.door_dir); ! the direction name as adverb
             else
                 print (the) i;
@@ -4248,7 +4252,7 @@ Constant SCORE__DIVISOR     = 20;
 
     if (indef_mode==0 && domain==actors_location
         && scope_reason==PARSING_REASON && context~=CREATURE_TOKEN)
-            ScopeWithin(compass);
+            ScopeWithin(Compass);
 
     ! Look through the objects in the domain, avoiding "objectloop" in case
     ! movements occur, e.g. when trying each_turn.
@@ -4378,7 +4382,7 @@ Constant SCORE__DIVISOR     = 20;
         #Endif; ! DEBUG
         rtrue;
     }
-    if (quality <= match_length) rtrue;
+    if (quality < match_length) rtrue;
     if (quality > match_length) { match_length = quality; number_matched = 0; }
     else {
         if (number_matched >= MATCH_LIST_SIZE) rtrue;
@@ -5131,7 +5135,7 @@ Object  InformLibrary "(Inform Library)"
                     }
                     l = multiple_object-->k;
                     PronounNotice(l);
-                    print (name) l, (string) COLON__TX;
+                    print (name) l, (string) COLON__TX, " ";
                     if (inp1 == 0) {
                         inp1 = l;
                         switch (self.actor_act(actor, action, l, second)) {
@@ -7242,6 +7246,8 @@ Object  LibraryExtensions "(Library Extensions)"
         ext_printverb           0,  ! [C2/R2]
         ext_timepasses          0,  ! [C2/R1]
         ext_unknownverb         0,  ! [C2/R2]
+        ext_aftersave           0,  ! [C2/R2]
+        ext_afterrestore        0,  ! [C2/R2]
         !                             [C1] = Called in all cases
         !                             [C2] = Called if EP is undefined, or returns false
         !                             [C3] = called if EP is undefined, or returns -1

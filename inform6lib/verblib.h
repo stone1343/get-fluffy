@@ -1,9 +1,9 @@
 ! ==============================================================================
 !   VERBLIB:  Front end to standard verbs library.
 !
-!   Supplied for use with Inform 6 -- Release 6.12.3 -- Serial number 190512
+!   Supplied for use with Inform 6 -- Release 6.12.4pre -- Serial number 200528
 !
-!   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2019
+!   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2020
 !
 !   This code is licensed under either the traditional Inform license as
 !   described by the DM4 or the Artistic License version 2.0.  See the
@@ -44,7 +44,11 @@ Object LibraryMessages;
 
 #Ifndef NO_PLACES;
 [ ObjectsSub; Objects1Sub(); ];
+[ ObjectsTallSub; Objects1TallSub(); ];
+[ ObjectsWideSub; Objects1WideSub(); ];
 [ PlacesSub;  Places1Sub(); ];
+[ PlacesTallSub; Places1TallSub(); ];
+[ PlacesWideSub; Places1WideSub(); ];
 #Endif; ! NO_PLACES
 
 ! ------------------------------------------------------------------------------
@@ -69,8 +73,13 @@ Object LibraryMessages;
         print "^", (string) Story;
         glk_set_style(style_Normal);
         #Endif; ! TARGET_
-    }
+    } else
+        new_line;
+
     if (Headline) print (string) Headline;
+    else
+        new_line;
+
     #Ifdef TARGET_ZCODE;
     print (string) RELEASE__TX, (HDR_GAMERELEASE-->0) & $03ff, " / ", (string) SERNUM__TX;
     for (i=0 : i<6 : i++) print (char) HDR_GAMESERIAL->i;
@@ -326,8 +335,8 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     if (c_style & ISARE_BIT) {
         if (j == 1 && o hasnt pluralname) Tense(IS__TX, WAS__TX);
         else                              Tense(ARE__TX, WERE__TX);
-        if (c_style & NEWLINE_BIT)   print ":^";
-        else                              print (char) ' ';
+        if (c_style & NEWLINE_BIT)   print (string) COLON__TX, "^";
+        else                         print (char) ' ';
         c_style = c_style - ISARE_BIT;
     }
 
@@ -393,7 +402,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
                     EnglishNumber(q); print " ";
                     print (string) j.list_together;
                     if (c_style & ENGLISH_BIT) print " (";
-                    if (c_style & INDENT_BIT)  print ":^";
+                    if (c_style & INDENT_BIT)  print (string) COLON__TX, "^";
                 }
                 q = c_style;
                 if (k2 ~= String) {
@@ -499,7 +508,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
                     EnglishNumber(l); print " ";
                     print (string) j.list_together;
                     if (c_style & ENGLISH_BIT) print " (";
-                    if (c_style & INDENT_BIT) print ":^";
+                    if (c_style & INDENT_BIT) print (string) COLON__TX, "^";
                 }
                 q = c_style;
                 if (k ~= String) {
@@ -1119,7 +1128,10 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     restore Rmaybe;
     return L__M(##Restore, 1);
   .RMaybe;
-    L__M(##Restore, 2);
+    if (AfterRestore() == 1)
+        LibraryExtensions.RunAll(ext_afterrestore);
+    else
+        L__M(##Restore, 2);
 ];
 
 [ SaveSub flag;
@@ -1127,16 +1139,26 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     @save -> flag;
     switch (flag) {
       0: L__M(##Save, 1);
-      1: L__M(##Save, 2);
+      1:
+         if (AfterSave() == 1)
+             LibraryExtensions.RunAll(ext_aftersave);
+         else
+             L__M(##Save, 2);
       2:
         RestoreColours();
-        L__M(##Restore, 2);
+        if (AfterRestore() == 1)
+            LibraryExtensions.RunAll(ext_afterrestore);
+        else
+            L__M(##Restore, 2);
     }
     #Ifnot;
     save Smaybe;
     return L__M(##Save, 1);
   .SMaybe;
-    L__M(##Save, 2);
+    if (AfterSave() == 1)
+        LibraryExtensions.RunAll(ext_aftersave);
+    else
+        L__M(##Save, 2);
     #Endif; ! V5
 ];
 
@@ -1210,7 +1232,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     L__M(##Restore, 1);
 ];
 
-[ SaveSub res fref;
+[ SaveSub res fref retval;
     fref = glk_fileref_create_by_prompt($01, $01, 0);
     if (fref == 0) jump SFailed;
     gg_savestr = glk_stream_open_file(fref, $01, GG_SAVESTR_ROCK);
@@ -1225,11 +1247,20 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
         GGRecoverObjects();
         glk_stream_close(gg_savestr, 0);
         gg_savestr = 0;
-        return L__M(##Restore, 2);
+        if (AfterRestore() == 1)
+            return LibraryExtensions.RunAll(ext_afterrestore);
+        else
+            return L__M(##Restore, 2);
+        return retval;
     }
     glk_stream_close(gg_savestr, 0);
     gg_savestr = 0;
-    if (res == 0) return L__M(##Save, 2);
+    if (res == 0) {
+        if (AfterSave() == 1)
+            return LibraryExtensions.RunAll(ext_aftersave);
+        else
+            return L__M(##Save, 2);
+    }
   .SFailed;
     L__M(##Save, 1);
 ];
@@ -1250,7 +1281,6 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     if (gg_scriptstr == 0) jump S1Failed;
     glk_window_set_echo_stream(gg_mainwin, gg_scriptstr);
     L__M(##ScriptOn, 2);
-    VersionSub();
     return;
   .S1Failed;
     L__M(##ScriptOn, 3);
@@ -1305,21 +1335,69 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 [ NotifyOnSub;  notify_mode = true; L__M(##NotifyOn);  ];
 [ NotifyOffSub; notify_mode = false; L__M(##NotifyOff); ];
 
+[ Places1TallSub;
+	places_style = NEWLINE_BIT+INDENT_BIT+FULLINV_BIT;
+	<Places>;
+];
+
+[ Places1WideSub;
+	places_style = ENGLISH_BIT+FULLINV_BIT;
+	<Places>;
+];
+
 [ Places1Sub i j k;
-    L__M(##Places, 1);
     objectloop (i has visited) j++;
+    if (j == 0)
+        return L__M(##Places, 3);
+
+    L__M(##Places, 1);
+    if (places_style & INDENT_BIT) print (string) COLON__TX, "^";
+    else print " ";
+
     objectloop (i has visited) {
+        if (places_style & INDENT_BIT) Print__Spaces(2);
         print (name) i; k++;
-        if (k == j) return L__M(##Places, 2);
-        if (k == j-1) print (SerialComma) j, (string) AND__TX;
-        else          print (string) COMMA__TX;
+
+        if (places_style & INDENT_BIT)
+            new_line;
+        else {
+            if (k == j)
+                return L__M(##Places, 2);
+            if (k == j-1)
+                print (SerialComma) j, (string) AND__TX;
+            else
+                print (string) COMMA__TX;
+        }
     }
 ];
 
-[ Objects1Sub i j f;
-    L__M(##Objects, 1);
+[ Objects1TallSub;
+	objects_style = NEWLINE_BIT+INDENT_BIT+FULLINV_BIT;
+	<Objects>;
+];
+
+[ Objects1WideSub;
+	objects_style = ENGLISH_BIT+FULLINV_BIT;
+	<Objects>;
+];
+
+[ Objects1Sub i j f object_count;
+    object_count = 0;
     objectloop (i has moved) {
-       f = 1; print (the) i; j = parent(i);
+        object_count++;
+    }
+    if (object_count == 0)
+        return L__M(##Objects, 2);
+
+    L__M(##Objects, 1);
+    if (objects_style & INDENT_BIT) print (string) COLON__TX, "^";
+    else print " ";
+
+    objectloop (i has moved) {
+      f++;
+      if (objects_style & INDENT_BIT) Print__Spaces(2);
+      print (the) i;
+       j = parent(i);
         if (j) {
            if (j == player) {
                if (i has worn) L__M(##Objects, 3, j, i);
@@ -1336,9 +1414,24 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 
       .Obj__Ptd;
 
-        new_line;
+        if ((object_count - f) >= 1) {
+            if (objects_style & INDENT_BIT) {
+                Print__Spaces(2);
+                new_line;
+             } else {
+                 if ((object_count - f) == 1) {
+                     SerialComma(object_count);
+                     print " ", (address) AND1__WD, " ";
+                 } else if (object_count > 2)
+                     print (string) COMMA__TX;
+             }
+        }
     }
-    if (f == 0) L__M(##Objects, 2);
+
+    if ((objects_style & INDENT_BIT) == 0)
+        print ".^";
+    else
+        print "^";
 ];
 
 ! ----------------------------------------------------------------------------
@@ -1413,7 +1506,6 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     else
         inventory_style = ENGLISH_BIT+PARTINV_BIT;
     <Inv, actor>;
-    inventory_style = 0;
 ];
 
 [ InvTallSub;
@@ -1422,7 +1514,6 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     else
         inventory_style = NEWLINE_BIT+INDENT_BIT+PARTINV_BIT;
     <Inv, actor>;
-    inventory_style = 0;
 ];
 
 [ InvSub x;
@@ -1909,7 +2000,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
         }
         if (k-- == 0) flag = 1;
         if (flag) break;
-        if (keep_silent == 0) print (name) i, (string) COLON__TX;
+        if (keep_silent == 0) print (name) i, (string) COLON__TX, " ";
         <Transfer i second, actor>;
         i = j;
     }
@@ -1948,7 +2039,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 ! ----------------------------------------------------------------------------
 
 [ EnterSub ancestor j ks;
-    if (noun has door || noun in compass) {
+    if (noun has door || noun in Compass) {
 	if (verb_word == STAND__TX or SIT__TX or LIE__TX)
 	    return L__M(##Enter, 2, noun, verb_word);
 	<<Go noun, actor>>;
@@ -2488,7 +2579,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 ! ----------------------------------------------------------------------------
 
 [ AllowPushDir i;
-    if (parent(second) ~= compass) return L__M(##PushDir, 2, noun);
+    if (parent(second) ~= Compass) return L__M(##PushDir, 2, noun);
     if (second == u_obj or d_obj)  return L__M(##PushDir, 3, noun);
     AfterRoutines(); i = noun; move i to actor;
     <Go second, actor>;

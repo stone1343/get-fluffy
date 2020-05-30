@@ -1,9 +1,9 @@
 ! ==============================================================================
 !   ENGLISH:  Language Definition File
 !
-!   Supplied for use with Inform 6 -- Release 6.12.3 -- Serial number 190512
+!   Supplied for use with Inform 6 -- Release 6.12.4pre -- Serial number 200528
 !
-!   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2019
+!   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2020
 !
 !   This code is licensed under either the traditional Inform license as
 !   described by the DM4 or the Artistic License version 2.0.  See the
@@ -387,7 +387,7 @@ Constant AND__TX        = " and ";
 Constant WHOM__TX       = "whom ";
 Constant WHICH__TX      = "which ";
 Constant COMMA__TX      = ", ";
-Constant COLON__TX      = ": ";
+Constant COLON__TX      = ":";
 
 ! For EnterSub()
 Constant STAND__TX	= 'stand';
@@ -1105,7 +1105,7 @@ Constant LIBRARYV__TX   = " Library v";
   Mild:     "Quite.";
   Miscellany: switch (n) {
         1:  "(considering the first sixteen objects only)^";
-        2:  "Nothing to do!";
+        2:  "Nothing to do.";
         3:  print " "; CSubjectVerb(player, false, false, "died", "have died", "has died");
 	    print " ";
         4:  print " "; CSubjectVerb(player, false, false, "won", "have won", "has won");
@@ -1129,7 +1129,7 @@ Constant LIBRARYV__TX   = " Library v";
             Tense("is now", "was");
             print " pitch dark in ";
             Tense("here", "there");
-            "!";
+            ".";
         10: "I beg your pardon?";
         11: "[You can't ~undo~ what hasn't been done!]";
         12: "[Can't ~undo~ twice in succession. Sorry!]";
@@ -1158,12 +1158,12 @@ Constant LIBRARYV__TX   = " Library v";
         29: "I didn't understand that number.";
         30: CSubjectCant(actor,true); " see any such thing.";
         31: CSubjectVerb(actor, true, false, "seem", "seem", "seems", "seemed");
-            " to have said too little!";
-        32: CSubjectIsnt(actor); " holding that!";
+            " to have said too little.";
+        32: CSubjectIsnt(actor); " holding that.";
         33: "You can't use multiple objects with that verb.";
         34: "You can only use multiple objects once on a line.";
         35: "I'm not sure what ~", (address) x1, "~ refers to.";
-        36: "You excepted something not included anyway!";
+        36: "You excepted something not included anyway.";
         37: CSubjectCan(actor,true); " only do that to something animate.";
             #Ifdef DIALECT_US;
         38: "That's not a verb I recognize.";
@@ -1177,7 +1177,7 @@ Constant LIBRARYV__TX   = " Library v";
             print " of those ";
             if (x1 == 1) print "is"; else print "are";
             " available.";
-        43: "Nothing to do!";
+        43: "Nothing to do.";
         44: print "There ";
             Tense("is", "was");
             " nothing to ", (address) x1, ".";
@@ -1216,16 +1216,16 @@ Constant LIBRARYV__TX   = " Library v";
             "Score notification off.";
   NotifyOn: "Score notification on.";
   Objects: switch (n) {
-        1:  "Objects ", (nop) CSubjectVerb(actor, false, true, "have", "have", "has"), " handled:^";
-        2:  "None.";
-        3:  print "   (worn)";
-        4:  print "   (held)";
-        5:  print "   (given away)";
-        6:  print "   (in ", (name) x1, ")";
-        7:  print "   (in ", (the) x1, ")";
-        8:  print "   (inside ", (the) x1, ")";
-        9:  print "   (on ", (the) x1, ")";
-        10: print "   (lost)";
+        1:  print (nop) CSubjectVerb(actor, false, false, "have", "have", "has"), " handled";
+        2:  CSubjectVerb(actor, false, false, "have", "have", "has"); " handled nothing.";
+        3:  print " (worn)";
+        4:  print " (held)";
+        5:  print " (given away)";
+        6:  print " (in ", (name) x1, ")";
+        7:  print " (in ", (the) x1, ")";
+        8:  print " (inside ", (the) x1, ")";
+        9:  print " (on ", (the) x1, ")";
+        10: print " (lost)";
     }
   Open: switch (n) {
         1:  CSubjectIs  (x1,true);
@@ -1243,8 +1243,9 @@ Constant LIBRARYV__TX   = " Library v";
     }
   Order:    CSubjectHas(x1,false); " better things to do.";
   Places: switch (n) {
-        1:  print "You have visited: ";
+        1:  print (nop) CSubjectVerb(actor, false, false, "have", "have", "has"), " visited";
         2:  ".";
+        3:  CSubjectVerb(actor, false, false, "have", "have", "has"); " visited nothing.";
     }
   Pray:     print "Nothing practical ";
             Tense("results", "resulted");
@@ -1545,9 +1546,9 @@ Constant LIBRARYV__TX   = " Library v";
         }
         ", feeling foolish.";
   Wear: switch (n) {
-        1:  CSubjectCant(actor,true); " wear ", (ThatOrThose) x1, "!";
-        2:  CSubjectIs  (actor,true); " not holding ", (ThatOrThose) x1, "!";
-        3:  CSubjectIs  (actor,true); " already wearing ", (ThatOrThose) x1, "!";
+        1:  CSubjectCant(actor,true); " wear ", (ThatOrThose) x1, ".";
+        2:  CSubjectIs  (actor,true); " not holding ", (ThatOrThose) x1, ".";
+        3:  CSubjectIs  (actor,true); " already wearing ", (ThatOrThose) x1, ".";
         4:  CSubjectVerb(actor,false,false,"put on",0,"puts on","put on"); " ", (the) x1, ".";
     }
 ! Yes:  see No.
