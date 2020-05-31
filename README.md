@@ -21,7 +21,8 @@ If you do want to build *Get Fluffy!*, you'll need the Inform 6 compiler and eit
 
 Compiling without the makefile is simple enough,
 * **inform get-fluffy.inf**
-The more complicated part is converting the .ulx file into JavaScript for Quixe, 2 ways of doing this are provided, sample commands are:
+
+The more complicated part is converting the .ulx file into JavaScript for Quixe, two ways of doing this are provided:
 * **lua game2js.lua get-fluffy.ulx>public/get-fluffy.ulx.js**
 * **python3 public/quixe/tools/game2js.py --giload get-fluffy.ulx>public/get-fluffy.ulx.js**
 
