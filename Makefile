@@ -15,10 +15,11 @@ endif
 
 all: $(ULX) $(JS)
 
+# Compile to .ulx
 $(ULX): $(INF)
 	$(INFORM) get-fluffy.inf
 
-# Build the .js for Quixe
+# Convert to .js for Quixe
 $(JS): $(ULX)
 	$(GAME2JS) $(ULX)>$(JS)
 

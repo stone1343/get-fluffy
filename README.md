@@ -10,17 +10,20 @@ Hopefully an entry in [IFComp 2020](https://ifcomp.org/).
 *Get Fluffy!* seems to work on iOS or Android, but I think you'll have a better experience on a modern desktop browser.
 It is not intended to be played with Glulxe -- it will not work properly, but more importantly, you won't get the proper experience.
 
-If you've downloaded the project from GitHub, you don't need to compile or build anything, everything you need is provided, all ready to go.
-If you do want to build *Get Fluffy!*, you'll need
-the Inform 6 compiler and Lua interpreter (Windows) or Python 3 (Linux).
+If you've downloaded the project from GitHub, you don't need to compile or build anything, everything's provided, ready to go.
+
+To play using your default browser, on Windows double-click on play.bat or on Linux double-click on play (a Bash script).
+Or to use a different browser, go to the public directory and right-click on index.html and use "Open With".
+
+If you do want to build *Get Fluffy!*, you'll need the Inform 6 compiler and either Python or Lua. A makefile is provided:
 * **make clean**, delete game files
 * **make**, compile game files
 
-To play on Windows, using your default browser, double-click on play.bat.
-
-To play on Linux, using your default browser, double-click on play (a Bash script).
-
-Or to use a different browser, go to the public directory and right-click on index.html and use "Open With"
+Compiling without the makefile is simple enough,
+* **inform get-fluffy.inf**
+The more complicated part is converting the .ulx file into JavaScript for Quixe, 2 ways of doing this are provided, sample commands are:
+* **lua game2js.lua get-fluffy.ulx>public/get-fluffy.ulx.js**
+* **python3 public/quixe/tools/game2js.py --giload get-fluffy.ulx>public\get-fluffy.ulx.js**
 
 Some known inconsistencies:
 * Britney doesn't have a smartphone.
