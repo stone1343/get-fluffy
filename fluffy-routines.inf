@@ -7,7 +7,7 @@
   GG_STATUSWIN_ROCK:
    gg_statuswin_size = 3; ! or however many lines you want
  }
- rfalse; ! leaving out this line will lead to a messy crash! 
+ rfalse; ! leaving out this line will lead to a messy crash!
 ];
 
 [ HandleGlkEvent ev context abortres newcmd cmdlen;
