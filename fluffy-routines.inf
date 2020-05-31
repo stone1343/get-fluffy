@@ -694,14 +694,6 @@
  <<Pray>>;
 ];
 
-[ PlughSub;
- if (FlagOff(PLAYER_SAID_PLUGH)) {
-  score++;
-  SetFlag(PLAYER_SAID_PLUGH);
- }
- Nonsense();
-];
-
 ! This eventually becomes 'meta', Kaitlyn realizes she's being manipulated
 [ Nonsense;
 ! if (gg_tbwin == 0) {
@@ -710,7 +702,7 @@
 ! glk_set_window(gg_tbwin);
 ! glk_window_clear(gg_tbwin);
  switch (nonsense_level++) {
-  0: print "Sometimes I say things that make no sense, just for fun... Plugh!";
+  0: print "Sometimes I say things that make no sense, just for fun...";
   1, 2, 3: print (string)random("More nonsense...", "Again with the gibberish...", "There I go again...");
   ! Synonyms for 'nonsense', mostly from http://phrontistery.info/nonsense.html
   4, 5, 6, 7, 8, 9, 10, 11, 12: print (string)random("Hooey!", "Malarkey!", "Poppycock!", "Mumbo-jumbo!", "Jabberwocky!", "Baloney!", "Balderdash!", "Flim-flam!", "Hogwash!");
