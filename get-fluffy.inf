@@ -1,3 +1,9 @@
+!% +language_name=english
+!% +include_path=./,inform6lib/
+!% -SDG
+
+! To optimize -~SG
+! For debug, -SDG
 
 !----------------------------------------------------------------------------
 ! Banner defines Story, Headline, Release and Serial

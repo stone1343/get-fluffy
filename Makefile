@@ -1,5 +1,5 @@
 
-INFORM = inform +include_path=./,inform6lib/
+INFORM = inform
 INF = get-fluffy.inf fluffy-classes.inf fluffy-rooms.inf fluffy-people.inf fluffy-objects.inf fluffy-routines.inf
 ULX = get-fluffy.ulx
 # OS means it's Windows
@@ -15,9 +15,8 @@ endif
 
 all: $(ULX) $(JS)
 
-# ToDo: Optimize, use flags -~SG
 $(ULX): $(INF)
-	$(INFORM) -SDG get-fluffy.inf
+	$(INFORM) get-fluffy.inf
 
 # Build the .js for Quixe
 $(JS): $(ULX)
