@@ -6306,9 +6306,8 @@ Object  InformLibrary "(Inform Library)"
             if (gg_scriptstr ~= 0)
                 glk_window_set_echo_stream(gg_mainwin, gg_scriptstr);
         }
-
-        gg_statuswin = glk_window_open($12, gg_statuswin_cursize,
-           4, GG_STATUSWIN_ROCK);
+        gg_statuswin = glk_window_open(gg_mainwin, $12,
+           gg_statuswin_cursize, 4, GG_STATUSWIN_ROCK);
         if (statuswin_current && gg_statuswin)
             MoveCursor(); else MainWindow();
     }
