@@ -8,7 +8,7 @@ Hopefully an entry in [IFComp 2020](https://ifcomp.org/).
 [Play now on GitHub Pages](https://stone1343.github.io/get-fluffy/public/index.html) (Desktop browser recommended)
 
 *Get Fluffy!* seems to work on iOS or Android, but I think you'll have a better experience on a modern desktop browser.
-It is not intended to be played with Glulxe -- it will not work properly, but more importantly, you won't get the proper experience.
+It is not designed to be played with Glulxe or Lectrote -- it will not work properly, but more importantly, you won't get the intended experience.
 
 If you've downloaded the project from GitHub, you don't need to compile or build anything, everything's provided, ready to go.
 
@@ -28,5 +28,5 @@ The more complicated part is converting the .ulx file into JavaScript for Quixe,
 
 Some known inconsistencies:
 * Britney doesn't have a smartphone.
-* Why does it seem like you're entering every room for the first time? Do you have amnesia? No, it just seems to fit the paradigm of IF games.
+* Why does it seem like you're entering every room for the first time? Do you have amnesia? No, it just seems to fit the IF paradigm.
 * Britney moves between floors without using the elevator as if there were stairs, but there are none.
