@@ -5,7 +5,11 @@
 [ InitGlkWindow winrock;
  switch (winrock) {
   GG_STATUSWIN_ROCK:
-   gg_statuswin_size = 3; ! or however many lines you want
+   #Ifdef DEBUG;
+    gg_statuswin_size = 4;
+   #Ifnot;
+    gg_statuswin_size = 3;
+   #Endif;
  }
  rfalse; ! leaving out this line will lead to a messy crash!
 ];
@@ -50,64 +54,6 @@
 ![ LanguageTimeOfDay hh mm;
 ! print hh/10, hh%10, ":", mm/10, mm%10;
 !];
-
-[ AtXY x y;
- glk_window_move_cursor(gg_statuswin, x, y);
-];
-
-! gg_statuswin is wintype_TextGrid, you can address individual (row, column)
-[ DrawStatusLine width height;
- ! If we have no status window, we must not try to redraw it.
- if (gg_statuswin == 0) return;
- ! If there's no player location, we shouldn't try either.
- if (location == nothing || parent(player) == nothing) return;
- glk_set_window(gg_statuswin);
- glk_window_clear(gg_statuswin);
- glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments+4);
- width = gg_arguments-->0;
- height = gg_arguments-->1;
-
- ! Start drawing statusline, we know its dimensions
- if (location ~= thedark) {
-  ! (row, column) coordinates are weird because the East and West dashes need to be doubled up
-  if (location.nw_to) { AtXY(2, 0); print "@@92"; }
-  if (location.n_to)  { AtXY(3, 0); print "|"; }
-  if (location.ne_to) { AtXY(4, 0); print "/"; }
-
-  if (location.w_to)  { AtXY(1, 1); print "--"; }
-                        AtXY(3, 1); print "O";
-  if (location.e_to)  { AtXY(4, 1); print "--"; }
-
-  if (location.sw_to) { AtXY(2, 2); print "/"; }
-  if (location.s_to)  { AtXY(3, 2); print "|"; }
-  if (location.se_to) { AtXY(4, 2); print "@@92"; }
- }
-
- AtXY(8, 0);
- print (name)location;
- AtXY(8, 1);
- ! Moves (sline2) not displayed
- print "Score:        ", sline1;
- if (minutes_left ~= nothing) {
-  AtXY(8, 2);
-  print "Minutes left: ", minutes_left;
- }
-
- if (call_person ~= nothing && call_room ~= nothing) {
-  AtXY(28, 0);
-  if (telephone has general) print "Telephone";
-  else print "Smartphone";
-  AtXY(28, 1);
-  print (name)call_person, " ", (name)call_room;
- }
- AtXY(28, 2);
- print "kb ", (name)parent(k_boobs), " b ", (name)parent(britney), " bb ", (name)parent(b_boobs), " bar ", (name)britney.ActualRoom();
- if (britney.destination_room ~= nothing) print " bdr ", (name)britney.destination_room;
- print " i ", (name)parent(igor);
- AtXY(40, 0);
- print smartphone.mode, " ", smartphone.move_counter;
- glk_set_window(gg_mainwin);
-];
 
 !----------------------------------------------------------------------------
 ! Initialise
@@ -254,6 +200,77 @@
  ! Story continues with street.initial()
 ];
 
+! gg_statuswin is wintype_TextGrid, you can address individual (row, column)
+! gg_statuswin_size is set in InitGlkWindow above
+[ DrawStatusLine width height i o;
+ ! If we have no status window, we must not try to redraw it.
+ if (gg_statuswin == 0) return;
+ ! If there's no player location, we shouldn't try either.
+ if (location == nothing || parent(player) == nothing) return;
+ glk_set_window(gg_statuswin);
+ glk_window_clear(gg_statuswin);
+ glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments+4);
+ width = gg_arguments-->0;
+ height = gg_arguments-->1;
+ ! Start drawing statusline, we know its dimensions
+ if (location ~= thedark) {
+  ! (row, column) coordinates are weird because the East and West dashes need to be doubled up
+  if (location.nw_to) { AtXY(2, 0); print "@@92"; }
+  if (location.n_to)  { AtXY(3, 0); print "|"; }
+  if (location.ne_to) { AtXY(4, 0); print "/"; }
+
+  if (location.w_to)  { AtXY(1, 1); print "--"; }
+                        AtXY(3, 1); print "O";
+  if (location.e_to)  { AtXY(4, 1); print "--"; }
+
+  if (location.sw_to) { AtXY(2, 2); print "/"; }
+  if (location.s_to)  { AtXY(3, 2); print "|"; }
+  if (location.se_to) { AtXY(4, 2); print "@@92"; }
+ }
+ AtXY(8, 0);
+ #Ifndef DEBUG;
+  print "Location:     ";
+ #Endif;
+ print (name)location;
+ AtXY(8, 1);
+ ! Moves (sline2) not displayed
+ print "Score:        ", sline1;
+ if (minutes_left ~= nothing) {
+  AtXY(8, 2);
+  print "Minutes left: ", minutes_left;
+ }
+ #Ifdef DEBUG;
+   ! Leave 20 spaces, for "Elevator Vestibule  "
+  AtXY(28, 0);
+  for (i=0: i <= LAST_FLAG_USED: i++) {
+   print i, "=";
+   if (FlagOn(i)) print "1 ";
+   else print "0 ";
+  }
+  AtXY(28, 1);
+  print "kb ", (name)parent(k_boobs), " b ", (name)parent(britney), " bb ", (name)parent(b_boobs), " bar ", (name)britney.ActualRoom();
+  if (britney.destination_room ~= nothing) print " bdr ", (name)britney.destination_room;
+  print " i ", (name)parent(igor);
+  AtXY(28, 2);
+  objectloop (o ofclass Disappearing_Object) {
+   print (name)o, " ", o.time_left, " ";
+  }
+  AtXY(28, 3);
+  print "spm ", smartphone.mode, " spmc ", smartphone.move_counter;
+  if (call_person ~= nothing && call_room ~= nothing) {
+   if (telephone has general) print " House phone";
+   else print " Smartphone";
+   print " p ", (name)call_person, " r ", (name)call_room;
+  }
+ #Endif;
+ glk_set_window(gg_mainwin);
+];
+
+! Just a shortcut for moving cursor in status line
+[ AtXY x y;
+ glk_window_move_cursor(gg_statuswin, x, y);
+];
+
 ! Pronoun routines, from http://inform-fiction.org/manual/Answers.pdf
 [ PronounAcc i;
  if (i hasnt animate || i has neuter) print "it";
@@ -269,67 +286,66 @@
 ! else { if (i has female) print "She"; else print "He"; }
 !];
 
-! Printing styles, the ones that aren't used are commented out
+! Scope routines used for parsing grammar
 
-#Ifdef NO_THIS_IS_NOT_DEFINED;
-[ header text;
- glk_set_style(style_Header);
- print (string)text;
- glk_set_style(style_Normal);
+[ Anything o;
+ if (scope_stage == 1) rfalse;
+ if (scope_stage == 2) {
+  objectloop (o ofclass Object) PlaceInScope(o); rtrue;
+ }
+ if (nonsense_level > 0) print "Now ";
+ "I'm talking about things that don't exist.";
 ];
 
-[ subheader text;
- glk_set_style(style_Subheader);
- print (string)text;
- glk_set_style(style_Normal);
+[ Anybody o;
+ if (scope_stage == 1) rfalse;
+ if (scope_stage == 2) {
+  objectloop (o ofclass Person) PlaceInScope(o); rtrue;
+ }
+ if (nonsense_level > 0) print "Part of my nonsense game is";
+ else print "I'm";
+ " making up names of people that don't exist.";
 ];
 
-[ b text;
- glk_set_style(style_Input);
- print (string)text;
- glk_set_style(style_Normal);
-];
+! Printing styles (the style names do not seem to be case-sensitive and seem to be used inconsistently, so style_Normal and Style_normal might both be permissible
+! There's a few more which could be used if needed: style_Header, style_Subheader, style_Input, style_Alert
 
-! Style_alert
-[ red text;
- glk_set_style(style_Alert);
- print (string)text;
- glk_set_style(style_Normal);
-];
-#Endif;
-
+! Anna's font
 [ BritneysVoice text;
  glk_set_style(style_BlockQuote);
  print (string)text;
  glk_set_style(style_Normal);
 ];
 
+! Irene's font
 [ IgorsVoice text;
  glk_set_style(style_Note);
  print (string)text;
  glk_set_style(style_Normal);
 ];
 
-! Jenny, from the song 867-5309
+! Jenny, from the song 867-5309, Nick's font
 [ JennysVoice text;
  glk_set_style(style_User2);
  print (string)text;
  glk_set_style(style_Normal);
 ];
 
+! Monospaced
 [ preformatted text;
  glk_set_style(style_Preformatted);
  print (string)text;
  glk_set_style(style_Normal);
 ];
 
+! Italic
 [ i text;
  glk_set_style(style_Emphasized);
  print (string)text;
  glk_set_style(style_Normal);
 ];
 
-! For things that score a point or are really awesome
+! For things that score a point or are otherwise awesome
 [ blue text;
  glk_set_style(style_User1);
  print (string)text;
@@ -350,12 +366,7 @@
 
 [ NewRoom o;
  move k_boobs to location;
- if (britney.is_following) {
-  move britney to location;
-  move b_boobs to location;
- }
- ! And if you're on the smartphone with Britney, she follows you
- if (call_person == britney) {
+ if ((britney.is_following) || (call_person == britney)) {
   move britney to location;
   move b_boobs to location;
  }
@@ -365,7 +376,7 @@
  objectloop (o ofclass Disappearing_Object) {
   if (o has general) {
    if (parent(o) ofclass Public_Room) {
-    StartTimer(o, 5);
+    StartTimer(o, DISAPPEARING_OBJECT_TIMEOUT);
     give o ~general;
    }
   }
@@ -374,15 +385,13 @@
 
 [ DisrobeTop actor noun;
  if (actor.wearing_top ~= noun) print_ret (string)actor.is, " not wearing the ", (name)actor.wearing_top, ".";
+ if (actor == britney && FlagOff(BRITNEY_KNOWS_ABOUT_FLUFFY)) print_ret (BritneysVoice)"Why are you acting creepy, Katey?";
  actor.wearing_top = nothing;
  give noun ~worn;
  move actor.bra to actor;
  give actor.bra worn;
  if (actor == player) "I take off the ", (name)noun, ".";
- else {
-  if (FlagOff(BRITNEY_KNOWS_ABOUT_FLUFFY)) print_ret (BritneysVoice)"Ok, but... why?";
-  print_ret (BritneysVoice)"Sure, but only to help you get Fluffy back!";
- }
+ else print_ret (BritneysVoice)"Sure, but only to help you get Fluffy back!";
 ];
 
 [ WearTop actor noun;
@@ -396,27 +405,6 @@
  else {
   print_ret (BritneysVoice)"Thanks, I feel a little less naked now!";
  }
-];
-
-! Used for parsing grammar
-
-[ Anything * o;
- if (scope_stage == 1) rfalse;
- if (scope_stage == 2) {
-  objectloop (o ofclass Object) PlaceInScope(o); rtrue;
- }
- if (nonsense_level > 0) print "Now ";
- "I'm trying to take things that don't exist.";
-];
-
-[ Anybody * o;
- if (scope_stage == 1) rfalse;
- if (scope_stage == 2) {
-  objectloop (o ofclass Person) PlaceInScope(o); rtrue;
- }
- if (nonsense_level > 0) print "Part of my nonsense game is";
- else print "I'm";
- " making up names of people that don't exist.";
 ];
 
 ! Originally from DM4, modified to return an integer
@@ -491,18 +479,12 @@
  }
  ! 411 and 911
  if (dialed_number == 411 or 911) {
-  if (FlagOff(PLAYER_DIALED_911)) {
-   score++;
-   SetFlag(PLAYER_DIALED_911);
-  }
+  ScoreFlag(PLAYER_DIALED_911);
   print_ret (preformatted)"External calls are not allowed.";
  }
  ! 867-5309
  if (dialed_number == 8675309) {
-  if (FlagOff(PLAYER_DIALED_8675309)) {
-   score++;
-   SetFlag(PLAYER_DIALED_8675309);
-  }
+  ScoreFlag(PLAYER_DIALED_8675309);
   print_ret (JennysVoice)"Hi, this is Jenny, you know what to do!";
  }
  ! Three-digits
@@ -538,24 +520,26 @@
  print_ret (preformatted)"Please hang up and try your call again.";
 ];
 
-[ ComeHereSub;
- if (actor == player) rfalse;
-];
-
-[ FollowMeSub;
- if (actor == player) rfalse;
-];
-
-! Stop following
-[ StayHereSub;
- if (actor == player) rfalse;
-];
-
 [ HangUpSub;
  if (~~(OnPhone())) "No call active at the moment.";
  print "~Bye, ", (name)call_person, ".~^";
  EndCall(call_person);
  rtrue;
+];
+
+[ ComeHereSub;
+ ! The actual code is in Igor or Britney
+ if (actor == player) rfalse;
+];
+
+[ FollowMeSub;
+ ! The actual code is in Igor or Britney
+ if (actor == player) rfalse;
+];
+
+[ StayHereSub;
+ ! The actual code is in Igor or Britney
+ if (actor == player) rfalse;
 ];
 
 [ KnockSub;
@@ -569,9 +553,17 @@
  smartphone.interact();
  o = Photograph.create(noun);
  if (o == nothing) "Crap, SD card is full.";
- if (noun == player) "I take a selfie.";
- else if (noun == britney or igor) "I take a picture of ", (name)noun,".";
- else "I take a picture of the secret message on the laptop.";
+ switch (noun) {
+  britney, igor:
+   print "I take a picture of ", (name)noun,".^";
+   if ((noun == britney) && (noun.wearing_top == nothing)) print_ret (BritneysVoice)"^You can send that to those Russian scumbags if you want, I'm not shy!";
+   else rtrue;
+  laptop: "I take a picture of the message on the laptop.";
+  kaitlyn:
+   if (o.wearing_top == nothing) "It's not like I don't already have a ton of topless photos of myself!";
+   "I take a selfie.";
+  default: "I missed programming ", (name)noun, ".";
+ }
 ];
 
 ! Previous
@@ -590,33 +582,47 @@
  else "Nothing happens.";
 ];
 
-[ ShareSub o toplessPhoto itsBritney;
- toplessPhoto = false;
- itsBritney = false;
+! Can only send to Britney or the Russians, photos can only be of Fluffy, Kaitlyn, Britney, Igor or the laptop
+[ ShareSub o;
  if ((smartphone notin player) || (smartphone.mode ~= MODE_PHOTOS)) "Share what?";
+ if (noun == igor) "You don't know Igor's cell number.";
+ if (noun == player) "I can't send to myself.";
  smartphone.interact();
  ! Find current photo
  objectloop (o ofclass Photograph) {
   if (o.number == current_photo) {
-   if (o.subject == britney or kaitlyn) {
-    if (o.wearing_top == nothing) {
-     toplessPhoto = true;
-     if (o.subject == britney) itsBritney = true;
+   if (noun == britney) {
+    switch (o.subject) {
+     fluffy: "I've probably sent her a bajillion photos of Fluffy!";
+     igor: "She probably doesn't care about a photo of Igor, but why not?";
+     laptop:
+      print "Maybe she can help me figure out ";
+      if (FlagOff(PLAYER_KNOWS_MESSAGE)) "what this means!";
+      "how to get to the basement!";
+     kaitlyn, britney:
+      print "She'll like this ";
+      if (o.wearing_top == nothing) print "topless ";
+      print "photo of ";
+      if (o.subject == kaitlyn) "me.";
+      "herself.";
+     default: "I missed programming ", (name)noun, ".";
     }
    }
-  }
- }
- switch (noun) {
-  igor: "You don't know Igor's phone number.";
-  britney: "Britney will like this photo.";
-  anonymous:
-   if (toplessPhoto) {
-    if (itsBritney) deadflag = 3;
-    else deadflag = 4;
+   else {
+    switch (o.subject) {
+     fluffy, igor: "This is *NOT* the photo they wanted, maybe it'll piss them off!";
+     laptop: "I decide not to reveal what I know.";
+     kaitlyn, britney:
+      if (o.wearing_top == nothing) {
+       if (o.subject == britney) deadflag = 3;
+       else deadflag = 4;
+      }
+      "No, I'm not gonna give them anything unless it helps me!";
+     default: "I missed programming ", (name)noun, ".";
+    }
    }
-   "This is *NOT* the photo they wanted, maybe it'll piss them off!";
-  kaitlyn: "I can't send to myself.";
-  default: "I missed programming ", (name)noun, ".";
+   break;
+  }
  }
 ];
 
@@ -631,7 +637,7 @@
   I think I heard one guy call the other one Vlad. Maybe Igor can tell me something about them.";
 ];
 
-! Hints, which will guide you to the most desirable outcome, arresting the fucking Russian scumbags
+! Hints, which will guide you to the most desirable outcome, arresting the Russian scumbags
 [ ThinkSub;
  ! ToDo: Any other possible improvements?
  ! Guide user to the preferred ending, even if you've taken a topless photo or have lost the master key
@@ -639,16 +645,16 @@
  if (FlagOff(PLAYER_KNOWS_ABOUT_RUSSIANS)) "Maybe I should explore the hotel a little more.";
  if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) "Would Igor help if he knew Fluffy's been dognapped?";
  if (FlagOff(PLAYER_KNOWS_ABOUT_202)) "Maybe Igor could tell me something about this Vlad guy.";
- if (FlagOff(PLAYER_HAS_SEEN_MESSAGE)) {
-  if ((parent(master_key) == thedark or roof) || (parent(master_key) ofclass Hotel_Room)) ConsiderSendingPhoto();
-  if (master_key notin player) "I need a master key to get into the Russians' room.";
+ if (FlagOff(PLAYER_HAS_SEEN_LAPTOP)) {
+  if ((parent(master_key) == nothing or roof) || parent(master_key) ofclass Hotel_Room) ConsiderSendingPhoto();
+  if (master_key notin player) "I need a key to get into the Russians' room.";
   if (location ~= room_202) "I'm sure I could find some evidence in the Russians' room.";
   "I wish I was more observant!";
  }
- if (FlagOff(PLAYER_HAS_PHOTOGRAPHED_MESSAGE)) "I should record what the message says.";
+ if (FlagOff(PLAYER_HAS_PHOTOGRAPHED_LAPTOP)) "I should record what the message says.";
  if (FlagOff(PLAYER_KNOWS_MESSAGE)) "Igor's Ukrainian, maybe he can translate the message.";
  ! At this point, you know where Fluffy is
- if ((parent(master_key) == thedark or roof) || (parent(master_key) ofclass Hotel_Room)) ConsiderSendingPhoto();
+ if ((parent(master_key) == nothing or roof) || parent(master_key) ofclass Hotel_Room) ConsiderSendingPhoto();
  if (master_key notin player) "I need the master key to get into the basement.";
  "Time to go rescue Fluffy!";
 ];
@@ -662,10 +668,10 @@
 [ HelpSub;
  glk_set_style(style_Preformatted);
  switch (help_level++) {
-  0: print "ToDo, about IF and some commands, people and subjects...";
+  0: print "Welcome to ToDo, about IF and some commands, people and subjects...";
   default:
    print "Sometimes, if you think carefully, some insight might come to you.";
-   if (((parent(master_key) == nothing) || (parent(smartphone) == nothing)) && (FlagOff(PLAYER_SAID_XYZZY))) print " Also, magic words have been known to retrieve critical objects that have been lost.";
+   if (((parent(master_key) == nothing) || (parent(smartphone) == nothing)) && FlagOff(PLAYER_SAID_XYZZY)) print " Also, magic words have been known to retrieve critical objects that have been lost.";
  }
  glk_set_style(style_Normal);
 ];
@@ -673,8 +679,7 @@
 ! Reference to 'xyzzy' in The Colossal Cave, if you've lost the master key and/or your smartphone, you can get them back!
 [ XyzzySub itDidSomething;
  if (FlagOff(PLAYER_SAID_XYZZY)) {
-  score++;
-  SetFlag(PLAYER_SAID_XYZZY);
+  ScoreFlag(PLAYER_SAID_XYZZY);
   itDidSomething = false;
   if (parent(master_key) == nothing) {
    move master_key to location;
@@ -688,7 +693,7 @@
    print " my smartphone";
    itDidSomething = true;
   }
-  if (itDidSomething) print_ret " appeared. ", (char)magic;
+  if (itDidSomething) print_ret " appeared!!! ", (char)magic;
  }
  ! "Nothing happens"
  <<Pray>>;
@@ -764,6 +769,13 @@
    print " Fluffy came second in his class in the dog show, but after what happened that weekend, I didn't care!";
   7:
    print "I ran out of time, but fortunately, hotel staff found Fluffy and returned him to me! The scumbag Russians got away";
+ }
+];
+
+[ ScoreFlag flag;
+ if (FlagOff(flag)) {
+  SetFlag(flag);
+  score++;
  }
 ];
 

@@ -7,12 +7,12 @@ Public_Room street "Las Vegas Blvd."
     CurrentTime();
     hh = date_array-->4;
     print "It's a ";
-    if ((hh >= 6) && (hh < 12)) print "beautiful morning";
-    else if ((hh >= 12) && (hh < 18)) print "hot afternoon";
-    else if ((hh >= 18) && (hh < 21)) print "warm evening";
-    else print "cool night";
-    if (FlagOff(PLAYER_KNOWS_ABOUT_FLUFFY)) " and I'm in the middle of Las Vegas! I look up and down the street and think to myself how exciting it is to be here.";
-    else " but I need to focus on getting Fluffy!";
+    if ((hh >= 6) && (hh < 12)) print "beautiful morning ";
+    else if ((hh >= 12) && (hh < 18)) print "hot afternoon ";
+    else if ((hh >= 18) && (hh < 21)) print "warm evening ";
+    else print "cool night ";
+    if (FlagOff(PLAYER_KNOWS_ABOUT_FLUFFY)) "and I'm in the middle of Las Vegas! I look up and down the street and think to myself how exciting it is to be here.";
+    else "but I need to focus on getting Fluffy!";
    }
    rtrue;
   ],
@@ -71,43 +71,6 @@ Public_Room casino "Casino"
   e_to elevator_vestibule,
   s_to restaurant;
 
-Object -> slot_machine "slot machine"
- with
-  name 'slot' 'machine',
-  description [ n o;
-   print "It has a lot of flashing lights";
-   n = 0;
-   objectloop (o ofclass Token) {
-    if (o in self) n++;
-   }
-   if (n > 0) {
-    if (n == 1) print " and a token";
-    else print " and ", n, " tokens";
-    print " in the tray";
-   }
-   ".";
-  ],
-  before [;
-   Receive:
-    if (noun ofclass Token) {
-     if (FlagOff(PLAYER_PLAYED_TOKEN)) {
-      score++;
-      SetFlag(PLAYER_PLAYED_TOKEN);
-     }
-     remove noun;
-     print "There's even more flashing lights and beeping sounds for a few seconds, then ";
-     ! 50% win rate is mentioned in Igor's intro
-     if (random(2) == 1) {
-      move noun to self;
-      "a ~clunk~ sound. ", (blue)"Oooh, I think I won!!! ", (char)smiley;
-     }
-     remove noun;
-     "nothing. Well, that wasn't much fun!";
-    }
-    "You're not really clear on how a slot machine works, are you?";
-  ]
- has scenery container open;
-
 Public_Room restaurant "Restaurant"
  with
   initial [;
@@ -122,7 +85,7 @@ Public_Room restaurant "Restaurant"
 Public_Room nightclub "Nightclub"
  with
   initial [;
-   if (self hasnt visited) "This is a nightclub, it's loud and crowded with all kinds of seedy people, my favourite kind of place.";
+   if (self hasnt visited) "This is a nightclub, it's loud and crowded with all kinds of seedy people, not my favourite kind of place.";
    rtrue;
   ],
   !description "I can go north or west.",
@@ -333,30 +296,6 @@ Hotel_Room room_202 "Room 202"
   floor_number 2,
   room_number 202;
 
-Disappearing_Object -> laptop "laptop"
- with
-  name 'laptop' 'computer',
-  initial [;
-   if (FlagOff(PLAYER_HAS_SEEN_MESSAGE)) "There's a laptop here and it's on!";
-   rtrue;
-  ],
-  description [;
-   if (FlagOff(PLAYER_HAS_SEEN_MESSAGE)) {
-    SetFlag(PLAYER_HAS_SEEN_MESSAGE);
-    print "There's a message on the laptop that I can't understand! It reads:^";
-    glk_set_style(style_Preformatted);
-    print (char)ucVe, (char)lcEl, (char)lcA, (char)lcDe, ", ";
-    print (char)lcShch, (char)lcYe, (char)lcEn, (char)lcO, (char)lcKa, " ";
-    print (char)lcVe, " ";
-    print (char)lcPe, (char)lcO, (char)lcDe, (char)lcVe, (char)lcA, (char)lcEl, (char)lcYe, ".^";
-    print (char)ucEs, (char)lcYe, (char)lcEr, (char)lcGe, (char)lcYe, (char)lcY, "^";
-    glk_set_style(style_Normal);
-    rtrue;
-   }
-   "There's an incomprehensible message on the laptop.";
-  ],
-  article "Vlad's";
-
 Hotel_Room_Door door_203 "203"
  with
   name '203' '3//',
@@ -436,11 +375,6 @@ Hotel_Room room_207 "Room 207"
   door_out door_207,
   floor_number 2,
   room_number 207;
-
-Token -> copper_token "copper token"
- with
-  name 'copper' 'token',
-  foundFlag PLAYER_FOUND_COPPER_TOKEN;
 
 Hall third_floor "Third Floor"
  with
@@ -553,11 +487,6 @@ Hotel_Room room_306 "Room 306"
   door_out door_306,
   floor_number 3,
   room_number 306;
-
-Token -> silver_token "silver token"
- with
-  name 'silver' 'token',
-  foundFlag PLAYER_FOUND_SILVER_TOKEN;
 
 Hotel_Room_Door door_307 "307"
  with
@@ -701,11 +630,6 @@ Hotel_Room room_407 "Room 407"
   floor_number 4,
   room_number 407;
 
-Token -> platinum_token "platinum token"
- with
-  name 'platinum' 'token',
-  foundFlag PLAYER_FOUND_PLATINUM_TOKEN;
-
 Hall fifth_floor "Fifth Floor"
  with
   name 'fifth' 'floor' 'hall',
@@ -786,11 +710,6 @@ Hotel_Room room_504 "Room 504"
   floor_number 5,
   room_number 504;
 
-Token -> bronze_token "bronze token"
- with
-  name 'bronze' 'token',
-  foundFlag PLAYER_FOUND_BRONZE_TOKEN;
-
 Hotel_Room_Door door_505 "505"
  with
   name '505' '5//',
@@ -854,10 +773,7 @@ Room basement "Basement"
 Room roof "Roof"
  with
   initial [;
-   if (FlagOff(PLAYER_GOT_TO_ROOF)) {
-    score++;
-    SetFlag(PLAYER_GOT_TO_ROOF);
-   }
+   ScoreFlag(PLAYER_GOT_TO_ROOF);
    if (self hasnt visited) "I used the master key to go up to the roof. Being up here reminds me of that scene from The Hangover! But my weekend is *not* gonna be like that!";
    rtrue;
   ],
@@ -877,26 +793,3 @@ Room roof "Roof"
    rtrue;
   ],
   d_to fifth_floor;
-
-Token -> gold_token "gold token"
- with
-  name 'gold' 'token',
-  foundFlag PLAYER_FOUND_GOLD_TOKEN;
-
-! Might expect 'has talkable' for a phone, but this phone is basically a teleporter ;-)
-! Telephone's general means call active
-Object telephone "house phone"
- with
-  name 'telephone' 'house' 'phone' 'receiver',
-  description "It's the hotel's house phone.",
-  found_in lobby room_201 room_202 room_203 room_204 room_205 room_206 room_207 room_301 room_302 room_303 room_304 room_305 room_306 room_307 room_401 room_402 room_403 room_404 room_405 room_406 room_407 room_501 room_502 room_503 room_504 room_505 room_506 room_507,
-  before [;
-   ! If telephone has general, it's the one being used
-   Drop:
-    if ((OnPhone()) && (self has general)) "Don't be rude, you need to hang up first.";
-    move self to location;
-    "I put the receiver back on the hook.";
-   Take:
-    move self to player;
-    "I pick up the receiver and hear a dial tone.";
-  ];

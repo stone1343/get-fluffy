@@ -355,6 +355,7 @@ Global clr_bgstatus = 1;            ! background colour of statusline
 #Endif; ! COLOUR
 Global statuswin_current;           ! if writing to top window
 
+#Ifdef TARGET_ZCODE;
 Constant CLR_CURRENT 0;
 Constant CLR_DEFAULT 1;
 Constant CLR_BLACK   2;
@@ -367,6 +368,20 @@ Constant CLR_CYAN    8;
 Constant CLR_WHITE   9;
 Constant CLR_PURPLE  7;
 Constant CLR_AZURE   8;
+#Ifnot; ! TARGET_GLULX
+Constant CLR_CURRENT -2;
+Constant CLR_DEFAULT -1;
+Constant CLR_BLACK   $000000;
+Constant CLR_RED     $EF0000;
+Constant CLR_GREEN   $00D600;
+Constant CLR_YELLOW  $EFEF00;
+Constant CLR_BLUE    $006BB5;
+Constant CLR_MAGENTA $FF00FF;
+Constant CLR_CYAN    $00EFEF;
+Constant CLR_WHITE   $FFFFFF;
+Constant CLR_PURPLE  $FF00FF;
+Constant CLR_AZURE   $00EFEF;
+#Endif; ! TARGET_
 
 Constant WIN_ALL     0;
 Constant WIN_STATUS  1;
@@ -6281,44 +6296,23 @@ Object  InformLibrary "(Inform Library)"
 ];
 
 #Ifdef COLOUR;
-[ SetColour f b window doclear  i fwd bwd swin;
-    if (window) swin = 5-window; ! 4 for TextGrid, 3 for TextBuffer
-
-    if (clr_on) {
-        fwd = MakeColourWord(f);
-        bwd = MakeColourWord(b);
-        for (i=0 : i<=10: i++) {
-            if (f == CLR_DEFAULT || b == CLR_DEFAULT) { ! remove style hints
-                glk_stylehint_clear(swin, i, 7);
-                glk_stylehint_clear(swin, i, 8);
-            }
-            else {
-                glk_stylehint_set(swin, i, 7, fwd);
-                glk_stylehint_set(swin, i, 8, bwd);
-            }
-        }
-        ! Now re-open the windows to apply the hints
-        if (gg_statuswin) glk_window_close(gg_statuswin, 0);
-
-        if (doclear || ( window ~= 1 && (clr_fg ~= f || clr_bg ~= b) ) ) {
-            glk_window_close(gg_mainwin, 0);
-            gg_mainwin = glk_window_open(0, 0, 0, 3, GG_MAINWIN_ROCK);
-            if (gg_scriptstr ~= 0)
-                glk_window_set_echo_stream(gg_mainwin, gg_scriptstr);
-        }
-        gg_statuswin = glk_window_open(gg_mainwin, $12,
-           gg_statuswin_cursize, 4, GG_STATUSWIN_ROCK);
-        if (statuswin_current && gg_statuswin)
-            MoveCursor(); else MainWindow();
+[ SetColour f b window;
+    if (window == 0) {  ! if setting both together, set reverse
+        clr_fgstatus = b;
+        clr_bgstatus = f;
     }
-
-    if (window ~= 2) {
+    if (window == 1) {
         clr_fgstatus = f;
         clr_bgstatus = b;
     }
-    if (window ~= 1) {
+    if (window == 0 or 2) {
         clr_fg = f;
         clr_bg = b;
+    }
+    if (clr_on) {
+        if (glk_gestalt(gestalt_GarglkText, 0)) {
+            garglk_set_zcolors(f, b);
+        }
     }
 ];
 #Endif; ! COLOUR

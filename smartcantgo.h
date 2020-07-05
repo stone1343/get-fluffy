@@ -103,7 +103,7 @@
 
 !  Print the exits.
 
-    print "You can go only ";
+    print "You can only go ";
     objectloop (i in compass) {
         dest = room.(i.door_dir);
         if (dest) {

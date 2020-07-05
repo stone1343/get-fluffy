@@ -1,13 +1,5 @@
 
-Room_Key k_key "room key" kaitlyn
- class Britney_Object Ownable_Object
- with
-  name 'room' 'key',
-  article "my",
-  owner kaitlyn,
-  key_to_room room_402
- has proper;
-
+! Clothes that Kaitlyn's wearing
 Top yellow_shirt "yellow t-shirt" kaitlyn
  with
   name 'yellow' 'shirt' 'top' 't-shirt',
@@ -24,13 +16,81 @@ Pants skinny_jeans "skinny jeans" kaitlyn
   article "my",
  has worn pluralname;
 
+! Clothes that Britney's wearing
+Top blue_shirt "blue t-shirt" britney
+ with
+  name 'blue' 'shirt' 'top' 't-shirt',
+  description "It's a blue shirt.",
+  invent "Britney's blue shirt",
+  article "Britney's",
+  owner britney
+ has worn;
+
+Pants yoga_pants "yoga pants" britney
+ with
+  name 'yoga' 'pants',
+  description "They're Britney's yoga pants.",
+  article "Britney's",
+ has worn pluralname;
+
 ! Clothes that are initially hidden
-Lingerie k_bra "bra" thedark
+Lingerie k_bra "bra"
  with
   name 'my' 'bra',
   description "I love how my boobs look in this bra.",
   article "my",
  has ~worn;
+
+Lingerie b_bra "bra"
+ with
+  name 'Britney^s' 'bra',
+  description "It's a really sexy bra.",
+  article "Britney's",
+ has ~worn;
+
+! Clothes in hotel rooms
+Top pink_shirt "pink shirt" room_402
+ with
+  name 'pink' 'shirt' 'top' 't-shirt',
+  description "It's that pink shirt I love so much.",
+  article "my",
+  owner kaitlyn
+ has ~worn;
+
+Top green_shirt "green t-shirt" room_403
+ with
+  name 'green' 'shirt' 'top' 't-shirt',
+  description "It Brit's green shirt.",
+  article "Britney's"
+  owner britney
+ has ~worn;
+
+! Room keys
+Room_Key k_key "room key" kaitlyn
+ class Britney_Object Ownable_Object
+ with
+  name 'room' 'key',
+  article "my",
+  owner kaitlyn,
+  key_to_room room_402
+ has proper;
+
+Room_Key b_key "room key" britney
+ with
+  name 'Britney^s' 'room' 'key',
+  article "Britney's",
+  owner britney,
+  key_to_room room_403
+ has proper;
+
+! Not a Room_Key because I shouldn't be able to give it to Britney
+Disappearing_Object master_key "master key" igor
+ class Ownable_Object
+ with
+  name 'master' 'key',
+  description "It has the hotel's logo, but no room number.",
+  article "Igor's",
+  owner igor;
 
 ! Might expect 'has talkable' for a phone, but this phone is basically a teleporter ;-)
 Disappearing_Object smartphone "smartphone" kaitlyn
@@ -139,31 +199,31 @@ Object home_button "Home button" smartphone
  has static;
 
 ! The icons have to be moved to the screen when in MODE_HOME, otherwise removed so you can't interact with them
-Icon messages_icon "Messages icon" thedark
+Icon messages_icon "Messages icon"
  with
   name 'messages',
   mode MODE_MESSAGES,
   label "Messages";
 
-Icon contacts_icon "Contacts icon" thedark
+Icon contacts_icon "Contacts icon"
  with
   name 'contacts',
   mode MODE_CONTACTS,
   label "Contacts";
 
-Icon camera_icon "Camera icon" thedark
+Icon camera_icon "Camera icon"
  with
   name 'camera',
   mode MODE_CAMERA,
   label "Camera";
 
-Icon photos_icon "Photos icon" thedark
+Icon photos_icon "Photos icon"
  with
   name 'photos',
   mode MODE_PHOTOS,
   label "Photos";
 
-Object contact_britney thedark
+Object contact_britney
  with
   name 'Britney',
   before [;
@@ -182,68 +242,112 @@ Object contact_britney thedark
     print_ret (BritneysVoice)"Hey Kaitlyn, what's up?";
   ];
 
-Room_Key b_key "room key" britney
- with
-  name 'Britney^s' 'room' 'key',
-  article "Britney's",
-  owner britney,
-  key_to_room room_403
- has proper;
+! Other objects in various rooms
 
-! Clothes that Britney's wearing
-Top blue_shirt "blue t-shirt" britney
+Object slot_machine "slot machine" casino
  with
-  name 'blue' 'shirt' 'top' 't-shirt',
-  description "It's a blue shirt.",
-  invent "Britney's blue shirt",
-  article "Britney's",
-  owner britney
- has worn;
+  name 'slot' 'machine',
+  description [ n o;
+   print "It has a lot of flashing lights";
+   n = 0;
+   objectloop (o ofclass Token) {
+    if (o in self) n++;
+   }
+   if (n > 0) {
+    if (n == 1) print " and a token";
+    else print " and ", n, " tokens";
+    print " in the tray";
+   }
+   ".";
+  ],
+  before [;
+   Receive:
+    if (noun ofclass Token) {
+     ScoreFlag(PLAYER_PLAYED_TOKEN);
+     remove noun;
+     print "There's even more flashing lights and beeping sounds for a few seconds, then ";
+     ! 50% win rate is mentioned in Igor's intro
+     if (random(2) == 1) {
+      move noun to self;
+      "a ~clunk~ sound. ", (blue)"Oooh, I think I won!!! ", (char)smiley;
+     }
+     remove noun;
+     "nothing. Well, that wasn't much fun!";
+    }
+    "You're not really clear on how a slot machine works, are you?";
+  ]
+ has scenery container open;
 
-Pants yoga_pants "yoga pants" britney
+Object laptop "laptop" room_202
  with
-  name 'yoga' 'pants',
-  description "They're Britney's yoga pants.",
-  article "Britney's",
- has worn pluralname;
+  name 'laptop' 'computer',
+  initial [;
+   if (FlagOff(PLAYER_HAS_SEEN_LAPTOP)) "There's a laptop here and it's on!";
+   rtrue;
+  ],
+  description [;
+   if (FlagOff(PLAYER_HAS_SEEN_LAPTOP)) {
+    SetFlag(PLAYER_HAS_SEEN_LAPTOP);
+    print "There's a message on the laptop that I can't understand! It reads:^";
+    glk_set_style(style_Preformatted);
+    print (char)ucVe, (char)lcEl, (char)lcA, (char)lcDe, ", ";
+    print (char)lcShch, (char)lcYe, (char)lcEn, (char)lcO, (char)lcKa, " ";
+    print (char)lcVe, " ";
+    print (char)lcPe, (char)lcO, (char)lcDe, (char)lcVe, (char)lcA, (char)lcEl, (char)lcYe, ".^";
+    print (char)ucEs, (char)lcYe, (char)lcEr, (char)lcGe, (char)lcYe, (char)lcY, "^";
+    glk_set_style(style_Normal);
+    rtrue;
+   }
+   "There's an incomprehensible message on the laptop.";
+  ],
+  before [;
+   Take:
+    "Better leave it where it is.";
+  ],
+  article "Vlad's";
 
-! Clothes that are initially hidden
-Lingerie b_bra "bra" thedark
+Token copper_token "copper token" room_207
  with
-  name 'Britney^s' 'bra',
-  description "It's a really sexy bra.",
-  article "Britney's",
- has ~worn;
+  name 'copper' 'token',
+  foundFlag PLAYER_FOUND_COPPER_TOKEN;
 
-! Igor has the master key
-Disappearing_Object master_key "master key" igor
- class Ownable_Object
+Token silver_token "silver token" room_306
  with
-  name 'master' 'key',
-  description "It has the hotel's logo, but no room number.",
-  article "Igor's",
-  owner igor;
+  name 'silver' 'token',
+  foundFlag PLAYER_FOUND_SILVER_TOKEN;
 
-! Objects in hotel rooms
-Top pink_shirt "pink shirt" room_402
+Token platinum_token "platinum token" room_407
  with
-  name 'pink' 'shirt' 'top' 't-shirt',
-  description "It's that pink shirt I love so much.",
-  article "my",
-  owner kaitlyn
- has ~worn;
+  name 'platinum' 'token',
+  foundFlag PLAYER_FOUND_PLATINUM_TOKEN;
 
-Top green_shirt "green t-shirt" room_403
+Token bronze_token "bronze token" room_504
  with
-  name 'green' 'shirt' 'top' 't-shirt',
-  description "It Brit's green shirt.",
-  article "Britney's"
-  owner britney
- has ~worn;
+  name 'bronze' 'token',
+  foundFlag PLAYER_FOUND_BRONZE_TOKEN;
 
-Object fluffy "Fluffy" thedark;
-
-! SMS thread with Vladimir Putkin
-Guy anonymous "Anonymous" thedark
+Token gold_token "gold token" roof
  with
-  name 'anonymous';
+  name 'gold' 'token',
+  foundFlag PLAYER_FOUND_GOLD_TOKEN;
+
+! Might expect 'has talkable' for a phone, but this phone is basically a teleporter ;-)
+! Telephone's general means call active
+Object telephone "house phone"
+ with
+  name 'telephone' 'house' 'phone' 'receiver',
+  description "It's an old-style phone, with a numeric keypad and a cord.",
+  found_in lobby room_201 room_202 room_203 room_204 room_205 room_206 room_207 room_301 room_302 room_303 room_304 room_305 room_306 room_307 room_401 room_402 room_403 room_404 room_405 room_406 room_407 room_501 room_502 room_503 room_504 room_505 room_506 room_507,
+  before [;
+   ! If telephone has general, it's the one being used
+   Drop:
+    if ((OnPhone()) && (self has general)) "Don't be rude, you need to hang up first.";
+    move self to location;
+    "I put the receiver back on the hook.";
+   Take:
+    move self to player;
+    "I pick up the receiver and hear a dial tone.";
+  ];
+
+! Just so Fluffy's in the dictionary
+Object fluffy "Fluffy";

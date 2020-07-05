@@ -12,7 +12,7 @@ Class Guy
  class Person
  has male ~female;
 
-! Defines the Drop and Take routines for all objects
+! Defines the Drop and Take routines for all objects, including Disappearing_Objects
 Class General_Object
  with
   before [ o;
@@ -45,14 +45,11 @@ Class General_Object
       }
       ! ToDo: As a disappearing object, it's not correct that they'll stay in the tray forever
       print (blue)" slot machine token! ", (char)smiley;
-      if (FlagOff(self.foundFlag)) {
-       score++;
-       FlagOn(self.foundFlag);
-      }
+      ScoreFlag(self.foundFlag);
      }
     }
     else {
-     print "I picked up ";
+     print "I pick up ";
      if (self ofclass Ownable_Object) print (string)self.article, " ", (name)self;
      else print (the)self;
      print ".";
@@ -66,12 +63,28 @@ Class General_Object
     rtrue;
   ];
 
+! A Disappearing_Object is a special kind of object which disappears if you leave it in a Public_Room
+! Putting it down in Public_Room sets general, which starts the timer when player moves to a new room
+! The code is actually in General_Object, not the greatest OO design
+Class Disappearing_Object
+ class General_Object
+ with
+  time_left,
+  time_out [;
+   give self ~general;
+   remove self;
+  ];
 
+! Objects that Britney can be carrying, i.e. Tops, Room_Keys and Tokens
+Class Britney_Object;
+
+! Clothes and Room_Keys
 Class Ownable_Object
+ class General_Object
  with
   owner,
   initial [;
-   if (self.owner == kaitlyn) print "My";
+   if (self.owner == player) print "My";
    else print (string)self.article;
    print " ", (name)self;
    " is here.";
@@ -84,16 +97,14 @@ Class Ownable_Object
    rtrue;
   ];
 
-! Objects Britney can interact with
-Class Britney_Object;
-
 Class Clothes
+ class Ownable_Object
  with
   list_together 2
  has clothing;
 
 Class Top
- class General_Object Ownable_Object Britney_Object Clothes
+ class Clothes Britney_Object
  with
   before [;
    Disrobe:
@@ -122,20 +133,15 @@ Class Lingerie
    Disrobe: print_ret (preformatted)"Keep it PG-13!";
   ];
 
-! A Disappearing_Object is a special kind of object which disappears if you leave it in a Public_Room
-! Putting it down in Public_room sets general, which starts the timer when player moves to a new room
-Class Disappearing_Object
- class General_Object
+Class Room_Key
+ class Disappearing_Object Britney_Object Ownable_Object
  with
-  time_left,
-  time_out [;
-   give self ~general;
-   remove self;
-  ];
+  description "It has the hotel's logo, but no room number.",
+  list_together 3,
+  key_to_room;
 
-! The logic is mainly in the Disappearing_Object class definition
 Class Token
- class Disappearing_Object
+ class Disappearing_Object Britney_Object
  with
   initial [;
    "Check it out, there's a ", (address)self.&name-->0, " token over there!";
@@ -145,6 +151,49 @@ Class Token
   ],
   foundFlag;
 
+! Dynamically-created photos
+Class Photograph(MAX_PHOTOGRAPHS)
+ with
+  number,
+  subject,
+  wearing_top,
+  description [;
+   switch (self.subject) {
+    fluffy:
+     ScoreFlag(PLAYER_SAW_PHOTO_OF_FLUFFY);
+     print "It's Fluffy, he's s-o-o-o cute, I ";
+     if (FlagOn(PLAYER_KNOWS_ABOUT_FLUFFY)) print "hope I get him back safe soon!!!";
+     else print "love him so much!!!";
+    laptop:
+     if (FlagOn(PLAYER_KNOWS_MESSAGE)) print "It's the Russian email saying that Fluffy is in the basement.";
+     else print "The laptop has a message that I can't understand.";
+    igor: print "It's a photo of Igor.";
+    britney:
+     print "It's a picture of Britney, looking good in a ";
+     if (self.wearing_top) print (name)self.wearing_top;
+     else print "bra";
+     print " and yoga pants.";
+    kaitlyn:
+     print "It's a picture of me in a ";
+     if (self.wearing_top) print (name)self.wearing_top;
+     else print "bra";
+     print " and skinny jeans.";
+     if ((self.wearing_top ~= nothing)) print " It's a cute outfit, isn't it?";
+   }
+  ],
+  create [ o;
+   self.number = MAX_PHOTOGRAPHS - Photograph.remaining();
+   print "Photograph # ", self.number, " of ", MAX_PHOTOGRAPHS - Photograph.remaining();
+   self.subject = o;
+   if (o == player or britney) {
+    self.wearing_top = o.wearing_top;
+    if (self.wearing_top == nothing) SetFlag(PLAYER_TOOK_TOPLESS_PHOTO);
+   }
+   if (o == laptop) SetFlag(PLAYER_HAS_PHOTOGRAPHED_LAPTOP);
+  ]
+ has static;
+
+! Smartphone icons on the Home screen
 Class Icon
  with
   mode,
@@ -164,43 +213,7 @@ Class Icon
   ]
  has static;
 
-! Dynamically created photos
-Class Photograph(MAX_PHOTOGRAPHS)
- with
-  number,
-  subject,
-  wearing_top,
-  description [;
-   switch (self.subject) {
-    fluffy: print "It's Fluffy, he's s-o-o-o cute I love him so much!!!";
-    igor: print "It's a photo of Igor.";
-    britney:
-     print "It's a picture of Britney in a ";
-     if (self.wearing_top) print (name)self.wearing_top;
-     else print "bra";
-     print " and yoga pants.";
-    laptop:
-     if (FlagOn(PLAYER_KNOWS_MESSAGE)) print "It's the Russian email saying that Fluffy is in the basement.";
-     else print "The laptop has a message that I can't understand.";
-    kaitlyn:
-     print "It's a picture of me in a ";
-     if (self.wearing_top) print (name)self.wearing_top;
-     else print "bra";
-     print " and skinny jeans.";
-     if ((self.wearing_top == nothing)) print " I like how my boobs look in this bra.";
-     print " It's a cute outfit, isn't it?";
-   }
-  ],
-  create [ o;
-   self.number = MAX_PHOTOGRAPHS - Photograph.remaining();
-   self.subject = o;
-   if (o == player or britney) {
-    self.wearing_top = o.wearing_top;
-    if (self.wearing_top == nothing) SetFlag(PLAYER_TOOK_TOPLESS_PHOTO);
-   }
-   if (o == laptop) SetFlag(PLAYER_HAS_PHOTOGRAPHED_MESSAGE);
-  ]
- has static;
+! The rest of the classes are for the map/rooms
 
 Class Button
  with
@@ -359,13 +372,6 @@ Class Hotel_Room_Door
    }
   ]
  has ~open locked proper;
-
-Class Room_Key
- class Disappearing_Object Ownable_Object Britney_Object
- with
-  description "It has the hotel's logo, but no room number.",
-  list_together 3,
-  key_to_room;
 
 Class Room
  with

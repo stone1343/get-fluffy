@@ -91,7 +91,7 @@ Girl britney "Britney" room_403
        else print " and ";
       };
       if (o ofclass Ownable_Object) {
-       if (o.owner == kaitlyn) print "my";
+       if (o.owner == player) print "my";
        else print "her";
       }
       else print (string)noun.article;
@@ -179,6 +179,7 @@ Girl britney "Britney" room_403
     print_ret (BritneysVoice)"I love you, Kaitlyn, but not that way.";
   ],
   orders [;
+   ! This is player telling Britney to do something
    Give:
     if (OnPhone(self)) print_ret (BritneysVoice)"Remind me when I see you again.";
     if (noun notin self) print_ret (BritneysVoice)"But, Kaitlyn, I don't have that.";
@@ -190,7 +191,7 @@ Girl britney "Britney" room_403
     print_ret (BritneysVoice)"Ok.";
    Take:
     if (noun in self) print_ret (BritneysVoice)"Kaitlyn, I already have that.";
-    if ((noun ofclass Britney_Object) && (noun in self.ActualRoom())) {
+    if ((noun ofclass Clothes) && (noun in self.ActualRoom())) {
      move noun to self;
      print_ret (BritneysVoice)"Ok.";
     }
@@ -202,6 +203,7 @@ Girl britney "Britney" room_403
     rtrue;
    Disrobe:
     if (~~(self.ActualRoom() ofclass Hotel_Room)) print_ret (BritneysVoice)"I can't undress in public!";
+    ! Britney won't take off her top unless she knows about the demand for a topless photo
     if (FlagOff(BRITNEY_KNOWS_ABOUT_FLUFFY)) print_ret (BritneysVoice)"Why would I do that?";
     if (noun ofclass Top) {
      DisrobeTop(actor, noun);
@@ -320,7 +322,7 @@ Girl britney "Britney" room_403
 Object b_boobs "Britney's boobs"  room_403
  with
   name 'Britney^s' 'boobs' 'Brit^s' 'breasts',
-  description "They're smaller than mine, but still awesome.",
+  description "They're smaller than mine, but still nice.",
   article "Britney's",
   before [;
    Touch, Kiss:
@@ -394,6 +396,7 @@ Guy igor "Igor" lobby
      if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) print_ret (IgorsVoice)"Your dog is very cute, good luck in the dog show!";
      print_ret (IgorsVoice)"Sorry, I don't know anything else about your dog.";
     }
+    if (second == 'master' or 'key') print_ret (IgorsVoice)"Of course, I have a master key that can get me anywhere in the hotel.";
     if (second == 'russians' or 'vlad' or 'vladimir') {
      if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) print_ret (IgorsVoice)"Just between you and me, I hate Russians after what they did to my country.";
      if (FlagOff(PLAYER_KNOWS_ABOUT_202)) {
@@ -420,7 +423,7 @@ Guy igor "Igor" lobby
      }
     }
     if (second == 'message' or 'laptop' or 'computer') {
-     if (FlagOn(PLAYER_HAS_SEEN_MESSAGE)) {
+     if (FlagOn(PLAYER_HAS_SEEN_LAPTOP)) {
       if (FlagOff(PLAYER_KNOWS_MESSAGE)) {
        ! You can't adequately describe the message unless you're looking at the computer
        if (location == room_202) {
@@ -449,7 +452,7 @@ Guy igor "Igor" lobby
     if ((noun == master_key) && (noun in self) && (second == player)) {
      if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) print_ret (IgorsVoice)"Sorry, I'd get in big trouble if I did that.";
      move noun to second;
-     print_ret (IgorsVoice)"Well, you really need to get your dog back, so here you go.";
+     print_ret (IgorsVoice)"I could get in big trouble for this, but maybe it'll help you get your dog back!";
     }
    Take:
     if (noun == master_key) {
@@ -460,3 +463,8 @@ Guy igor "Igor" lobby
    NotUnderstood: print_ret (IgorsVoice)"I don't understand.";
   ]
  has scenery;
+
+! SMS thread with Vladimir Putkin
+Guy anonymous "Anonymous"
+ with
+  name 'anonymous';

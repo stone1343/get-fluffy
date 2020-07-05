@@ -16,7 +16,7 @@ endif
 all: $(ULX) $(JS)
 
 # Compile to .ulx
-$(ULX): $(INF)
+$(ULX): $(INF) newflags.h smartcantgo.h
 	$(INFORM) get-fluffy.inf
 
 # Convert to .js for Quixe

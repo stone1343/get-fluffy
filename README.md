@@ -27,6 +27,6 @@ The more complicated part is converting the .ulx file into JavaScript for Quixe,
 * **python3 public/quixe/tools/game2js.py --giload get-fluffy.ulx>public/get-fluffy.ulx.js**
 
 Some known inconsistencies:
-* Britney doesn't have a smartphone.
 * Why does it seem like you're entering every room for the first time? Do you have amnesia? No, it just seems to fit the IF paradigm.
+* Britney doesn't have a smartphone.
 * Britney moves between floors without using the elevator as if there were stairs, but there are none.
