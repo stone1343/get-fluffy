@@ -28,5 +28,5 @@ The more complicated part is converting the .ulx file into JavaScript for Quixe,
 
 Some known inconsistencies:
 * Why does it seem like you're entering every room for the first time? Do you have amnesia? No, it just seems to fit the IF paradigm.
-* Britney doesn't have a smartphone.
+* Game play suggests Britney must have a smartphone, but she doesn't.
 * Britney moves between floors without using the elevator as if there were stairs, but there are none.

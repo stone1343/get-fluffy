@@ -28,7 +28,7 @@
          url('fonts/AMS.ttf') format('truetype'),
          url('fonts/AMS.svg#AMS') format('svg');
 }
-/* Hacker */
+/* Jenny */
 @font-face {
     font-family: 'NATS';
     src: url('fonts/NATS.eot');
@@ -58,7 +58,7 @@
 }
 
 .BufferWindow {
-  font-family: JMS, Palatino, Georgia, serif;
+  font-family: JMS;
   font-size: 14px;
 }
 
@@ -78,11 +78,11 @@
 }
 
 .BufferWindow .Input {
-  font-family: JMS, serif;
+  font-family: JMS;
 }
 
 .Style_preformatted {
-  font-family: DejaVuSansMono, monospace;
+  font-family: DejaVuSansMono;
   font-size: 14px;
   color: black;
 }
@@ -108,7 +108,7 @@
 
 /* Britney */
 .Style_blockquote {
-  font-family: AMS, serif;
+  font-family: AMS;
   font-size: 20px;
   color: green;
   background: white;
@@ -116,14 +116,14 @@
 
 /* Hacker */
 .Style_user2 {
-  font-family: NATS, serif;
+  font-family: NATS;
   font-size: 20px;
   color: black;
 }
 
 /* Igor */
 .Style_note {
-  font-family: ID, serif;
+  font-family: ID;
   font-style: normal;
   font-size: 16px;
   color: gray;

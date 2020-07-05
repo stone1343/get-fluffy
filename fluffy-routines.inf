@@ -114,74 +114,14 @@
  Pause();
  ClearScreen();
  print "^Omigod, someone took my Fluffy! I gotta get her back!!^";
- #Ifdef NO_THIS_IS_NOT_DEFINED;
- Pause();
- ClearScreen();
- print (header) "header
-  ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  abcdefghijklmnopqrstuvwxyz
-  `1234567890-=
-  ~!#$%&*()_+
-  []{}|;':<>^";
- print (subheader) "subheader
-  ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  abcdefghijklmnopqrstuvwxyz
-  `1234567890-=
-  ~!#$%&*()_+
-  []{}|;':<>^";
- print (b) "bold (input)
-  ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  abcdefghijklmnopqrstuvwxyz
-  `1234567890-=
-  ~!#$%&*()_+
-  []{}|;':<>^";
- print (i) "italic (emphasized)
-  ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  abcdefghijklmnopqrstuvwxyz
-  `1234567890-=
-  ~!#$%&*()_+
-  []{}|;':<>^";
- print (preformatted) "preformatted
-  ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  abcdefghijklmnopqrstuvwxyz
-  `1234567890-=
-  ~!#$%&*()_+
-  []{}|;':<>^";
- print (BritneysVoice) "Britney
-  ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  abcdefghijklmnopqrstuvwxyz
-  `1234567890-=
-  ~!#$%&*()_+
-  []{}|;':<>^";
- print (HackersVoice) "Hacker
-  ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  abcdefghijklmnopqrstuvwxyz
-  `1234567890-=
-  ~!#$%&*()_+
-  []{}|;':<>^";
- print (IgorsVoice) "Igor
-  ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  abcdefghijklmnopqrstuvwxyz
-  `1234567890-=
-  ~!#$%&*()_+
-  []{}|;':<>^";
- print (blue) "blue
-  ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  abcdefghijklmnopqrstuvwxyz
-  `1234567890-=
-  ~!#$%&*()_+
-  []{}|;':<>^";
- print (red) "red
-  ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  abcdefghijklmnopqrstuvwxyz
-  `1234567890-=
-  ~!#$%&*()_+
-  []{}|;':<>^";
- glk_set_style(style_Preformatted);
- print (char)ucA, (char)ucBe, (char)ucVe, (char)ucGe, (char)ucDe, (char)ucYe, (char)ucYo, (char)ucZhe, (char)ucZe, (char)ucI, (char)ucY, (char)ucKa, (char)ucEl, (char)ucEm, (char)ucEn, (char)ucO, (char)ucPe, (char)ucEr, (char)ucEs, (char)ucTe, (char)ucU, (char)ucF, (char)ucKha, (char)ucTse, (char)ucChe, (char)ucSh, (char)ucShch, (char)ucHard, (char)ucBI, (char)ucSoft, (char)ucE, (char)ucYu, (char)ucYa, "^";
- print (char)lcA, (char)lcBe, (char)lcVe, (char)lcGe, (char)lcDe, (char)lcYe, (char)lcYo, (char)lcZhe, (char)lcZe, (char)lcI, (char)lcY, (char)lcKa, (char)lcEl, (char)lcEm, (char)lcEn, (char)lcO, (char)lcPe, (char)lcEr, (char)lcEs, (char)lcTe, (char)lcU, (char)lcF, (char)lcKha, (char)lcTse, (char)lcChe, (char)lcSh, (char)lcShch, (char)lcHard, (char)lcBI, (char)lcSoft, (char)lcE, (char)lcYu, (char)lcYa, "^";
- glk_set_style(style_Normal);
- #Endif;
+ if (0 == 1) {
+  Pause();
+  ClearScreen();
+  glk_set_style(style_Preformatted);
+  print (char)ucA, (char)ucBe, (char)ucVe, (char)ucGe, (char)ucDe, (char)ucYe, (char)ucYo, (char)ucZhe, (char)ucZe, (char)ucI, (char)ucY, (char)ucKa, (char)ucEl, (char)ucEm, (char)ucEn, (char)ucO, (char)ucPe, (char)ucEr, (char)ucEs, (char)ucTe, (char)ucU, (char)ucF, (char)ucKha, (char)ucTse, (char)ucChe, (char)ucSh, (char)ucShch, (char)ucHard, (char)ucBI, (char)ucSoft, (char)ucE, (char)ucYu, (char)ucYa, "^";
+  print (char)lcA, (char)lcBe, (char)lcVe, (char)lcGe, (char)lcDe, (char)lcYe, (char)lcYo, (char)lcZhe, (char)lcZe, (char)lcI, (char)lcY, (char)lcKa, (char)lcEl, (char)lcEm, (char)lcEn, (char)lcO, (char)lcPe, (char)lcEr, (char)lcEs, (char)lcTe, (char)lcU, (char)lcF, (char)lcKha, (char)lcTse, (char)lcChe, (char)lcSh, (char)lcShch, (char)lcHard, (char)lcBI, (char)lcSoft, (char)lcE, (char)lcYu, (char)lcYa, "^";
+  glk_set_style(style_Normal);
+ }
  Pause();
  ClearScreen();
 
@@ -307,49 +247,49 @@
  " making up names of people that don't exist.";
 ];
 
-! Printing styles (the style names do not seem to be case-sensitive and seem to be used inconsistently, so style_Normal and Style_normal might both be permissible
-! There's a few more which could be used if needed: style_Header, style_Subheader, style_Input, style_Alert
+! Printing styles (the style names do not seem to be case-sensitive and seem to be used inconsistently, but they're used here the way they're defined in get-fluffy.css
+! There's a few more which could be used if needed: Style_header, Style_subheader, Style_input, Style_alert
 
-! Anna's font
+! AMS's font
 [ BritneysVoice text;
- glk_set_style(style_BlockQuote);
+ glk_set_style(Style_blockquote);
  print (string)text;
- glk_set_style(style_Normal);
+ glk_set_style(Style_normal);
 ];
 
-! Irene's font
+! ID's font
 [ IgorsVoice text;
- glk_set_style(style_Note);
+ glk_set_style(Style_note);
  print (string)text;
- glk_set_style(style_Normal);
+ glk_set_style(Style_normal);
 ];
 
-! Jenny, from the song 867-5309, Nick's font
+! Jenny, from the song 867-5309, NATS's font
 [ JennysVoice text;
- glk_set_style(style_User2);
+ glk_set_style(Style_user2);
  print (string)text;
- glk_set_style(style_Normal);
+ glk_set_style(Style_normal);
 ];
 
 ! Monospaced
 [ preformatted text;
- glk_set_style(style_Preformatted);
+ glk_set_style(Style_preformatted);
  print (string)text;
- glk_set_style(style_Normal);
+ glk_set_style(Style_normal);
 ];
 
 ! Italic
 [ i text;
- glk_set_style(style_Emphasized);
+ glk_set_style(Style_emphasized);
  print (string)text;
- glk_set_style(style_Normal);
+ glk_set_style(Style_normal);
 ];
 
 ! For things that score a point or are otherwise awesome
 [ blue text;
- glk_set_style(style_User1);
+ glk_set_style(Style_user1);
  print (string)text;
- glk_set_style(style_Normal);
+ glk_set_style(Style_normal);
 ];
 
 ! Utility routines
