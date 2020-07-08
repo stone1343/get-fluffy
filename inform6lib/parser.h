@@ -355,7 +355,6 @@ Global clr_bgstatus = 1;            ! background colour of statusline
 #Endif; ! COLOUR
 Global statuswin_current;           ! if writing to top window
 
-#Ifdef TARGET_ZCODE;
 Constant CLR_CURRENT 0;
 Constant CLR_DEFAULT 1;
 Constant CLR_BLACK   2;
@@ -368,20 +367,20 @@ Constant CLR_CYAN    8;
 Constant CLR_WHITE   9;
 Constant CLR_PURPLE  7;
 Constant CLR_AZURE   8;
-#Ifnot; ! TARGET_GLULX
-Constant CLR_CURRENT -2;
-Constant CLR_DEFAULT -1;
-Constant CLR_BLACK   $000000;
-Constant CLR_RED     $EF0000;
-Constant CLR_GREEN   $00D600;
-Constant CLR_YELLOW  $EFEF00;
-Constant CLR_BLUE    $006BB5;
-Constant CLR_MAGENTA $FF00FF;
-Constant CLR_CYAN    $00EFEF;
-Constant CLR_WHITE   $FFFFFF;
-Constant CLR_PURPLE  $FF00FF;
-Constant CLR_AZURE   $00EFEF;
-#Endif; ! TARGET_
+
+#Ifdef TARGET_GLULX;
+Array GlulxColourValues
+    --> -2
+        -1
+        $000000
+        $EF0000
+        $00D600
+        $EFEF00
+        $006BB5
+        $FF00FF
+        $00EFEF
+        $FFFFFF;
+#Endif; ! TARGET_GLULX
 
 Constant WIN_ALL     0;
 Constant WIN_STATUS  1;
@@ -6311,6 +6310,18 @@ Object  InformLibrary "(Inform Library)"
     }
     if (clr_on) {
         if (glk_gestalt(gestalt_GarglkText, 0)) {
+            if (f >= 0 && f < 10) {
+                f = GlulxColourValues-->f;
+            }
+            else {
+                f = -2
+            }
+            if (b >= 0 && b < 10) {
+                b = GlulxColourValues-->b;
+            }
+            else {
+                b = -2
+            }
             garglk_set_zcolors(f, b);
         }
     }

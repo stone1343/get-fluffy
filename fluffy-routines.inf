@@ -63,17 +63,6 @@
   print "Your browser does not support required time features, try a more recent browser. Thanks for trying to save Fluffy!";
   quit;
  }
- ! As of about 20:00 on 2020-02-18, Unix time = 1,582,074,336 = 0x5E4C89E0 = 0b1011110010011001000100111100000
- !                                                                           0b1111111111111111111111111111111 = 0x7FFF FFFF = 2,147,483,647
- ! which when plugged in to https://www.epochconverter.com/ gives:
- !   Assuming that this timestamp is in seconds:
- !   GMT: Tuesday, January 19, 2038 3:14:07 AM
- !   Your time zone: Monday, January 18, 2038 10:14:07 PM GMT-05:00
- !   Relative: In 18 years
- ! Get time in integer minutes since 1970-01-01 00:00:00
-
- ! Using factor of 60 gives minutes since 1970-01-01, 0x7FFF FFFF will overflow a 32-bit signed integer when Unix time = 0x1D FFFF FFC4 = 6053-01-23
- ! Or another way, 0x7FFF FFFF / 3C = 222 2222, an awfully long time until this overflows
 
  notify_mode = false;
  player = kaitlyn;
@@ -175,9 +164,9 @@
  AtXY(8, 1);
  ! Moves (sline2) not displayed
  print "Score:        ", sline1;
- if (minutes_left ~= nothing) {
+ if (end_time ~= nothing) {
   AtXY(8, 2);
-  print "Minutes left: ", minutes_left;
+  print "Minutes left: ", (end_time - glk_current_simple_time(60));
  }
  #Ifdef DEBUG;
    ! Leave 20 spaces, for "Elevator Vestibule  "
@@ -679,18 +668,20 @@
 ];
 
 [ DeathMessage;
- glk_set_window(gg_statuswin);
- ! Blank out the compass rose
- AtXY(1, 0); spaces 3;
- AtXY(1, 1); spaces 3;
- AtXY(1, 2); spaces 3;
- ! Blank out Location, longest is 'Elevator Vestibule" (18)
- AtXY(20, 0);
- spaces 20;
- ! Blank out Minutes Left
- AtXY(20, 1);
- spaces 2;
- glk_set_window(gg_mainwin);
+ #Ifndef DEBUG;
+  glk_set_window(gg_statuswin);
+  ! Blank out the compass rose
+  AtXY(2, 0); spaces 3;
+  AtXY(1, 1); spaces 5; ! The middle row is 5 wide
+  AtXY(2, 2); spaces 3;
+  ! Blank out Location, longest is 'Elevator Vestibule" (18)
+  AtXY(22, 0);
+  spaces 18;
+  ! Blank out Minutes Left
+  AtXY(22, 2);
+  spaces 2;
+  glk_set_window(gg_mainwin);
+ #Endif;
  switch (deadflag) {
   3:
    print "Britney didn't mind me sending the topless photo of her to the Russians, but it still wasn't something I was happy about doing.

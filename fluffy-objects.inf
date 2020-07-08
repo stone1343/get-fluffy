@@ -152,20 +152,22 @@ Disappearing_Object smartphone "smartphone" kaitlyn
 Object screen "screen" smartphone
  with
   description [ o;
+   ! The various modes use 'print' so that they fall through to the blinking notification light
    switch (smartphone.mode) {
     MODE_OFF: print "It's off.";
     MODE_HOME: print "The screen's got four icons, Messages, Contacts, Camera and Photos.";
     ! Contacts is only for outgoing calls to Britney
     MODE_CONTACTS:
      if (call_person == britney && telephone hasnt general) print "It has a picture of Britney and a Hang Up button.";
-     print "Contacts:^ Britney^^(I need to get more friends!)";
+     else print "Contacts:^ Britney^^(I need to get more friends!)";
     ! Text mode is only to receive the ransom message from anonymous
     MODE_MESSAGES:
      SetFlag(PLAYER_KNOWS_ABOUT_FLUFFY);
-     if (minutes_left == nothing) {
+     if (end_time == nothing) {
       ! End time is just 60 minutes after start time
-      minutes_left = 60;
-      end_time = glk_current_simple_time(60) + minutes_left;
+      ! Using factor of 60 gives minutes since 1970-01-01, 0x7FFF FFFF will overflow a 32-bit signed integer when Unix time = 0x1D FFFF FFC4 = 6053-01-23
+      ! Or another way, 0x7FFF FFFF / 3C = 222 2222, an awfully long time until this overflows
+      end_time = glk_current_simple_time(60) + MAX_TIME;
      }
      print_ret (preformatted)"Message from Anonymous:^We have your dog. If you want it back, send us a topless picture of yourself. You have one hour.";
     MODE_CAMERA: print "Camera's ready to take a photo.";
