@@ -35,7 +35,7 @@ Girl kaitlyn "Kaitlyn" street
   ],
  has concealed proper transparent;
 
-! Obviously Kaitlyn's boobs go everywhere she does
+! Obviously Kaitlyn's boobs should go everywhere she does
 Object k_boobs "my boobs"  street
  with
   name 'my' 'boobs' 'breasts',
@@ -318,7 +318,7 @@ Girl britney "Britney" room_403
   ]
  has transparent; ! Transparent so you can see her clothes
 
-! Obviously Britney's boobs go everywhere she does
+! Obviously Britney's boobs should go everywhere she does
 Object b_boobs "Britney's boobs"  room_403
  with
   name 'Britney^s' 'boobs' 'Brit^s' 'breasts',

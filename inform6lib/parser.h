@@ -54,8 +54,8 @@
 
 System_file;
 
-#Ifndef LIBRARY_STAGE;	! This file is the first one to define LIBRARY_STAGE.
-		! "This file already included" <=> "LIBRARY_STAGE exists"
+#Ifndef LIBRARY_STAGE;              ! This file is the first one to define LIBRARY_STAGE.
+                                    ! "This file already included" <=> "LIBRARY_STAGE exists"
 
 ! ------------------------------------------------------------------------------
 
@@ -828,7 +828,7 @@ Class  SelfClass
         number 0,
         narrative_voice 2,
         narrative_tense PRESENT_TENSE,
-	nameless true,
+        nameless true,
         posture 0,
         before_implicit [;Take: return 2;],
   has   concealed animate proper transparent;
@@ -1100,7 +1100,7 @@ Object  InformParser "(Inform Parser)"
 
 [ GetNthChar a_buffer n i;
     for (i = 0: a_buffer->(2+i) == ' ': i++) {
-	if (i > a_buffer->(1)) return false;
+        if (i > a_buffer->(1)) return false;
     }
     return a_buffer->(2+i+n);
 ];
@@ -1137,7 +1137,7 @@ Object  InformParser "(Inform Parser)"
 
 [ GetNthChar a_buffer n i;
     for (i = 0: a_buffer->(4+i) == ' ': i++) {
-	if (i > a_buffer->(1)) return false;
+        if (i > a_buffer->(1)) return false;
     }
     return a_buffer->(4+i+n);
 ];
@@ -1573,9 +1573,9 @@ Object  InformParser "(Inform Parser)"
 #Ifdef INFIX;
     ! An Infix verb is a special kind of meta verb.  We mark them here.
     if (GetNthChar(buffer, 0) == ';')
-	infix_verb = true;
+        infix_verb = true;
     else
-	infix_verb = false;
+        infix_verb = false;
 #Endif;
 
   .ReParse;
@@ -1718,7 +1718,7 @@ Object  InformParser "(Inform Parser)"
 
         if (i == 1) {
             results-->0 = action;
-            results-->1 = 0;		! Number of parameters
+            results-->1 = 0;        ! Number of parameters
             results-->2 = noun;
             results-->3 = second;
             if (noun) results-->1 = 1;
@@ -2235,7 +2235,7 @@ Object  InformParser "(Inform Parser)"
                 if (inferfrom ~= 0 && no_infer_message == false) {
                     print "("; PrintCommand(inferfrom); print ")^";
                 }
-		no_infer_message = false;
+                no_infer_message = false;
 
                 ! ...copy the action number, and the number of parameters...
 
@@ -2850,11 +2850,11 @@ Constant UNLIT_BIT  =  32;
         l = NounDomain(actors_location, actor, token);
         if (l == REPARSE_CODE) return l;                  ! Reparse after Q&A
         if ((metaclass(l) == Class || metaclass(l) == Object) && l ~= 1 && l notin actor && token == MULTIHELD_TOKEN or MULTIEXCEPT_TOKEN) {
-	    if (ImplicitTake(l)) {
-		etype = NOTHELD_PE;
-		jump FailToken;
-	    }
-	}
+            if (ImplicitTake(l)) {
+                etype = NOTHELD_PE;
+                jump FailToken;
+            }
+        }
 
         if (indef_wanted == 100 && l == 0 && number_matched == 0)
             l = 1;  ! ReviseMulti if TAKE ALL FROM empty container
@@ -5111,7 +5111,7 @@ Object  InformLibrary "(Inform Library)"
                     (i == 1 && inp1 ~= 0) ||
                     (i == 2 && inp1 ~= 0 && inp2 ~= 0)) {
 
-		    if (actor ~= player) {
+                    if (actor ~= player) {
                          switch (self.actor_act(actor, action, noun, second)) {
                              ACTOR_ACT_ABORT_NOTUNDERSTOOD: jump begin__action;
                              default: jump turn__end;
@@ -5254,26 +5254,26 @@ Object  InformLibrary "(Inform Library)"
 
             #Iftrue (Grammar__Version == 1);
             if ((meta || BeforeRoutines() == false) && action < 256) {
-		#Ifdef INFIX;
-		if (infix_verb) {
-		    if (BeforeRoutines() == false)
-			ActionPrimitive();
-		} else ActionPrimitive();
-		#Ifnot;
-		ActionPrimitive();
-		#Endif;
-	    }
+                #Ifdef INFIX;
+                if (infix_verb) {
+                    if (BeforeRoutines() == false)
+                        ActionPrimitive();
+                } else ActionPrimitive();
+                #Ifnot;
+                ActionPrimitive();
+                #Endif;
+            }
             #Ifnot;
             if ((meta || BeforeRoutines() == false) && action < 4096) {
-		#Ifdef INFIX;
-		if (infix_verb) {
-		    if (BeforeRoutines() == false)
-			ActionPrimitive();
-		} else ActionPrimitive();
-		#Ifnot;
-		ActionPrimitive();
-		#Endif;
-	    }
+                #Ifdef INFIX;
+                if (infix_verb) {
+                    if (BeforeRoutines() == false)
+                        ActionPrimitive();
+                } else ActionPrimitive();
+                #Ifnot;
+                ActionPrimitive();
+                #Endif;
+            }
             #Endif; ! Grammar__Version
             action = sa; noun = sn; second = ss;
         ],
@@ -5327,8 +5327,8 @@ Object  InformLibrary "(Inform Library)"
 
 [ GameEpilogue;
     if (score ~= last_score) {
-	if (notify_mode == 1) NotifyTheScore();
-	last_score = score;
+        if (notify_mode == 1) NotifyTheScore();
+        last_score = score;
     }
     print "^^    ";
     #Ifdef TARGET_ZCODE;
@@ -6473,22 +6473,22 @@ Object  InformLibrary "(Inform Library)"
             MoveCursor(1, posb);
             print (string) MOVES__TX, sline2;
         }
-	if (width > 53 && width <= 66) {
-	    MoveCursor(1, posb);
-	    #Ifdef NO_SCORE;
-	    print (string) MOVES__TX, sline2;
-	    #Ifnot;
-	    print sline1, "/", sline2;
-	    #Endif;
-	}
-	if (width < 53) {
-	   MoveCursor(1, posc);
-	   #Ifdef NO_SCORE;
-	   print (string) MOVES_S__TX, sline2;
-	   #Ifnot;
-	   print sline1, "/", sline2;
-	   #Endif;
-	}
+        if (width > 53 && width <= 66) {
+            MoveCursor(1, posb);
+            #Ifdef NO_SCORE;
+            print (string) MOVES__TX, sline2;
+            #Ifnot;
+            print sline1, "/", sline2;
+            #Endif;
+        }
+        if (width < 53) {
+            MoveCursor(1, posc);
+            #Ifdef NO_SCORE;
+            print (string) MOVES_S__TX, sline2;
+            #Ifnot;
+            print sline1, "/", sline2;
+            #Endif;
+        }
     }
 
     MainWindow(); ! set_window

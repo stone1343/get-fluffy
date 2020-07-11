@@ -371,12 +371,6 @@
 
 ! o is optional object to to determine if you're on the phone with that person
 [ OnPhone o;
- #Ifdef ADDITIONAL_DEBUGGING;
- print "OnPhone ";
- if (o == nothing ) print "nothing^";
- else print (name)o,"^";
- OutputCallInfo();
- #Endif;
  if (o ~= nothing) return ((call_room ~= nothing) && (call_person == o));
  else return ((call_room ~= nothing) && (call_person ~= nothing));
 ];
@@ -394,9 +388,6 @@
   give telephone general;
   call_person = igor;
   call_room = lobby;
-  #Ifdef ADDITIONAL_DEBUGGING;
-  OutputCallInfo();
-  #Endif;
   give igor concealed;
   move igor to location;
   print_ret (IgorsVoice)"Hello, Front Desk?";
@@ -427,9 +418,6 @@
       give telephone general;
       call_room = o;
       call_person = britney;
-      #Ifdef ADDITIONAL_DEBUGGING;
-      OutputCallInfo();
-      #Endif;
       give britney concealed;
       move britney to location;
       move b_boobs to location;
@@ -663,20 +651,18 @@
 ];
 
 [ DeathMessage;
- #Ifndef DEBUG;
-  glk_set_window(gg_statuswin);
-  ! Blank out the compass rose
-  AtXY(2, 0); spaces 3;
-  AtXY(1, 1); spaces 5; ! The middle row is 5 wide
-  AtXY(2, 2); spaces 3;
-  ! Blank out Location, longest is 'Elevator Vestibule" (18)
-  AtXY(22, 0);
-  spaces 18;
-  ! Blank out Minutes Left
-  AtXY(22, 2);
-  spaces 2;
-  glk_set_window(gg_mainwin);
- #Endif;
+ glk_set_window(gg_statuswin);
+ ! Blank out the compass rose
+ AtXY(2, 0); spaces 3;
+ AtXY(1, 1); spaces 5; ! The middle row is 5 wide
+ AtXY(2, 2); spaces 3;
+ ! Blank out Location, longest is 'Elevator Vestibule" (18)
+ AtXY(22, 0);
+ spaces 18;
+ ! Blank out Minutes Left
+ AtXY(22, 2);
+ spaces 2;
+ glk_set_window(gg_mainwin);
  switch (deadflag) {
   3:
    print "Britney didn't mind me sending the topless photo of her to the Russians, but it still wasn't something I was happy about doing.
@@ -709,5 +695,4 @@
 
 [ ScoreSub;
  "You got ", score, " of ", MAX_SCORE, " bonus points!";
- ! ToDo, enhance for "you have a long way to go", "close" or "congrats"
 ];

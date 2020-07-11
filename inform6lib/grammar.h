@@ -17,9 +17,9 @@
 
 System_file;
 
-#Ifdef		LIBRARY_STAGE;
-#Iffalse	LIBRARY_STAGE >= AFTER_GRAMMAR;	! if not already included
-#Iftrue		LIBRARY_STAGE == AFTER_VERBLIB;	! if okay to include it
+#Ifdef   LIBRARY_STAGE;
+#Iffalse LIBRARY_STAGE >= AFTER_GRAMMAR; ! if not already included
+#Iftrue  LIBRARY_STAGE == AFTER_VERBLIB; ! if okay to include it
 
 ! ------------------------------------------------------------------------------
 !  The "meta-verbs", commands to the game rather than in the game, come first:
@@ -246,7 +246,7 @@ Verb 'drop' 'discard'
     * multiexcept 'on'/'onto' noun              -> PutOn;
 
 Verb 'throw'
-    * noun					-> ThrowAt
+    * noun                                      -> ThrowAt
     * held 'at'/'against'/'on'/'onto' noun      -> ThrowAt;
 
 Verb 'eat'
@@ -576,15 +576,15 @@ Include "infix";
 
 Undef LIBRARY_STAGE; Constant LIBRARY_STAGE = AFTER_GRAMMAR;
 
-#Ifnot;		! LIBRARY_STAGE < AFTER_GRAMMAR but ~= AFTER_VERBLIB
+#Ifnot; ! LIBRARY_STAGE < AFTER_GRAMMAR but ~= AFTER_VERBLIB
 Message "Error: 'verblib' needs to be correctly included before including 'grammar'. This will cause a big number of errors!";
 #Endif;
 
-#Ifnot;		! LIBRARY_STAGE >= AFTER_GRAMMAR : already included
+#Ifnot; ! LIBRARY_STAGE >= AFTER_GRAMMAR : already included
 Message "Warning: 'grammar' included twice; ignoring second inclusion. (Ignore this if this is on purpose.)";
 #Endif;
 
-#Ifnot;		! LIBRARY_STAGE is not defined
+#Ifnot; ! LIBRARY_STAGE is not defined
 Message "Error: 'parser', then 'verblib' need to be correctly included before including 'grammar'. This will cause a big number of errors!";
 #Endif;
 

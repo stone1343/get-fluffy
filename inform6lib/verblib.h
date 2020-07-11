@@ -17,9 +17,9 @@
 
 System_file;
 
-#Ifdef		LIBRARY_STAGE;
-#Iffalse	LIBRARY_STAGE >= AFTER_VERBLIB;	! if not already included
-#Iftrue		LIBRARY_STAGE == AFTER_PARSER;	! if okay to include it
+#Ifdef   LIBRARY_STAGE;
+#Iffalse LIBRARY_STAGE >= AFTER_VERBLIB; ! if not already included
+#Iftrue  LIBRARY_STAGE == AFTER_PARSER;  ! if okay to include it
 
 ! ------------------------------------------------------------------------------
 
@@ -1336,13 +1336,13 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 [ NotifyOffSub; notify_mode = false; L__M(##NotifyOff); ];
 
 [ Places1TallSub;
-	places_style = NEWLINE_BIT+INDENT_BIT+FULLINV_BIT;
-	<Places>;
+    places_style = NEWLINE_BIT+INDENT_BIT+FULLINV_BIT;
+    <Places>;
 ];
 
 [ Places1WideSub;
-	places_style = ENGLISH_BIT+FULLINV_BIT;
-	<Places>;
+    places_style = ENGLISH_BIT+FULLINV_BIT;
+    <Places>;
 ];
 
 [ Places1Sub i j k;
@@ -1372,13 +1372,13 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 ];
 
 [ Objects1TallSub;
-	objects_style = NEWLINE_BIT+INDENT_BIT+FULLINV_BIT;
-	<Objects>;
+    objects_style = NEWLINE_BIT+INDENT_BIT+FULLINV_BIT;
+    <Objects>;
 ];
 
 [ Objects1WideSub;
-	objects_style = ENGLISH_BIT+FULLINV_BIT;
-	<Objects>;
+    objects_style = ENGLISH_BIT+FULLINV_BIT;
+    <Objects>;
 ];
 
 [ Objects1Sub i j f object_count;
@@ -1713,7 +1713,6 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
             if (obj hasnt worn) k++;
     } else
         k = children(s);
-
     if (k < RunRoutines(s, capacity) || (s == player && RoomInSack())) rfalse;
 ];
 
@@ -1749,7 +1748,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
         if (sav_sec) second = sav_sec;
     }
     else {
-	if (no_implicit_actions)
+        if (no_implicit_actions)
             res = 2;
         else
             res = 0;
@@ -2018,7 +2017,6 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
         move noun to player;
         return L__M(##Give, 4, noun);
     }
-
     if (RunLife(second, ##Give)) return;
     L__M(##Give, 3, second);
 ];
@@ -2040,9 +2038,9 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 
 [ EnterSub ancestor j ks;
     if (noun has door || noun in Compass) {
-	if (verb_word == STAND__TX or SIT__TX or LIE__TX)
-	    return L__M(##Enter, 2, noun, verb_word);
-	<<Go noun, actor>>;
+        if (verb_word == STAND__TX or SIT__TX or LIE__TX)
+            return L__M(##Enter, 2, noun, verb_word);
+        <<Go noun, actor>>;
     }
 
     if (actor in noun) return L__M(##Enter, 1, noun);
@@ -2105,7 +2103,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 
     if (noun == nothing) {
         inp1 = p;
-	if (RunRoutines(p, before)) return;
+        if (RunRoutines(p, before)) return;
     }
 
     move actor to parent(p);
@@ -2142,18 +2140,18 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     }
 
     if (noun.door_dir ~= nothing) {
-	thedir = noun.door_dir;
-	if (metaclass(thedir) == Routine)
-	    thedir = RunRoutines(noun, door_dir);
-	next_loc = i.thedir;
+        thedir = noun.door_dir;
+        if (metaclass(thedir) == Routine)
+            thedir = RunRoutines(noun, door_dir);
+        next_loc = i.thedir;
     } else
-	next_loc = noun;
+        next_loc = noun;
 
     k = metaclass(next_loc);
 
     if (k == String) {
-	print (string) next_loc;
-	new_line; rfalse;
+        print (string) next_loc;
+        new_line; rfalse;
     }
 
     if (k == Routine) {
@@ -2355,7 +2353,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 [ LookSub allow_abbrev  visibility_levels i j k nl_flag;
     if (parent(player) == 0) return RunTimeError(10);
 
-  .MovedByInitial;
+    .MovedByInitial;
 
     if (location == thedark) { visibility_ceiling = thedark; NoteArrival(); }
     else {
@@ -2524,7 +2522,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     if (keep_silent || AfterRoutines()) return;
 
     if (noun hasnt container)
-	return L__M(##Open, 5, noun);
+        return L__M(##Open, 5, noun);
 
     if ((noun has container && location ~= thedark && VisibleContents(noun)
          && IndirectlyContains(noun, player)) == 0) {
@@ -3029,16 +3027,16 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 
 Undef LIBRARY_STAGE; Constant LIBRARY_STAGE = AFTER_VERBLIB;
 
-#Ifnot;		! LIBRARY_STAGE < AFTER_VERBLIB but ~= AFTER_PARSER
-			! (this shouldn't happen because if 'parser' isn't there, LIBRARY_STAGE isn't defined)
+#Ifnot; ! LIBRARY_STAGE < AFTER_VERBLIB but ~= AFTER_PARSER
+        ! (this shouldn't happen because if 'parser' isn't there, LIBRARY_STAGE isn't defined)
 Message "Error: 'parser' needs to be correctly included before including 'verblib'. This will cause a big number of errors!";
 #Endif;
 
-#Ifnot;		! LIBRARY_STAGE >= AFTER_VERBLIB: already included
+#Ifnot; ! LIBRARY_STAGE >= AFTER_VERBLIB: already included
 Message "Warning: 'verblib' included twice; ignoring second inclusion. (Ignore this if this is on purpose.)";
 #Endif;
 
-#Ifnot;		! LIBRARY_STAGE is not defined (likely, 'parser' hasn't been included)
+#Ifnot; ! LIBRARY_STAGE is not defined (likely, 'parser' hasn't been included)
 Message "Error: 'parser' needs to be correctly included before including 'verblib'. This will cause a big number of errors!";
 #Endif;
 

@@ -20,8 +20,8 @@
 
 System_file;
 
-#Ifndef LIBRARY_ENGLISH;	! if this file is already included,
-				! don't try to include it again.
+#Ifndef LIBRARY_ENGLISH;            ! if this file is already included,
+                                    ! don't try to include it again.
 
 ! ------------------------------------------------------------------------------
 !   Part I.   Preliminaries
@@ -390,17 +390,17 @@ Constant COMMA__TX      = ", ";
 Constant COLON__TX      = ":";
 
 ! For EnterSub()
-Constant STAND__TX	= 'stand';
-Constant SIT__TX	= 'sit';
-Constant LIE__TX	= 'lie';
+Constant STAND__TX      = 'stand';
+Constant SIT__TX        = 'sit';
+Constant LIE__TX        = 'lie';
 
 Constant LIBERROR__TX   = "Library error ";
 Constant TERP__TX       = "Interpreter ";
 Constant VER__TX        = "Version ";
 Constant STDTERP__TX    = "Standard interpreter ";
-Constant TERPVER__TX	= "Interpreter version ";
-Constant LIBSER__TX	= "Library Serial Number ";
-Constant VM__TX		= "VM ";
+Constant TERPVER__TX    = "Interpreter version ";
+Constant LIBSER__TX     = "Library Serial Number ";
+Constant VM__TX         = "VM ";
 Constant RELEASE__TX    = "Release ";
 Constant SERNUM__TX     = "Serial number ";
 Constant INFORMV__TX    = "Inform v";
@@ -416,12 +416,12 @@ Constant LIBRARYV__TX   = " Library v";
 ! Accusative
 [ ThatOrThose obj;
     if (obj == player) {
-	if (player provides narrative_voice) {
-	    if (player.narrative_voice == 1) { print "me"; return; }
-	    if (player.narrative_voice == 3) { CDefart(player); return; }
-	}
-	print "you";
-	return;
+        if (player provides narrative_voice) {
+            if (player.narrative_voice == 1) { print "me"; return; }
+            if (player.narrative_voice == 3) { CDefart(player); return; }
+        }
+        print "you";
+        return;
     }
     if (obj has pluralname)       { print "those"; return; }
     if (obj has female)           { print "her"; return; }
@@ -433,12 +433,12 @@ Constant LIBRARYV__TX   = " Library v";
 ! Accusative
 [ ItOrThem obj;
     if (obj == player) {
-	if (player provides narrative_voice) {
-	    if (player.narrative_voice == 1) { print "myself"; return; }
-	    if (player.narrative_voice == 3) { CDefart(player); return; }
-	}
-	print "yourself";
-	return;
+        if (player provides narrative_voice) {
+            if (player.narrative_voice == 1) { print "myself"; return; }
+            if (player.narrative_voice == 3) { CDefart(player); return; }
+        }
+        print "yourself";
+        return;
     }
     if (obj has pluralname)       { print "them"; return; }
     if (obj has female)           { print "her"; return; }
@@ -450,17 +450,17 @@ Constant LIBRARYV__TX   = " Library v";
 ! Nominative
 [ CThatOrThose obj;
     if (obj == player) {
-	if (player provides narrative_voice) {
-	    if (player.narrative_voice == 1) { print "I"; return; }
-	    if (player.narrative_voice == 3) { CDefart(player); return; }
-	}
-	print "You";
-	return;
+        if (player provides narrative_voice) {
+            if (player.narrative_voice == 1) { print "I"; return; }
+            if (player.narrative_voice == 3) { CDefart(player); return; }
+        }
+        print "You";
+        return;
     }
-    if (obj has pluralname)		{ print "Those"; return; }
-    if (obj has female)			{ print "She"; return; }
+    if (obj has pluralname)      { print "Those"; return; }
+    if (obj has female)          { print "She"; return; }
     if (obj has male or animate) {
-        if (obj hasnt neuter)		{ print "He"; return; }
+        if (obj hasnt neuter)    { print "He"; return; }
     }
     print "That";
 ];
@@ -468,17 +468,17 @@ Constant LIBRARYV__TX   = " Library v";
 ! Nominative
 [ CTheyreOrThats obj;
     if (obj == player) {
-	if (player provides narrative_voice) {
-	    if (player.narrative_voice == 1) { Tense("I'm", "I was"); return; }
-	    if (player.narrative_voice == 3) { CDefart(player); Tense("'s", " was"); return; }
-	}
-	Tense("You're", "You were");
-	return;
+        if (player provides narrative_voice) {
+            if (player.narrative_voice == 1) { Tense("I'm", "I was"); return; }
+            if (player.narrative_voice == 3) { CDefart(player); Tense("'s", " was"); return; }
+        }
+        Tense("You're", "You were");
+        return;
     }
-    if (obj has pluralname)		{ Tense("They're", "They were"); return; }
-    if (obj has female)			{ Tense("She's", "She was"); return; }
+    if (obj has pluralname)      { Tense("They're", "They were"); return; }
+    if (obj has female)          { Tense("She's", "She was"); return; }
     if (obj has male or animate) {
-        if (obj hasnt neuter)		{ Tense("He's", "He was"); return; }
+        if (obj hasnt neuter)    { Tense("He's", "He was"); return; }
     }
     Tense("That's", "That was");
 ];
@@ -512,22 +512,22 @@ Constant LIBRARYV__TX   = " Library v";
             }
             else {print (the) obj, " ", (string) v3; return;}
     }
-   else
+    else
         if (obj has pluralname) {
-	    if (nocaps)
-		print (the) obj;
-	    else
-		print (The) obj;
-	    print " ", (string) v2;
-	    return;
-	}
+            if (nocaps)
+                print (the) obj;
+            else
+                print (The) obj;
+            print " ", (string) v2;
+            return;
+        }
         else {
-	    if (nocaps)
-		print (the) obj;
-	    else
-		print (The) obj;
-	    print " ", (string) v3; return;
-	}
+            if (nocaps)
+                print (the) obj;
+            else
+                print (The) obj;
+            print " ", (string) v3; return;
+        }
 ];
 
 [ CSubjectVoice obj v1 v2 v3 past;
@@ -569,7 +569,7 @@ Constant LIBRARYV__TX   = " Library v";
           default: RunTimeError(16, player.narrative_voice);
         }
         if (nocaps) { print "you ", (string) v2; return; }
-	print "You ", (string) v2; return;
+        print "You ", (string) v2; return;
     }
     SubjectNotPlayer(obj, reportage, nocaps, v2, v3);
 ];
@@ -601,7 +601,7 @@ Constant LIBRARYV__TX   = " Library v";
         }
         if (nocaps) Tense("you aren't", "you weren't");
         else Tense("You aren't", "You weren't");
-	return;
+        return;
     }
     SubjectNotPlayer(obj, reportage, nocaps, "aren't", "isn't", "wasn't");
 ];
@@ -1107,7 +1107,7 @@ Constant LIBRARYV__TX   = " Library v";
         1:  "(considering the first sixteen objects only)^";
         2:  "Nothing to do.";
         3:  print " "; CSubjectVerb(player, false, false, "died", "have died", "has died");
-	    print " ";
+            print " ";
         4:  print " "; CSubjectVerb(player, false, false, "won", "have won", "has won");
             print " ";
         5:  print "^Would you like to RESTART, RESTORE a saved game";
@@ -1330,33 +1330,33 @@ Constant LIBRARYV__TX   = " Library v";
         2:  DecideAgainst();
     }
   RunTimeError: print "** ";
-	switch (n) {
-	1:  print "Preposition not found (this should not occur)";
-	2:  print "Property value not routine or string: ~", (property) x2,
-		"~ of ~", (name) x1, "~ (", x1, ")";
-	3:  print "Entry in property list not routine or string: ~",
-		(property) x2, "~ list of ~", (name) x1, "~ (", x1, ")";
-	4:  print "Too many timers/daemons are active simultaneously.
-		The limit is the library constant MAX_TIMERS
-		(currently ", MAX_TIMERS, ") and should be increased";
-	5:  print "Object ~", (name) x1, "~ has no ~", (property) x2,
-		"~ property";
-	7:  print "The object ~", (name) x1, "~ can only be used as a player
-		object if it has the ~number~ property";
-	8:  print "Attempt to take random entry from an empty table array";
-	9:  print x1, " is not a valid direction property number";
-	10: print "The player-object is outside the object tree";
-	11: print "The room ~", (name) x1, "~ has no ~", (property) x2,
-		"~ property";
-	12: print "Tried to set a non-existent pronoun using SetPronoun";
-	13: print "A 'topic' token can only be followed by a preposition";
-	14: print "Overflowed buffer limit of ", x1,
-		" using '@@64output_stream 3' ", (string) x2;
-	15: print "LoopWithinObject broken because the object ",
-		(name) x1, " was moved while the loop passed through it.";
-	16: print "Attempt to use illegal narrative_voice of ", x1, ".";
-	default:
-	    print "(unexplained)";
+        switch (n) {
+        1:  print "Preposition not found (this should not occur)";
+        2:  print "Property value not routine or string: ~", (property) x2,
+                "~ of ~", (name) x1, "~ (", x1, ")";
+        3:  print "Entry in property list not routine or string: ~",
+                (property) x2, "~ list of ~", (name) x1, "~ (", x1, ")";
+        4:  print "Too many timers/daemons are active simultaneously.
+                The limit is the library constant MAX_TIMERS
+                (currently ", MAX_TIMERS, ") and should be increased";
+        5:  print "Object ~", (name) x1, "~ has no ~", (property) x2,
+                "~ property";
+        7:  print "The object ~", (name) x1, "~ can only be used as a player
+                object if it has the ~number~ property";
+        8:  print "Attempt to take random entry from an empty table array";
+        9:  print x1, " is not a valid direction property number";
+        10: print "The player-object is outside the object tree";
+        11: print "The room ~", (name) x1, "~ has no ~", (property) x2,
+                "~ property";
+        12: print "Tried to set a non-existent pronoun using SetPronoun";
+        13: print "A 'topic' token can only be followed by a preposition";
+        14: print "Overflowed buffer limit of ", x1,
+                " using '@@64output_stream 3' ", (string) x2;
+        15: print "LoopWithinObject broken because the object ",
+                (name) x1, " was moved while the loop passed through it.";
+        16: print "Attempt to use illegal narrative_voice of ", x1, ".";
+        default:
+            print "(unexplained)";
     }
     print " **";
   Save: switch (n) {
