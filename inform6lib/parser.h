@@ -370,8 +370,8 @@ Constant CLR_AZURE   8;
 
 #Ifdef TARGET_GLULX;
 Array GlulxColourValues
-    --> -2
-        -1
+    --> (-2)
+        (-1)
         $000000
         $EF0000
         $00D600

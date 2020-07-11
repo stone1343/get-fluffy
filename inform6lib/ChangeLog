@@ -7,7 +7,7 @@ verblib.h gets symlinked to Verblib.h and VerbLib.h) -- except on
 Cygwin, where case doesn't seem to matter.
 
 
-Version 6.12.4 (xx May 2020)
+Version 6.12.4 (xx July 2020)
 ============================
 
 This is a maintenance release focusing almost entirely on bug fixes.
@@ -15,21 +15,36 @@ This is a maintenance release focusing almost entirely on bug fixes.
 Bugs fixed
 ----------
 
+* Fixed trouble with doors that go nowhere.
+
+* Moved remaining English messages except for debug messages to english.h
+
+* Fixed a Glulx-specific problem that prevented numbers from being recognized.
+
+* Fixed useless disambiguation messages with female NPCs.
+
+* Inventory styles are now remembered.
+
+* Reworked the SetColour() function to work reliably for both Z-machine
+  and Glulx compilation targets.
+
 
 New features
 ------------
 
-There are now stub functions of AfterSave() and AfterRestore().  If
-defined and return 1, these will preempt the standard success response
-of "Ok.".
+* Added tall and wide options for PLACES and OBJECTS metaverbs.
+
+* There are now stub functions of AfterSave() and AfterRestore().  If
+  defined and return 1, these will preempt the standard success response
+  of "Ok.".
 
 
 Caveats
 -------
-It used to be a bit ambiguous prior to 6.12.x how the "Go" action worked
-in a before rule for a room.  It is now explicitly set such that the
-"Going" action catches the player entering the room and "Go" action
-catches the player leaving the room.
+* It used to be a bit ambiguous prior to 6.12.x how the "Go" action worked
+  in a before rule for a room.  It is now explicitly set such that the
+  "Going" action catches the player entering the room and "Go" action
+  catches the player leaving the room.
 
 
 Version 6.12.3 (12 May 2019)
