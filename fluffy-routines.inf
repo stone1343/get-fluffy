@@ -6,9 +6,9 @@
  switch (winrock) {
   GG_STATUSWIN_ROCK:
    #Ifdef DEBUG;
-    gg_statuswin_size = 4;
+   gg_statuswin_size = 4;
    #Ifnot;
-    gg_statuswin_size = 3;
+   gg_statuswin_size = 3;
    #Endif;
  }
  rfalse; ! leaving out this line will lead to a messy crash!
@@ -102,24 +102,23 @@
  ! Wait for user to press a key
  Pause();
  ClearScreen();
- print "^Omigod, someone took my Fluffy! I gotta get her back!!^";
+ print "^Omigod, someone took my Fluffy! I gotta get him back!!^";
  !#Ifdef DEBUG;
- ! Pause();
- ! ClearScreen();
- ! glk_set_style(style_Preformatted);
- ! print (char)ucA, (char)ucBe, (char)ucVe, (char)ucGe, (char)ucDe, (char)ucYe, (char)ucYo, (char)ucZhe, (char)ucZe, (char)ucI, (char)ucY, (char)ucKa, (char)ucEl, (char)ucEm, (char)ucEn, (char)ucO, (char)ucPe, (char)ucEr, (char)ucEs, (char)ucTe, (char)ucU, (char)ucF, (char)ucKha, (char)ucTse, (char)ucChe, (char)ucSh, (char)ucShch, (char)ucHard, (char)ucBI, (char)ucSoft, (char)ucE, (char)ucYu, (char)ucYa, "^";
- ! print (char)lcA, (char)lcBe, (char)lcVe, (char)lcGe, (char)lcDe, (char)lcYe, (char)lcYo, (char)lcZhe, (char)lcZe, (char)lcI, (char)lcY, (char)lcKa, (char)lcEl, (char)lcEm, (char)lcEn, (char)lcO, (char)lcPe, (char)lcEr, (char)lcEs, (char)lcTe, (char)lcU, (char)lcF, (char)lcKha, (char)lcTse, (char)lcChe, (char)lcSh, (char)lcShch, (char)lcHard, (char)lcBI, (char)lcSoft, (char)lcE, (char)lcYu, (char)lcYa, "^";
- ! glk_set_style(style_Normal);
+ !Pause();
+ !ClearScreen();
+ !glk_set_style(style_Preformatted);
+ !print (char)ucA, (char)ucBe, (char)ucVe, (char)ucGe, (char)ucDe, (char)ucYe, (char)ucYo, (char)ucZhe, (char)ucZe, (char)ucI, (char)ucY, (char)ucKa, (char)ucEl, (char)ucEm, (char)ucEn, (char)ucO, (char)ucPe, (char)ucEr, (char)ucEs, (char)ucTe, (char)ucU, (char)ucF, (char)ucKha, (char)ucTse, (char)ucChe, (char)ucSh, (char)ucShch, (char)ucHard, (char)ucBI, (char)ucSoft, (char)ucE, (char)ucYu, (char)ucYa, "^";
+ !print (char)lcA, (char)lcBe, (char)lcVe, (char)lcGe, (char)lcDe, (char)lcYe, (char)lcYo, (char)lcZhe, (char)lcZe, (char)lcI, (char)lcY, (char)lcKa, (char)lcEl, (char)lcEm, (char)lcEn, (char)lcO, (char)lcPe, (char)lcEr, (char)lcEs, (char)lcTe, (char)lcU, (char)lcF, (char)lcKha, (char)lcTse, (char)lcChe, (char)lcSh, (char)lcShch, (char)lcHard, (char)lcBI, (char)lcSoft, (char)lcE, (char)lcYu, (char)lcYa, "^";
+ !glk_set_style(style_Normal);
  !#Endif;
  Pause();
  ClearScreen();
 
  print "^This is the story of the scariest thing that ever happened to me, it all started
-        with a text message from some Russian thugs, saying they'd taken my cute little dog, Fluffy.
+        with a text message, someone had taken my cute little dog, Fluffy!
         But I'm getting ahead of myself, let me start at the beginning...^";
  banner();
- print "^My name's Kaitlyn, I'm 23 and people tell me I'm cute, but I just feel like a regular girl.
-        I've come to Las Vegas with my best friend, Britney ", (char)love, ", to show my Fluffy ",;
+ print "^My name's Kaitlyn, I've come to Las Vegas with my best friend, Britney ", (char)love, ", to show my Fluffy ",;
  glk_set_style(style_Alert);
  print (char)heart;
  glk_set_style(style_Normal);
@@ -157,6 +156,7 @@
   if (location.se_to) { AtXY(4, 2); print "@@92"; }
  }
  AtXY(8, 0);
+ ! Labels start at column 8, length 14, so values will be printed at 22
  print "Location:     ", (name)location;
  AtXY(8, 1);
  ! Moves (sline2) not displayed
@@ -166,26 +166,26 @@
   print "Minutes left: ", (end_time - glk_current_simple_time(60));
  }
  #Ifdef DEBUG;
-   ! Leave 20 spaces, for "Elevator Vestibule  "
-  AtXY(42, 0);
-  for (i=0: i <= LAST_FLAG_USED: i++) {
-   if (FlagOn(i)) print i, " ";
-  }
-  AtXY(42, 1);
-  print "kb ", (name)parent(k_boobs), " b ", (name)parent(britney), " bb ", (name)parent(b_boobs), " bar ", (name)britney.ActualRoom();
-  if (britney.destination_room ~= nothing) print " bdr ", (name)britney.destination_room;
-  print " i ", (name)parent(igor);
-  AtXY(42, 2);
-  objectloop (o ofclass Disappearing_Object) {
-   if (o.time_left > 0) print (name)o, " ", o.time_left, " ";
-  }
-  AtXY(42, 3);
-  print "spm ", smartphone.mode, " spmc ", smartphone.move_counter;
-  if (call_person ~= nothing && call_room ~= nothing) {
-   if (telephone has general) print " House phone";
-   else print " Smartphone";
-   print " p ", (name)call_person, " r ", (name)call_room;
-  }
+  ! Leave 20 spaces, for "Elevator Vestibule  "
+ AtXY(42, 0);
+ for (i=0: i <= LAST_FLAG_USED: i++) {
+  if (FlagOn(i)) print i, " ";
+ }
+ AtXY(42, 1);
+ print "kb ", (name)parent(k_boobs), " b ", (name)parent(britney), " bb ", (name)parent(b_boobs), " bar ", (name)britney.ActualRoom();
+ if (britney.destination_room ~= nothing) print " bdr ", (name)britney.destination_room;
+ print " i ", (name)parent(igor);
+ AtXY(42, 2);
+ objectloop (o ofclass Disappearing_Object) {
+  if (o.time_left > 0) print (name)o, " ", o.time_left, " ";
+ }
+ AtXY(42, 3);
+ print "spm ", smartphone.mode, " spmc ", smartphone.move_counter;
+ if (call_person ~= nothing && call_room ~= nothing) {
+  if (telephone has general) print " House phone";
+  else print " Smartphone";
+  print " p ", (name)call_person, " r ", (name)call_room;
+ }
  #Endif;
  glk_set_window(gg_mainwin);
 ];
@@ -299,12 +299,22 @@
  ! When you move to a new room, timer starts for all Disappearing_Objects with 'general', i.e. have been dropped in a Public_Room
  objectloop (o ofclass Disappearing_Object) {
   if (o has general) {
-   if (parent(o) ofclass Public_Room) {
+   if ((parent(o) ofclass Public_Room) || (o in slot_machine)) {
     StartTimer(o, DISAPPEARING_OBJECT_TIMEOUT);
     give o ~general;
    }
   }
  }
+];
+
+[ DescribeDay hh;
+ CurrentTime();
+ hh = date_array-->4;
+ print "It's a ";
+ if ((hh >= 6) && (hh < 12)) print "beautiful morning";
+ else if ((hh >= 12) && (hh < 18)) print "hot afternoon";
+ else if ((hh >= 18) && (hh < 21)) print "warm evening";
+ else print "cool night";
 ];
 
 [ DisrobeTop actor noun;
@@ -353,29 +363,11 @@
  return GPR_PREPOSITION;
 ];
 
-! Doesn't print anything, caller is responible for that
-[ EndCall o;
- give o ~concealed;
- move o to call_room;
- if (o == britney) move b_boobs to call_room;
- call_person = nothing;
- call_room = nothing;
- ! If hanging up house phone
- if (telephone has general) give telephone ~general;
- ! Else hanging up smartphone
- else {
-  move contact_britney to screen;
-  smartphone.interact();
- }
-];
-
 ! o is optional object to to determine if you're on the phone with that person
 [ OnPhone o;
  if (o ~= nothing) return ((call_room ~= nothing) && (call_person == o));
  else return ((call_room ~= nothing) && (call_person ~= nothing));
 ];
-
-! Verb routines
 
 [ CallNumberSub hundreds tens ones o;
  if (OnPhone()) "I'm currently on the phone with ", (name)call_person, ".";
@@ -432,8 +424,25 @@
  print_ret (preformatted)"Please hang up and try your call again.";
 ];
 
+! Doesn't print anything, caller is responible for that
+[ EndCall o;
+ give o ~concealed;
+ move o to call_room;
+ if (o == britney) move b_boobs to call_room;
+ call_person = nothing;
+ call_room = nothing;
+ ! If hanging up house phone
+ if (telephone has general) give telephone ~general;
+ ! Else hanging up smartphone
+ else {
+  move contact_britney to screen;
+  smartphone.interact();
+ }
+];
+
 [ HangUpSub;
- if (~~(OnPhone())) "No call active at the moment.";
+ if ((~~OnPhone())) "No call active at the moment.";
+ if ((telephone hasnt general) && (smartphone.mode ~= MODE_CONTACTS)) "How?";
  print "~Bye, ", (name)call_person, ".~^";
  EndCall(call_person);
  rtrue;
@@ -455,7 +464,7 @@
 ];
 
 [ KnockSub;
- if (~~(noun ofclass Door)) "That doesn't really make sense.";
+ if (~~(noun ofclass Door)) "That doesn't make sense.";
 ];
 
 [ PhotographSub o;
@@ -466,15 +475,14 @@
  o = Photograph.create(noun);
  if (o == nothing) "Crap, SD card is full.";
  switch (noun) {
+  kaitlyn:
+   if (o.wearing_top == nothing) "It's not like I don't already have a ton of topless photos of myself!";
+   "I take a selfie.";
   britney, igor:
    print "I take a picture of ", (name)noun,".^";
    if ((noun == britney) && (noun.wearing_top == nothing)) print_ret (BritneysVoice)"^You can send that to those Russian scumbags if you want, I'm not shy!";
    else rtrue;
   laptop: "I take a picture of the message on the laptop.";
-  kaitlyn:
-   if (o.wearing_top == nothing) "It's not like I don't already have a ton of topless photos of myself!";
-   "I take a selfie.";
-  default: "I missed programming ", (name)noun, ".";
  }
 ];
 
@@ -494,10 +502,10 @@
  else "Nothing happens.";
 ];
 
-! Can only send to Britney or the Russians, photos can only be of Fluffy, Kaitlyn, Britney, Igor or the laptop
+! Can only send to Britney or Anonymous, photos can only be of Fluffy, Igor, Kaitlyn, Britney or the laptop
 [ ShareSub o;
  if ((smartphone notin player) || (smartphone.mode ~= MODE_PHOTOS)) "Share what?";
- if (noun == igor) "You don't know Igor's cell number.";
+ if (noun == igor or vlad) "I don't know ", (name)noun, "'s cell number.";
  if (noun == player) "I can't send to myself.";
  smartphone.interact();
  ! Find current photo
@@ -507,30 +515,28 @@
     switch (o.subject) {
      fluffy: "I've probably sent her a bajillion photos of Fluffy!";
      igor: "She probably doesn't care about a photo of Igor, but why not?";
-     laptop:
-      print "Maybe she can help me figure out ";
-      if (FlagOff(PLAYER_KNOWS_MESSAGE)) "what this means!";
-      "how to get to the basement!";
      kaitlyn, britney:
       print "She'll like this ";
       if (o.wearing_top == nothing) print "topless ";
       print "photo of ";
       if (o.subject == kaitlyn) "me.";
       "herself.";
-     default: "I missed programming ", (name)noun, ".";
+     laptop:
+      print "Maybe she can help me figure out ";
+      if (FlagOff(PLAYER_KNOWS_WHERE_FLUFFY_IS)) "what this means!";
+      "how to get to the basement!";
     }
    }
    else {
     switch (o.subject) {
      fluffy, igor: "This is *NOT* the photo they wanted, maybe it'll piss them off!";
-     laptop: "I decide not to reveal what I know.";
      kaitlyn, britney:
       if (o.wearing_top == nothing) {
-       if (o.subject == britney) deadflag = 3;
-       else deadflag = 4;
+       if (o.subject == britney) deadflag = 4;
+       else deadflag = 5;
       }
       "No, I'm not gonna give them anything unless it helps me!";
-     default: "I missed programming ", (name)noun, ".";
+     laptop: "I decide not to reveal what I know.";
     }
    }
    break;
@@ -543,18 +549,16 @@
 ];
 
 [ FlashbackSub;
- SetFlag(PLAYER_KNOWS_ABOUT_RUSSIANS);
- "Hey, I just remembered, when I was in the elevator after checking in, there were two guys checking me out.
-  It was definitely not cool, it was really creepy. They were speaking some eastern European language and laughing at Fluffy and me.
+ SetFlag(PLAYER_HAD_FLASHBACK);
+ "Hey, I just remembered, when I was going up to my room earlier, there were two guys checking me out.
+  It was really creepy. They were speaking some foreign language and laughing at Fluffy and me.
   I think I heard one guy call the other one Vlad. Maybe Igor can tell me something about them.";
 ];
 
-! Hints, which will guide you to the most desirable outcome, arresting the Russian scumbags
+! Hints, which will direct you to the most desirable outcome, arresting the Russian scumbags
 [ ThinkSub;
- ! ToDo: Any other possible improvements?
- ! Guide user to the preferred ending, even if you've taken a topless photo or have lost the master key
- if (FlagOff(PLAYER_KNOWS_ABOUT_FLUFFY)) "I know, I should check my messages.";
- if (FlagOff(PLAYER_KNOWS_ABOUT_RUSSIANS)) "Maybe I should explore the hotel a little more.";
+ if (FlagOff(PLAYER_HAS_SEEN_TEXT)) "I know, I should check my messages.";
+ if (FlagOff(PLAYER_HAD_FLASHBACK)) "Maybe I should explore the hotel a little more.";
  if (FlagOff(IGOR_KNOWS_ABOUT_FLUFFY)) "Would Igor help if he knew Fluffy's been dognapped?";
  if (FlagOff(PLAYER_KNOWS_ABOUT_202)) "Maybe Igor could tell me something about this Vlad guy.";
  if (FlagOff(PLAYER_HAS_SEEN_LAPTOP)) {
@@ -564,7 +568,7 @@
   "I wish I was more observant!";
  }
  if (FlagOff(PLAYER_HAS_PHOTOGRAPHED_LAPTOP)) "I should record what the message says.";
- if (FlagOff(PLAYER_KNOWS_MESSAGE)) "Igor's Ukrainian, maybe he can translate the message.";
+ if (FlagOff(PLAYER_KNOWS_WHERE_FLUFFY_IS)) "Igor's Ukrainian, maybe he can translate the message.";
  ! At this point, you know where Fluffy is
  if ((parent(master_key) == nothing or roof) || parent(master_key) ofclass Hotel_Room) ConsiderSendingPhoto();
  if (master_key notin player) "I need the master key to get into the basement.";
@@ -576,16 +580,21 @@
  "I might have to send the photo to those scumbags.";
 ];
 
-! Everything this prints is "preformatted"
+! Everything this prints is in the computer's voice
 [ HelpSub;
  glk_set_style(style_Preformatted);
  switch (help_level++) {
-  0: print "Welcome to ToDo, about IF and some commands, people and subjects...";
+  0: print "You can walk around by simply saying ~north~, ~south~ or even just ~e~, ~w~, etc.
+            Try interacting with the people in the game with ~ask~, ~tell~, ~show~ or ~give~.
+            If you find objects, you can ~examine~ or ~take~ them and you can check what you're carrying with ~inventory~.";
+  1: print "Your smartphone is very powerful, try using it.";
   default:
-   print "Sometimes, if you think carefully, some insight might come to you.";
+   print "If you think carefully, additional insight might come to you.";
    if (((parent(master_key) == nothing) || (parent(smartphone) == nothing)) && FlagOff(PLAYER_SAID_XYZZY)) print " Also, magic words have been known to retrieve critical objects that have been lost.";
  }
  glk_set_style(style_Normal);
+ new_line;
+ rtrue;
 ];
 
 ! Reference to 'xyzzy' in The Colossal Cave, if you've lost the master key and/or your smartphone, you can get them back!
@@ -665,24 +674,31 @@
  glk_set_window(gg_mainwin);
  switch (deadflag) {
   3:
+   print "After a bit of exploring in the basement, I found Fluffy ";
+   glk_set_style(style_Alert);
+   print (char)heart,(char)heart,(char)heart;
+   glk_set_style(style_Normal);
+   print ", he was s-o-o-o happy to see me!!!";
+   if ((laptop in player) || FlagOn(PLAYER_HAS_PHOTOGRAPHED_LAPTOP)) print " Plus, we had all the evidence we needed to put the Russians in jail for a very long time.";
+   print " Fluffy came second in his class in the dog show, but after what happened that weekend, I didn't care!";
+  4:
    print "Britney didn't mind me sending the topless photo of her to the Russians, but it still wasn't something I was happy about doing.
           Anyway, we got Fluffy back and neither of us will ever forget that weekend!";
-  4:
+  5:
    print "After sending my topless photo to the Russians, they returned Fluffy and immediately posted the photo online.
           I always wanted to be famous, so this wasn't such a bad ending!";
-  5:
-   print "And there, I was shocked to find Fluffy!!! I didn't know enough about ";
-   if (FlagOn(PLAYER_KNOWS_ABOUT_RUSSIANS)) print "the Russians";
-   else print "whoever took him";
-   print" for the police to do anything, but at least I got Fluffy back! Fluffy did well in the dog show and we all returned home safely.";
   6:
-   print "We rescued Fluffy, he was s-o-o-o happy to see me!!!";
-   if (laptop in player) print " Plus, we had all the evidence we needed to put the Russians in jail for a long, long time.";
-   print " Fluffy came second in his class in the dog show, but after what happened that weekend, I didn't care!";
-  7:
-   print "I ran out of time, but fortunately, hotel staff found Fluffy and returned him to me!
-          Apparently the scumbag Russians had him somewhere in the basement of the hotel.
-          We never caught them so they're still out there, telling Donald Trump what do do.";
+   print "I ran out of time, ";
+   if (PLAYER_KNOWS_WHERE_FLUFFY_IS) print "but fortunately hotel staff found Fluffy in the basement and returned him to me!";
+   else {
+    print "apparently the scumbag";
+    if (FlagOn(PLAYER_HAD_FLASHBACK)) print " Russians had Fluffy";
+    else print "s that took Fluffy had him";
+    print " somewhere in the basement, so we got him back safely, which was all that really mattered!";
+   }
+   print " Since we never caught them, ";
+   if (FlagOn(PLAYER_HAD_FLASHBACK)) print "the Russians are still out there, telling Donald Trump what to do.";
+   print "the bad guys are still out there.";
  }
 ];
 

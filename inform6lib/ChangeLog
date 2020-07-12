@@ -41,10 +41,21 @@ New features
 
 Caveats
 -------
+
 * It used to be a bit ambiguous prior to 6.12.x how the "Go" action worked
   in a before rule for a room.  It is now explicitly set such that the
   "Going" action catches the player entering the room and "Go" action
   catches the player leaving the room.
+
+* A bug was reported in which an ambiguous command interrupted with a metaverb
+  would derail the command in progress.  For example, "TAKE" provokes the
+  question "What do you want to take?".  If you then do "TRACE" to turn on
+  parser tracing, the question previously asked is lost.  So then answering
+  with "SWORD", the parser processes that as a verb and says "That's not a verb
+  I recognise.".  After much digging around in the Library and asking for help,
+  I've come to the conclusion that this behavior is unfixable.  The Library
+  could have its own separate mini-parser, but this seems more trouble than
+  it's worth.
 
 
 Version 6.12.3 (12 May 2019)

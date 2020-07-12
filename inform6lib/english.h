@@ -1027,7 +1027,7 @@ Constant LIBRARYV__TX   = " Library v";
         2:  DecideAgainst();
     }
   Kiss:     "Keep your mind on the game.";
-  Listen:   CSubjectVerb(actor,true,false,"hear",0,"hears","heard"); " nothing unexpected.";
+  Listen:   CSubjectVerb(actor, true, false,"hear",0,"hears","heard"); " nothing unexpected.";
   ListMiscellany: switch (n) {
         1:  print " (providing light)";
         2:  print " (which ", (IsOrAre) x1, " closed)";
@@ -1065,14 +1065,14 @@ Constant LIBRARYV__TX   = " Library v";
             "~superbrief~ mode, which always gives short descriptions
              of locations (even if you haven't been there before).";
   Lock: switch (n) {
-        1:  CSubjectDont(x1,true);
+        1:  CSubjectDont(x1, true);
             print " seem to be something ", (theActor) actor;
             Tense(" can", " could");
             " lock.";
-        2:  CSubjectIs  (x1,true); " locked at the moment.";
-        3:  CSubjectWill(actor,true); " first have to close ", (the) x1, ".";
-        4:  CSubjectDont(x1,true); " seem to fit the lock.";
-        5:  CSubjectVerb(actor,false,false,"lock",0,"locks","locked"); " ", (the) x1, ".";
+        2:  CSubjectIs  (x1, true); " locked at the moment.";
+        3:  CSubjectWill(actor, true); " first have to close ", (the) x1, ".";
+        4:  CSubjectDont(x1, true); " seem to fit the lock.";
+        5:  CSubjectVerb(actor, false, false,"lock",0,"locks","locked"); " ", (the) x1, ".";
     }
   Look: switch (n) {
         1:  print " (on ", (the) x1, ")";
@@ -1145,7 +1145,7 @@ Constant LIBRARYV__TX   = " Library v";
         18: print "yourself";
         19: "As good-looking as ever.";
         20: "To repeat a command like ~frog, jump~, just say ~again~, not ~frog, again~.";
-        21: CSubjectCan(actor,true); " hardly repeat that.";
+        21: CSubjectCan(actor, true); " hardly repeat that.";
         22: CSubjectCant(actor, true); " begin with a comma.";
         23: CSubjectVerb(actor, true, false, "seem", "seem", "seems", "seemed");
             print " to want to talk to someone, but I ";
@@ -1156,7 +1156,7 @@ Constant LIBRARYV__TX   = " Library v";
         27: "I didn't understand that sentence.";
         28: print "I only understood you as far as wanting to ";
         29: "I didn't understand that number.";
-        30: CSubjectCant(actor,true); " see any such thing.";
+        30: CSubjectCant(actor, true); " see any such thing.";
         31: CSubjectVerb(actor, true, false, "seem", "seem", "seems", "seemed");
             " to have said too little.";
         32: CSubjectIsnt(actor); " holding that.";
@@ -1164,14 +1164,14 @@ Constant LIBRARYV__TX   = " Library v";
         34: "You can only use multiple objects once on a line.";
         35: "I'm not sure what ~", (address) x1, "~ refers to.";
         36: "You excepted something not included anyway.";
-        37: CSubjectCan(actor,true); " only do that to something animate.";
+        37: CSubjectCan(actor, true); " only do that to something animate.";
             #Ifdef DIALECT_US;
         38: "That's not a verb I recognize.";
             #Ifnot;
         38: "That's not a verb I recognise.";
             #Endif;
         39: "That's not something you need to refer to in the course of this game.";
-        40: CSubjectCant(actor,true); " see ~", (address) x1, "~ (", (the) x2, ") at the moment.";
+        40: CSubjectCant(actor, true); " see ~", (address) x1, "~ (", (the) x2, ") at the moment.";
         41: "I didn't understand the way that finished.";
         42: if (x1 == 0) print "None"; else print "Only ", (number) x1;
             print " of those ";
@@ -1228,20 +1228,20 @@ Constant LIBRARYV__TX   = " Library v";
         10: print " (lost)";
     }
   Open: switch (n) {
-        1:  CSubjectIs  (x1,true);
+        1:  CSubjectIs  (x1, true);
             print " not something ", (theActor) actor;
             Tense(" can open", " could have opened");
             ".";
-        2:  CSubjectVerb(x1,true,false,"seem",0,"seems","seemed"); " to be locked.";
-        3:  CSubjectIs  (x1,true); " already open.";
-        4:  CSubjectVerb(actor,false,false,"open",0,"opens","opened"); print " ", (the) x1;
+        2:  CSubjectVerb(x1, true, false, "seem", 0, "seems", "seemed"); " to be locked.";
+        3:  CSubjectIs  (x1, true); " already open.";
+        4:  CSubjectVerb(actor, false, false, "open", 0, "opens" ,"opened"); print " ", (the) x1;
             Tense(", revealing ", " and revealed ");
                 if (WriteListFrom(child(x1), ENGLISH_BIT+TERSE_BIT+CONCEAL_BIT) == 0) "nothing.";
                 ".";
-        5:  CSubjectVerb(actor,false,false,"open",0,"opens","opened"); " ", (the) x1, ".";
+        5:  CSubjectVerb(actor, false, false, "open", 0, "opens", "opened"); " ", (the) x1, ".";
         6:  "(first opening ", (the) x1, ")";
     }
-  Order:    CSubjectHas(x1,false); " better things to do.";
+  Order:    CSubjectHas(x1, false); " better things to do.";
   Places: switch (n) {
         1:  print (nop) CSubjectVerb(actor, false, false, "have", "have", "has"), " visited";
         2:  ".";

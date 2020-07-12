@@ -133,8 +133,11 @@ Disappearing_Object smartphone "smartphone" kaitlyn
   ],
   interact [;
    if (FlagOff(EXAMINE_SCREEN_NOT_SMARTPHONE)) SetFlag(EXAMINE_SCREEN_NOT_SMARTPHONE);
-   self.move_counter = SMARTPHONE_TIMEOUT;
-   StartDaemon(self);
+   ! When you're on the phone with Britney, the daemon doesn't run, you can talk as long as you want
+   if (call_person ~= britney) {
+    self.move_counter = SMARTPHONE_TIMEOUT;
+    StartDaemon(self);
+   }
   ],
   move_counter 0,
   ! If you're on the phone, the daemon should be stopped
@@ -162,14 +165,14 @@ Object screen "screen" smartphone
      else print "Contacts:^ Britney^^(I need to get more friends!)";
     ! Text mode is only to receive the ransom message from anonymous
     MODE_MESSAGES:
-     SetFlag(PLAYER_KNOWS_ABOUT_FLUFFY);
+     SetFlag(PLAYER_HAS_SEEN_TEXT);
      if (end_time == nothing) {
-      ! End time is just 60 minutes after start time
+      ! End time is 60 minutes from when you see the text message
       ! Using factor of 60 gives minutes since 1970-01-01, 0x7FFF FFFF will overflow a 32-bit signed integer when Unix time = 0x1D FFFF FFC4 = 6053-01-23
       ! Or another way, 0x7FFF FFFF / 3C = 222 2222, an awfully long time until this overflows
       end_time = glk_current_simple_time(60) + MAX_TIME;
      }
-     print_ret (preformatted)"Message from Anonymous:^We have your dog. If you want it back, send us a topless picture of yourself. You have one hour.";
+     print_ret (preformatted)"Anonymous: We have your dog. If you want it back, send us a topless picture of yourself. You have one hour.";
     MODE_CAMERA: print "Camera's ready to take a photo.";
     MODE_PHOTOS:
      objectloop (o ofclass Photograph) if (o.number == current_photo) <Examine o>;
@@ -290,7 +293,7 @@ Object laptop "laptop" room_202
   description [;
    if (FlagOff(PLAYER_HAS_SEEN_LAPTOP)) {
     SetFlag(PLAYER_HAS_SEEN_LAPTOP);
-    print "There's a message on the laptop that I can't understand! It reads:^";
+    print "There's an email on the laptop that I can't understand! It reads:^";
     glk_set_style(style_Preformatted);
     print (char)ucVe, (char)lcEl, (char)lcA, (char)lcDe, ", ";
     print (char)lcShch, (char)lcYe, (char)lcEn, (char)lcO, (char)lcKa, " ";
@@ -300,7 +303,7 @@ Object laptop "laptop" room_202
     glk_set_style(style_Normal);
     rtrue;
    }
-   "There's an incomprehensible message on the laptop.";
+   "There's an incomprehensible email on the laptop.";
   ],
   before [;
    Take:

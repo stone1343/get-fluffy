@@ -6314,13 +6314,13 @@ Object  InformLibrary "(Inform Library)"
                 f = GlulxColourValues-->f;
             }
             else {
-                f = -2
+                f = -2;
             }
             if (b >= 0 && b < 10) {
                 b = GlulxColourValues-->b;
             }
             else {
-                b = -2
+                b = -2;
             }
             garglk_set_zcolors(f, b);
         }

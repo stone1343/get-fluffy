@@ -2,17 +2,11 @@
 Public_Room street "Las Vegas Blvd."
  with
   ! This is the starting location
-  initial [ hh;
+  initial [;
    if (self hasnt visited) {
-    CurrentTime();
-    hh = date_array-->4;
-    print "It's a ";
-    if ((hh >= 6) && (hh < 12)) print "beautiful morning ";
-    else if ((hh >= 12) && (hh < 18)) print "hot afternoon ";
-    else if ((hh >= 18) && (hh < 21)) print "warm evening ";
-    else print "cool night ";
-    if (FlagOff(PLAYER_KNOWS_ABOUT_FLUFFY)) "and I'm in the middle of Las Vegas! I look up and down the street and think to myself how exciting it is to be here.";
-    else "but I need to focus on getting Fluffy!";
+    DescribeDay();
+    if (FlagOff(PLAYER_HAS_SEEN_TEXT)) " and I'm in the middle of Las Vegas! I look up and down the street and think to myself how exciting it is to be here.";
+    else " but I need to focus on getting Fluffy!";
    }
    rtrue;
   ],
@@ -172,7 +166,7 @@ Public_Room elevator "Elevator"
  with
   name 'elevator',
   description [;
-   if (FlagOn(PLAYER_KNOWS_ABOUT_FLUFFY) && FlagOff(PLAYER_KNOWS_ABOUT_RUSSIANS)) TriggerFlashback();
+   if (FlagOn(PLAYER_HAS_SEEN_TEXT) && FlagOff(PLAYER_HAD_FLASHBACK)) TriggerFlashback();
    print "I'm in the hotel's main elevator, on the ";
    switch (self.floor_number) {
     1: print "ground";
@@ -286,7 +280,7 @@ Hotel_Room_Door door_202 "202"
   dir_out n_to,
   before [;
    Unlock, Open, Go:
-    if ((location ofclass Hall) && (parent(britney) ~= location)) "I shouldn't go in there alone.";
+    if ((FlagOn(PLAYER_KNOWS_ABOUT_202)) &&(location ofclass Hall) && (parent(britney) ~= location)) "I shouldn't go in there alone.";
   ];
 
 Hotel_Room room_202 "Room 202"
@@ -757,7 +751,7 @@ Hotel_Room_Door door_507 "507"
 
 Hotel_Room room_507 "Room 507"
  with
-  description "Someone has written ~YOU ARE IN A MAZE OF TWISTY LITTLE PASSAGES, ALL ALIKE!!~ in red paint all over the walls!",
+  description "Gosh, someone has written ~YOU ARE IN A MAZE OF TWISTY LITTLE PASSAGES, ALL ALIKE!!~ in red paint all over the walls, I guess they're not having a good day!",
   sw_to door_507,
   door_out door_507,
   floor_number 5,
@@ -766,8 +760,7 @@ Hotel_Room room_507 "Room 507"
 Room basement "Basement"
  with
   description [;
-   if (FlagOff(PLAYER_KNOWS_MESSAGE)) deadflag = 5;
-   else deadflag = 6;
+   deadflag = 3;
   ];
 
 Room roof "Roof"
@@ -777,16 +770,9 @@ Room roof "Roof"
    if (self hasnt visited) "I used the master key to go up to the roof. Being up here reminds me of that scene from The Hangover! But my weekend is *not* gonna be like that!";
    rtrue;
   ],
-  description [ hh;
-   ! ToDo: Maybe this common code can be made a function?
-   CurrentTime();
-   hh = date_array-->4;
-   print "It's a ";
-   if ((hh >= 6) && (hh < 12)) print "beautiful morning";
-   else if ((hh >= 12) && (hh < 18)) print "hot afternoon";
-   else if ((hh >= 18) && (hh < 21)) print "warm evening";
-   else print "cool night";
-   print ", and ";
+  description [;
+   DescribeDay();
+   print " and ";
    if (britney in location) print "we're";
    else print "I'm";
    print " on the roof of the hotel.";
