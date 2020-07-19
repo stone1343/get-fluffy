@@ -7,7 +7,7 @@ verblib.h gets symlinked to Verblib.h and VerbLib.h) -- except on
 Cygwin, where case doesn't seem to matter.
 
 
-Version 6.12.4 (xx July 2020)
+Version 6.12.4 (18 July 2020)
 ============================
 
 This is a maintenance release focusing almost entirely on bug fixes.
@@ -28,6 +28,9 @@ Bugs fixed
 * Reworked the SetColour() function to work reliably for both Z-machine
   and Glulx compilation targets.
 
+* Fixed an oversight or misfeature wherein a return value of true from a
+  description routine would not cause the parser to stop further
+  processing.
 
 New features
 ------------
@@ -37,7 +40,6 @@ New features
 * There are now stub functions of AfterSave() and AfterRestore().  If
   defined and return 1, these will preempt the standard success response
   of "Ok.".
-
 
 Caveats
 -------
@@ -138,7 +140,6 @@ Bugs fixed
 
 * Faulty OOPS correction partially fixed.
 
-
 Minor changes
 -------------
 
@@ -156,7 +157,6 @@ on bugs reported at http://www.inform-fiction.org/patches/library.html.
 A few significant enhancements have been added as well, mainly having to
 do with an abortive effort to produce Inform 6.40.  An old repository of
 that can be found at https://github.com/DavidGriffith/inform-2006.
-
 
 New features
 ------------
@@ -203,7 +203,6 @@ Z-machine, it is possible to tell if a global is a common property or a
 function.  This is not so with the Glulx VM.  This change goes for both
 Z-machine and Glulx.  For background on how one might use
 parser_inflection, see Section 35 of the DM4.
-
 
 Bugs fixed
 ----------
@@ -694,7 +693,6 @@ New features
 
 Note that this is an experimental feature, and may be modified or
 extended in the light of experience.
-
 
 Bugs fixed
 ----------

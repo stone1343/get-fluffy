@@ -1,7 +1,7 @@
 ! ==============================================================================
 !   VERBLIB:  Front end to standard verbs library.
 !
-!   Supplied for use with Inform 6 -- Release 6.12.4pre -- Serial number 200528
+!   Supplied for use with Inform 6 -- Release 6.12.4 -- Serial number 200718
 !
 !   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2020
 !
@@ -17,9 +17,9 @@
 
 System_file;
 
-#Ifdef   LIBRARY_STAGE;
-#Iffalse LIBRARY_STAGE >= AFTER_VERBLIB; ! if not already included
-#Iftrue  LIBRARY_STAGE == AFTER_PARSER;  ! if okay to include it
+#Ifdef		LIBRARY_STAGE;
+#Iffalse	LIBRARY_STAGE >= AFTER_VERBLIB;	! if not already included
+#Iftrue		LIBRARY_STAGE == AFTER_PARSER;	! if okay to include it
 
 ! ------------------------------------------------------------------------------
 
@@ -1336,13 +1336,13 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 [ NotifyOffSub; notify_mode = false; L__M(##NotifyOff); ];
 
 [ Places1TallSub;
-    places_style = NEWLINE_BIT+INDENT_BIT+FULLINV_BIT;
-    <Places>;
+	places_style = NEWLINE_BIT+INDENT_BIT+FULLINV_BIT;
+	<Places>;
 ];
 
 [ Places1WideSub;
-    places_style = ENGLISH_BIT+FULLINV_BIT;
-    <Places>;
+	places_style = ENGLISH_BIT+FULLINV_BIT;
+	<Places>;
 ];
 
 [ Places1Sub i j k;
@@ -1372,13 +1372,13 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 ];
 
 [ Objects1TallSub;
-    objects_style = NEWLINE_BIT+INDENT_BIT+FULLINV_BIT;
-    <Objects>;
+	objects_style = NEWLINE_BIT+INDENT_BIT+FULLINV_BIT;
+	<Objects>;
 ];
 
 [ Objects1WideSub;
-    objects_style = ENGLISH_BIT+FULLINV_BIT;
-    <Objects>;
+	objects_style = ENGLISH_BIT+FULLINV_BIT;
+	<Objects>;
 ];
 
 [ Objects1Sub i j f object_count;
@@ -1713,6 +1713,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
             if (obj hasnt worn) k++;
     } else
         k = children(s);
+
     if (k < RunRoutines(s, capacity) || (s == player && RoomInSack())) rfalse;
 ];
 
@@ -1748,7 +1749,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
         if (sav_sec) second = sav_sec;
     }
     else {
-        if (no_implicit_actions)
+	if (no_implicit_actions)
             res = 2;
         else
             res = 0;
@@ -2017,6 +2018,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
         move noun to player;
         return L__M(##Give, 4, noun);
     }
+
     if (RunLife(second, ##Give)) return;
     L__M(##Give, 3, second);
 ];
@@ -2038,9 +2040,9 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 
 [ EnterSub ancestor j ks;
     if (noun has door || noun in Compass) {
-        if (verb_word == STAND__TX or SIT__TX or LIE__TX)
-            return L__M(##Enter, 2, noun, verb_word);
-        <<Go noun, actor>>;
+	if (verb_word == STAND__TX or SIT__TX or LIE__TX)
+	    return L__M(##Enter, 2, noun, verb_word);
+	<<Go noun, actor>>;
     }
 
     if (actor in noun) return L__M(##Enter, 1, noun);
@@ -2103,7 +2105,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 
     if (noun == nothing) {
         inp1 = p;
-        if (RunRoutines(p, before)) return;
+	if (RunRoutines(p, before)) return;
     }
 
     move actor to parent(p);
@@ -2140,18 +2142,18 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     }
 
     if (noun.door_dir ~= nothing) {
-        thedir = noun.door_dir;
-        if (metaclass(thedir) == Routine)
-            thedir = RunRoutines(noun, door_dir);
-        next_loc = i.thedir;
+	thedir = noun.door_dir;
+	if (metaclass(thedir) == Routine)
+	    thedir = RunRoutines(noun, door_dir);
+	next_loc = i.thedir;
     } else
-        next_loc = noun;
+	next_loc = noun;
 
     k = metaclass(next_loc);
 
     if (k == String) {
-        print (string) next_loc;
-        new_line; rfalse;
+	print (string) next_loc;
+	new_line; rfalse;
     }
 
     if (k == Routine) {
@@ -2206,6 +2208,8 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     LookSub(1);
 ];
 
+
+
 ! ----------------------------------------------------------------------------
 !   Describing the world.  SayWhatsOn(object) does just that (producing
 !   no text if nothing except possibly "scenery" and "concealed" items are).
@@ -2214,6 +2218,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 !   descriptions as it goes.
 ! ----------------------------------------------------------------------------
 
+
 [ SayWhatsOn descon j f;
     if (descon == parent(player)) rfalse;
     objectloop (j in descon)
@@ -2221,6 +2226,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     if (f == 0) rfalse;
     L__M(##Look, 4, descon);
 ];
+
 
 [ NotSupportingThePlayer o i;
     i = parent(player);
@@ -2231,69 +2237,112 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     }
     rtrue;
 ];
-! modified with the fix for L61122
+
+
+! Determine if something is casually visible.  Includes things on
+! supporters or in open/transparent containers that are scenery.  Static
+! objects are not included.
 [ Locale descin text_without_ALSO text_with_ALSO
-    o p num_objs must_print_ALSO;
-    objectloop (o in descin) give o ~workflag;
-    num_objs = 0;
+    o p num_objs must_print_ALSO x flag;
+
+    objectloop (o in descin) {
+        if (o has scenery && (o has supporter || (o has container && o has open or transparent)) && children(o) > 0) {
+	    flag = 0;
+	    objectloop (x in o) {
+		if (x hasnt scenery && x hasnt concealed)
+		    flag++;
+	    }
+	    if (flag > 0) {
+		if (num_objs == 0)
+		    print "^";
+		else
+		    print " ";
+
+		if (o has supporter)
+		    print "On ", (the) o;
+		else
+		    print "In ", (the) o;
+
+		WriteListFrom(child(o), ENGLISH_BIT+TERSE_BIT+CONCEAL_BIT+ISARE_BIT);
+		print ".";
+		num_objs++;
+	    }
+	}
+    }
+
+    if (num_objs > 0)
+	print "^";
+
     objectloop (o in descin)
-        if (o hasnt concealed && NotSupportingThePlayer(o)) {
-            #Ifndef MANUAL_PRONOUNS;
-            PronounNotice(o);
-            #Endif;
-            if (o has scenery) {
-                if (o has supporter && child(o)) SayWhatsOn(o);
-            }
-            else {
-                give o workflag; num_objs++;
-                p = initial;
-                if ((o has door or container) && o has open && o provides when_open) {
-                    p = when_open; jump Prop_Chosen;
-                }
-                if ((o has door or container) && o hasnt open && o provides when_closed) {
-                    p = when_closed; jump Prop_Chosen;
-                }
-                if (o has switchable && o has on && o provides when_on) {
-                    p = when_on; jump Prop_Chosen;
-                }
-                if (o has switchable && o hasnt on && o provides when_off) {
-                    p = when_off;
-                }
+	give o ~workflag;
+    num_objs = 0;
+    objectloop (o in descin) {
+	if (o hasnt concealed && NotSupportingThePlayer(o)) {
+#Ifndef MANUAL_PRONOUNS;
+	    PronounNotice(o);
+#Endif;
+	    if (o hasnt scenery) {
+		give o workflag;
+		num_objs++;
+		p = initial;
+		if ((o has door or container) && o has open && o provides when_open) {
+		    p = when_open;
+		    jump Prop_Chosen;
+		}
+		if ((o has door or container) && o hasnt open && o provides when_closed) {
+		    p = when_closed;
+		    jump Prop_Chosen;
+		}
+		if (o has switchable && o has on && o provides when_on) {
+		    p = when_on;
+		    jump Prop_Chosen;
+		}
+		if (o has switchable && o hasnt on && o provides when_off)
+		    p = when_off;
+.Prop_Chosen;
+		if (o.&describe && RunRoutines(o, describe)) {
+		    must_print_ALSO = true;
+		    give o ~workflag;
+		    num_objs--;
+		    continue;
+		}
+		if (o.p && (o hasnt moved || p ~= initial)) {
+		    new_line;
+		    PrintOrRun(o, p);
+		    must_print_ALSO = true;
+		    give o ~workflag;
+		    num_objs--;
+		    if (o has supporter && child(o))
+			SayWhatsOn(o);
+		}
+	    }
+	}
+    }
 
-              .Prop_Chosen;
-
-                if (o.&describe && RunRoutines(o, describe)) {
-                    must_print_ALSO = true;
-                    give o ~workflag; num_objs--;
-                    continue;
-                }
-                if (o.p && (o hasnt moved || p ~= initial)) {
-                    new_line;
-                    PrintOrRun(o, p);
-                    must_print_ALSO = true;
-                    give o ~workflag; num_objs--;
-                    if (o has supporter && child(o)) SayWhatsOn(o);
-                }
-            }
-        }
-
-    if (num_objs == 0) return 0;
-
-    if (actor ~= player) give actor concealed;
+    if (num_objs == 0)
+	return 0;
+    if (actor ~= player)
+	give actor concealed;
     if (text_without_ALSO) {
-        new_line;
-        if (must_print_ALSO) print (string) text_with_ALSO, " ";
-        else print (string) text_without_ALSO, " ";
-        WriteListFrom(child(descin),
-          ENGLISH_BIT+RECURSE_BIT+PARTINV_BIT+TERSE_BIT+CONCEAL_BIT+WORKFLAG_BIT);
+	new_line;
+	if (must_print_ALSO)
+	    print (string) text_with_ALSO, " ";
+	else
+	    print (string) text_without_ALSO, " ";
+
+	WriteListFrom(child(descin), ENGLISH_BIT+RECURSE_BIT+PARTINV_BIT+TERSE_BIT+CONCEAL_BIT+WORKFLAG_BIT);
+    } else {
+	if (must_print_ALSO)
+	    L__M(##Look, 5, descin);
+	else
+	    L__M(##Look, 6, descin);
     }
-    else {
-        if (must_print_ALSO) L__M(##Look, 5, descin);
-        else L__M(##Look, 6, descin);
-    }
-    if (actor ~= player) give actor ~concealed;
+    if (actor ~= player)
+	give actor ~concealed;
     return num_objs;
 ];
+
+
 
 ! ----------------------------------------------------------------------------
 !   Looking.  LookSub(1) is allowed to abbreviate long descriptions, but
@@ -2353,7 +2402,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 [ LookSub allow_abbrev  visibility_levels i j k nl_flag;
     if (parent(player) == 0) return RunTimeError(10);
 
-    .MovedByInitial;
+  .MovedByInitial;
 
     if (location == thedark) { visibility_ceiling = thedark; NoteArrival(); }
     else {
@@ -2434,7 +2483,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
         return L__M(##Examine, 2, noun);
     }
     i = PrintOrRun(noun, description);
-    if (i < 2 && noun has switchable) L__M(##Examine, 3, noun);
+    if (i == 0 && noun has switchable) L__M(##Examine, 3, noun);
     AfterRoutines();
 ];
 
@@ -2522,7 +2571,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     if (keep_silent || AfterRoutines()) return;
 
     if (noun hasnt container)
-        return L__M(##Open, 5, noun);
+	return L__M(##Open, 5, noun);
 
     if ((noun has container && location ~= thedark && VisibleContents(noun)
          && IndirectlyContains(noun, player)) == 0) {
@@ -3027,16 +3076,16 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 
 Undef LIBRARY_STAGE; Constant LIBRARY_STAGE = AFTER_VERBLIB;
 
-#Ifnot; ! LIBRARY_STAGE < AFTER_VERBLIB but ~= AFTER_PARSER
-        ! (this shouldn't happen because if 'parser' isn't there, LIBRARY_STAGE isn't defined)
+#Ifnot;		! LIBRARY_STAGE < AFTER_VERBLIB but ~= AFTER_PARSER
+			! (this shouldn't happen because if 'parser' isn't there, LIBRARY_STAGE isn't defined)
 Message "Error: 'parser' needs to be correctly included before including 'verblib'. This will cause a big number of errors!";
 #Endif;
 
-#Ifnot; ! LIBRARY_STAGE >= AFTER_VERBLIB: already included
+#Ifnot;		! LIBRARY_STAGE >= AFTER_VERBLIB: already included
 Message "Warning: 'verblib' included twice; ignoring second inclusion. (Ignore this if this is on purpose.)";
 #Endif;
 
-#Ifnot; ! LIBRARY_STAGE is not defined (likely, 'parser' hasn't been included)
+#Ifnot;		! LIBRARY_STAGE is not defined (likely, 'parser' hasn't been included)
 Message "Error: 'parser' needs to be correctly included before including 'verblib'. This will cause a big number of errors!";
 #Endif;
 
