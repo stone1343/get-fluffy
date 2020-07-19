@@ -1,6 +1,6 @@
 !% +language_name=english
 !% +include_path=./,inform6lib/
-!% -SDGd2s
+!% -~S~DGd2w
 
 ! During development, -SDGd2s
 ! For release to public -~S~DGd2w (2 warnings about i and o not used in DrawStatusLine (fluffy-routines.inf)
