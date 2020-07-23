@@ -539,6 +539,13 @@ Hotel_Room_Door door_402 "402"
 
 Hotel_Room room_402 "Room 402"
  with
+  initial [;
+   if (self hasnt visited) {
+    if (FlagOff(PLAYER_HAS_SEEN_TEXT)) "^~Hey, Fluffy Man...!!!~ Where the heck is Fluffy? I just left him here a few minutes ago!";
+    else "^It's devastating to walk into the room where I left Fluffy, knowing he's gone!";
+   }
+   rtrue;
+  ],
   n_to door_402,
   door_out door_402,
   floor_number 4,
