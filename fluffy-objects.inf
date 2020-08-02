@@ -354,5 +354,19 @@ Object telephone "house phone"
     "I pick up the receiver and hear a dial tone.";
   ];
 
+Object hand_sanitizer "hand sanitizer" lobby
+ with
+  name 'hand' 'sanitizer',
+  description "Thank god there's hand sanitizer here!",
+  before [;
+   Take:
+    if (FlagOn(PLAYER_USED_HAND_SANITIZER)) "No use wasting it all, I'm good already.";
+    SetFlag(PLAYER_USED_HAND_SANITIZER);
+    score++;
+    "I take some hand sanitizer and rub it into my hands. No Covid for me!";
+  ]
+ ! proper so it doesn't say "a hand sanitizer"
+ has proper;
+
 ! Just so Fluffy's in the dictionary
 Object fluffy "Fluffy";

@@ -2,7 +2,7 @@
 INFORM = inform
 INF = get-fluffy.inf fluffy-classes.inf fluffy-rooms.inf fluffy-people.inf fluffy-objects.inf fluffy-routines.inf
 ULX = get-fluffy.ulx
-# OS means it's Windows
+# If OS is defined, then it's Windows
 ifdef OS
   GAME2JS = lua game2js.lua
   JS = public\get-fluffy.ulx.js
