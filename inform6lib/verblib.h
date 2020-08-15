@@ -2521,7 +2521,9 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     if (ObjectIsUntouchable(noun)) return;
     if (noun hasnt lockable)     return L__M(##Unlock, 1, noun);
     if (noun hasnt locked)       return L__M(##Unlock, 2, noun);
-    if (noun.with_key ~= second) return L__M(##Unlock, 3, second);
+    if ((noun.with_key ofclass Object && noun.with_key ~= second) ||
+		(noun.with_key ofclass Routine && noun.with_key() ~= second))
+		return L__M(##Unlock, 3, second);
 
     give noun ~locked;
 
@@ -2534,7 +2536,9 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     if (noun hasnt lockable) return L__M(##Lock, 1, noun);
     if (noun has locked)     return L__M(##Lock, 2 ,noun);
     if (noun has open && ImplicitClose(noun)) return L__M(##Lock, 3, noun);
-    if (noun.with_key ~= second) return L__M(##Lock, 4, second);
+    if ((noun.with_key ofclass Object && noun.with_key ~= second) ||
+		(noun.with_key ofclass Routine && noun.with_key() ~= second))
+		return L__M(##Lock, 4, second);
 
     give noun locked;
     if (AfterRoutines() || keep_silent) return;
