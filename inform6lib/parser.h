@@ -2375,13 +2375,7 @@ Object  InformParser "(Inform Parser)"
     if (etype == NUMBER_PE)     L__M(##Miscellany, 29);
     if (etype == CANTSEE_PE) {  L__M(##Miscellany, 30); oops_from=saved_oops;}
     if (etype == TOOLIT_PE)     L__M(##Miscellany, 31);
-    if (etype == NOTHELD_PE) {
-		if (parent(noun) has container)
-			L__M(##Take, 14, noun);
-		else
-			L__M(##Miscellany, 32, not_holding);
-		oops_from=saved_oops;
-    }
+    if (etype == NOTHELD_PE) {  L__M(##Miscellany, 32, not_holding); oops_from=saved_oops; }
     if (etype == MULTI_PE)      L__M(##Miscellany, 33);
     if (etype == MMULTI_PE)     L__M(##Miscellany, 34);
     if (etype == VAGUE_PE)      L__M(##Miscellany, 35, pronoun_word);
@@ -3065,7 +3059,6 @@ Constant UNLIT_BIT  =  32;
     ! allowing singulars (so that words like "six" are not swallowed up as
     ! Descriptors)
 
-    noun = l;	! Allow the noun to be mentioned by the *_PE error messages.
     if (allow_plurals && indef_guess_p == 1) {
         #Ifdef DEBUG;
         if (parser_trace >= 4) print "   [Retrying singulars after failure ", etype, "]^";

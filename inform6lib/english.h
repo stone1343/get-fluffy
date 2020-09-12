@@ -1467,8 +1467,6 @@ Constant LIBRARYV__TX   = " Library v";
         11: CSubjectIs  (x1,true); " fixed in place.";
         12: CSubjectIs  (actor,true); " carrying too many things already.";
         13: "(putting ", (the) x1, " into ", (the) x2, " to make room)";
-	14: CSubjectVerb(actor, false, false, "should take", 0, 0, "should have taken");
-	    " ", (the) x1, " first.";
     }
   Taste: switch (n) {
         1:  CSubjectVerb(actor,true,false,"taste",0,"tastes","tasted"); " nothing unexpected.";
