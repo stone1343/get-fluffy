@@ -3,7 +3,7 @@
 > Welcome to the Timbuktu!<br>
 >    \- Igor
 
-Hopefully an entry in [IFComp 2020](https://ifcomp.org/).
+An entry in [IFComp 2020](https://ifcomp.org/).
 
 [Play now on GitHub Pages](https://stone1343.github.io/get-fluffy/public/index.html) (Desktop browser recommended)
 
