@@ -3,8 +3,6 @@
 > Welcome to the Timbuktu!<br>
 >    \- Igor
 
-An entry in [IFComp 2020](https://ifcomp.org/).
-
 [Play now on GitHub Pages](https://stone1343.github.io/get-fluffy/public/index.html) (Desktop browser recommended)
 
 *Get Fluffy!* seems to work on iOS or Android, but I think you'll have a better experience on a modern desktop browser.
