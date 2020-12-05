@@ -32,6 +32,8 @@ Bugs fixed
   description routine would not cause the parser to stop further
   processing.
 
+* Fixed a problem with CreatureTest() not accounting for ##AskTo.
+
 New features
 ------------
 

@@ -2572,7 +2572,7 @@ Constant UNLIT_BIT  =  32;
     if (actor ~= player) rtrue;
     if (obj has animate) rtrue;
     if (obj hasnt talkable) rfalse;
-    if (action_to_be == ##Ask or ##Answer or ##Tell or ##AskFor) rtrue;
+    if (action_to_be == ##Ask or ##Answer or ##Tell or ##AskFor or ##AskTo) rtrue;
     rfalse;
 ];
 
@@ -2657,7 +2657,7 @@ Constant UNLIT_BIT  =  32;
             parsed_number = l; return GPR_NUMBER;
 
           CREATURE_TOKEN:
-            if (action_to_be == ##Answer or ##Ask or ##AskFor or ##Tell)
+            if (action_to_be == ##Answer or ##Ask or ##AskFor or ##AskTo or ##Tell)
                 scope_reason = TALKING_REASON;
 
           TOPIC_TOKEN:
