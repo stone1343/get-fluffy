@@ -189,7 +189,11 @@ function load_run(optobj, image, imageoptions) {
     all_options.vm = window.Quixe;
     all_options.GiLoad = this;
     all_options.GlkOte = new window.GlkOteClass();
-    all_options.GiDispa = new window.GiDispaClass();
+    all_options.GiDispa = null;
+    if (window.GiDispaClass) {
+        // We only create this default if the class is available.
+        all_options.GiDispa = new window.GiDispaClass();
+    }
     
     GlkOte = all_options.GlkOte; /* our copy of the reference */
 
@@ -1008,7 +1012,7 @@ function start_game(image) {
     }
 
     /* Pass the game image file along to the VM engine. */
-    all_options.vm.prepare(image, all_options);
+    all_options.vm.init(image, all_options);
 
     started = true;
     
