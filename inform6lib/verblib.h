@@ -1680,8 +1680,8 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
         action = k;
     }
 
-    if (item has scenery) return L__M(##Take, 10, item);
     if (item has static)  return L__M(##Take, 11, item);
+    if (item has scenery) return L__M(##Take, 10, item);
 
     ! The item is now known to be available for taking.  Is the player
     ! carrying too much?  If so, possibly juggle items into the rucksack
