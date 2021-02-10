@@ -64,6 +64,10 @@ Attribute female;
 Attribute neuter;
 Attribute pluralname;
 
+#Ifdef INFIX;
+Attribute infix__watching;
+#Endif;
+
 ! ------------------------------------------------------------------------------
 
 Property additive before NULL;
