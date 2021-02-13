@@ -382,7 +382,7 @@ Verb 'read'
     * topic 'in' noun                           -> Consult;
 
 Verb 'remove'
-    * held                                      -> Disrobe
+    * worn                                      -> Disrobe
     * multi                                     -> Take
     * multiinside 'from' noun                   -> Remove;
 

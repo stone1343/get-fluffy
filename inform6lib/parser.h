@@ -2231,7 +2231,7 @@ Object  InformParser "(Inform Parser)"
                 oops_from = 0;
 
                 ! ...explain any inferences made (using the pattern)...
-
+		! This is where the parser replies (the sword) if things aren't clear.
                 if (inferfrom ~= 0 && no_infer_message == false) {
                     print "("; PrintCommand(inferfrom); print ")^";
                 }
@@ -3657,6 +3657,18 @@ Constant SCORE__DIVISOR     = 20;
             }
 
         if (flag) {
+	    if(match_length == 1) {
+		k = 0;
+		for (i=1 : i<=number_of_classes : i++) {
+		    while ((match_classes-->k) ~= i or -i) k++;
+		    j = match_list-->k;
+
+		    if(MatchWord(j, match_from)) {
+			no_infer_message = true;
+			return j;
+		    }
+		}
+	    }
             #Ifdef DEBUG;
             if (parser_trace >= 4) print "   Unable to choose best group, so ask player.]^";
             #Endif; ! DEBUG
@@ -3925,6 +3937,50 @@ Constant SCORE__DIVISOR     = 20;
     !  print "Which are identical!^";
     rtrue;
 ];
+
+
+! ----------------------------------------------------------------------------
+!  MatchWord matches a word to the name of an object.  This is used to assume
+!  that an object simply named "key" is meant when the player types TAKE KEY
+!  rather than TAKE BRASS KEY.
+! ----------------------------------------------------------------------------
+
+[ MatchWord p_obj p_word_no       len_name len_input start_input i;
+
+    p_word_no--;
+
+    PrintToBuffer(StorageForShortName, SHORTNAMEBUF_LEN, p_obj);
+    len_name = StorageForShortName --> 0;
+
+    if(len_name > 9) {
+	for(i = 9 : i < len_name : i++)
+	    if(StorageForShortName -> (WORDSIZE + i) == 32) rfalse;
+	len_name = 9;
+    }
+
+#Ifdef TARGET_ZCODE;
+    start_input = (parse + 2) -> (4 * p_word_no + 3);
+    len_input = (parse + 2) -> (4 * p_word_no + 2);
+    if(len_input > 9) len_input = 9;
+    if(len_name ~= len_input) rfalse;
+    for(i = 0 : i < len_name : i++) {
+	if(StorageForShortName -> (WORDSIZE + i) ~= buffer -> (start_input + i))
+	    rfalse;
+    }
+#Ifnot;  ! TARGET_GLULX
+    start_input = parse --> (((p_word_no+1) * 3)) - 2;
+    len_input = parse --> ((p_word_no+1) * 3 - 1);
+    if(len_input > 9) len_input = 9;
+    if(len_name ~= len_input) rfalse;
+    for(i = 0 : i < len_name : i++) {
+	if(StorageForShortName -> (WORDSIZE + i) ~= buffer -> (start_input + i + 2))
+	    rfalse;
+    }
+#Endif;  ! TARGET_
+
+    rtrue;
+];
+
 
 ! ----------------------------------------------------------------------------
 !  PrintCommand reconstructs the command as it presently reads, from

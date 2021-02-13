@@ -34,6 +34,11 @@ Bugs fixed
 
 * Fixed a problem with CreatureTest() not accounting for ##AskTo.
 
+* Fixed a longstanding defect in parsing wherein TAKE KEY when things
+  like "key", "gold key", and "ruby key" are present.  This previously
+  resulted in a pointless disambiguation question that made it very
+  difficult to take the object lacking an adjective.
+
 New features
 ------------
 
