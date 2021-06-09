@@ -4,7 +4,49 @@ The Inform Standard Library
 The standard header files are stored in lower-case here.  Symbolic links
 to other semi-standard names get created upon installation (e.g.
 verblib.h gets symlinked to Verblib.h and VerbLib.h) -- except on
-Cygwin, where case doesn't seem to matter.
+systems where case doesn't matter.
+
+Version 6.12.5 (5 June 2021)
+============================
+
+This is a maintenance release focusing almost entirely on bug fixes.
+
+Bugs fixed
+----------
+
+* Revisted the the problem of the library confusing HER as a personal
+  pronoun with HER as a possessive pronoun.  The fix in 6.12.3 wound up
+  creating a new problem.
+
+* Fixed an oversight or misfeature wherein a return value of true from a
+  description routine would not cause the parser to stop further
+  processing.
+
+* Fixed a problem with CreatureTest() not accounting for ##AskTo.
+
+* Fixed a longstanding defect in parsing wherein TAKE KEY when things
+  like "key", "gold key", and "ruby key" are present.  This previously
+  resulted in a pointless disambiguation question that made it very
+  difficult to take the object lacking an adjective.
+
+* Changed less-than-helpful messages printed when attempting to WEAR or
+  DROP wearable objects in containers or on supporters.
+
+* Fixed numerous problems that happen when no_implicit_actions is true.
+
+* Fixed confusing messages and troublesome handling for DROP, WEAR,
+  REMOVE, and DISROBE when containers or supporters are involved.
+
+Caveats
+-------
+
+* There has been some confusion about references to parse array access
+  routines in Roger Firth's Inform FAQ at
+  http://www.firthworks.com/roger/informfaq/ii.html.  Since that
+  document was written, those routines were replaced with WordAddress(),
+  WordLength(), WordValue(), NumberWords(), etc. as part of the aborted
+  effort to produce Inform 6.40 back in 2006.  That work was revived to
+  create the 6.12 line of Standard Library.
 
 
 Version 6.12.4 (18 July 2020)
@@ -27,17 +69,6 @@ Bugs fixed
 
 * Reworked the SetColour() function to work reliably for both Z-machine
   and Glulx compilation targets.
-
-* Fixed an oversight or misfeature wherein a return value of true from a
-  description routine would not cause the parser to stop further
-  processing.
-
-* Fixed a problem with CreatureTest() not accounting for ##AskTo.
-
-* Fixed a longstanding defect in parsing wherein TAKE KEY when things
-  like "key", "gold key", and "ruby key" are present.  This previously
-  resulted in a pointless disambiguation question that made it very
-  difficult to take the object lacking an adjective.
 
 New features
 ------------

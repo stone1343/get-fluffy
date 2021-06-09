@@ -1772,8 +1772,8 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     ks = keep_silent; keep_silent = 2; AttemptToTakeObject(obj); keep_silent = ks;
     if (obj notin actor) rtrue;
     if (res == 0 && ~~keep_silent)
-        if (supcon) L__M(##Miscellany, 58, obj, supcon);
-        else        L__M(##Miscellany, 26, obj);
+        if (supcon) return L__M(##Miscellany, 58, obj, supcon);
+        else        return L__M(##Miscellany, 26, obj);
     rfalse;
 ];
 
@@ -1853,6 +1853,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 ! ----------------------------------------------------------------------------
 
 [ TakeSub;
+    if (noun in actor && noun has worn) <<Disrobe noun, actor>>;
     if (onotheld_mode == 0 || noun notin actor)
         if (AttemptToTakeObject(noun)) return;
     if (AfterRoutines()) return;
@@ -1864,11 +1865,19 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 [ RemoveSub i;
     i = parent(noun);
     if (i && i has container && i hasnt open && ImplicitOpen(i)) return L__M(##Remove, 1, i);
-    if (i ~= second)   return L__M(##Remove, 2, noun);
+    if (noun has clothing) {
+	if (noun has worn) <<Disrobe noun, actor>>;
+	if (i && i has container or supporter)
+	    jump RSSkip;
+	else
+	    if (i == actor) return L__M(##Disrobe, 1, noun);
+    }
+    if (i hasnt container && i hasnt supporter) return L__M(##Remove, 4, noun);
+    if (i ~= second && second ~= nothing) return L__M(##Remove, 2, noun);
     if (i has animate) return L__M(##Take, 6, i, noun);
 
+    .RSSkip;
     if (AttemptToTakeObject(noun)) rtrue;
-
     action = ##Remove; if (AfterRoutines()) return;
     action = ##Take;   if (AfterRoutines()) return;
     if (keep_silent) return;
@@ -1878,9 +1887,13 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 [ DropSub;
     if (noun == actor)         return L__M(##PutOn, 4, noun);
     if (noun in parent(actor)) return L__M(##Drop, 1, noun);
-    if (noun notin actor && ~~ImplicitTake(noun)) return L__M(##Drop, 2, noun);
     if (noun has worn && no_implicit_actions) return L__M(##Disrobe, 4, noun);
     if (noun has worn && ImplicitDisrobe(noun)) return;
+    if (noun notin actor) {
+	if (no_implicit_actions) return L__M(##Drop, 4, noun, parent(noun));
+	L__M(##Miscellany, 58, noun, parent(noun));
+    }
+
     move noun to parent(actor);
     if (AfterRoutines() || keep_silent) return;
     L__M(##Drop, 3, noun);
@@ -1890,7 +1903,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     receive_action = ##PutOn;
     if (second == d_obj || actor in second) <<Drop noun, actor>>;
     if (parent(noun) == second) return L__M(##Drop, 1, noun);
-    if (noun notin actor && ImplicitTake(noun)) return L__M(##PutOn, 1, noun);
+    if (ImplicitTake(noun) && noun notin actor) return L__M(##PutOn, 1, noun);
 
     ancestor = CommonAncestor(noun, second);
     if (ancestor == noun) return L__M(##PutOn, 2, noun);
@@ -1902,7 +1915,8 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
         action = ##PutOn;
     }
     if (second hasnt supporter) return L__M(##PutOn, 3, second);
-    if (ancestor == actor)      return L__M(##PutOn, 4, second);
+
+    if (noun has worn && no_implicit_actions) return L__M(##Disrobe, 4, noun);
     if (noun has worn && ImplicitDisrobe(noun)) return;
 
     if (ObjectDoesNotFit(noun, second) ||
@@ -1927,7 +1941,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     receive_action = ##Insert;
     if (second == d_obj || actor in second) <<Drop noun, actor>>;
     if (parent(noun) == second) return L__M(##Drop, 1, noun);
-    if (noun notin actor && ImplicitTake(noun)) return L__M(##Insert, 1, noun);
+    if (ImplicitTake(noun) && noun notin actor) return L__M(##Insert, 1, noun);
     ancestor = CommonAncestor(noun, second);
     if (ancestor == noun) return L__M(##Insert, 5, noun);
     if (ObjectIsUntouchable(second)) return;
@@ -1939,6 +1953,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
             return L__M(##Insert, 3, second);
     }
     if (second hasnt container) return L__M(##Insert, 2, second);
+    if (noun has worn && no_implicit_actions) return L__M(##Disrobe, 4, noun);
     if (noun has worn && ImplicitDisrobe(noun)) return;
 
     if (ObjectDoesNotFit(noun, second) ||
@@ -2522,7 +2537,8 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     if (noun hasnt lockable)     return L__M(##Unlock, 1, noun);
     if (noun hasnt locked)       return L__M(##Unlock, 2, noun);
     if ((noun.with_key ofclass Object && noun.with_key ~= second) ||
-		(noun.with_key ofclass Routine && noun.with_key() ~= second))
+		(noun.with_key ofclass Routine && noun.with_key() ~= second) ||
+		 noun.with_key == nothing)
 		return L__M(##Unlock, 3, second);
 
     give noun ~locked;
@@ -2537,7 +2553,8 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     if (noun has locked)     return L__M(##Lock, 2 ,noun);
     if (noun has open && ImplicitClose(noun)) return L__M(##Lock, 3, noun);
     if ((noun.with_key ofclass Object && noun.with_key ~= second) ||
-		(noun.with_key ofclass Routine && noun.with_key() ~= second))
+		(noun.with_key ofclass Routine && noun.with_key() ~= second) ||
+		 noun.with_key == nothing)
 		return L__M(##Lock, 4, second);
 
     give noun locked;
@@ -2596,7 +2613,8 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 
 [ DisrobeSub;
     if (ObjectIsUntouchable(noun)) return;
-    if (noun hasnt worn) return L__M(##Disrobe, 1, noun);
+    if (noun hasnt clothing) return L__M(##Disrobe,1, noun);
+    if (noun hasnt worn && noun has clothing) return L__M(##Disrobe, 1, noun);
 
     give noun ~worn;
     if (AfterRoutines() || keep_silent) return;
@@ -2606,7 +2624,15 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 [ WearSub;
     if (ObjectIsUntouchable(noun)) return;
     if (noun hasnt clothing)    return L__M(##Wear, 1, noun);
-    if (noun notin actor && ImplicitTake(noun)) return L__M(##Wear, 2, noun);
+
+    if (noun notin actor && noun hasnt worn) {
+	if (IndirectlyContains(actor, noun) || parent(noun) has container or supporter) {
+	    if (no_implicit_actions) return L__M(##Wear, 5, noun, parent(noun));
+	    L__M(##Miscellany, 58, noun, parent(noun));
+	    AttemptToTakeObject(noun);
+	} else
+	    return L__M(##Wear, 2, noun, parent(noun));
+    }
     if (noun has worn)          return L__M(##Wear, 3, noun);
 
     give noun worn;
@@ -2846,7 +2872,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 [ WaveSub;
     if (noun == player) return L__M(##Wave, 2 ,noun, second);
     if (noun == actor) return L__M(##Wave, 3, noun, second);
-    if (noun notin actor && ImplicitTake(noun)) return L__M(##Wave, 1, noun);
+    if (ImplicitTake(noun) && noun notin actor) return L__M(##Wave, 1, noun);
     L__M(##Wave, 2, noun, second);
 ];
 

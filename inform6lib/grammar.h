@@ -215,6 +215,11 @@ Verb 'climb' 'scale'
     * noun                                      -> Climb
     * 'up'/'over' noun                          -> Climb;
 
+Verb 'carry'
+    * multi                                     -> Take
+    * multiinside 'from'/'off' noun             -> Remove
+    * 'inventory'                               -> Inv;
+
 Verb 'close' 'cover' 'shut'
     * noun                                      -> Close
     * 'up' noun                                 -> Close
@@ -235,7 +240,7 @@ Verb 'dig'
 
 
 Verb 'disrobe' 'doff' 'shed'
-    * held                                      -> Disrobe;
+    * multi                                     -> Disrobe;
 
 Verb 'drink' 'sip' 'swallow'
     * noun                                      -> Drink;
@@ -292,6 +297,11 @@ Verb 'go' 'run' 'walk'
     * 'out'/'outside'                           -> Exit
     * 'in'/'inside'                             -> GoIn
     * 'into'/'in'/'inside'/'through' noun       -> Enter;
+
+Verb 'hold'
+    * multi                                     -> Take
+    * multiinside 'from'/'off' noun             -> Remove
+    * 'inventory'                               -> Inv;
 
 Verb 'in' 'inside'
     *                                           -> GoIn;
@@ -372,7 +382,7 @@ Verb 'push' 'clear' 'move' 'press' 'shift'
 Verb 'put'
     * multiexcept 'in'/'inside'/'into' noun     -> Insert
     * multiexcept 'on'/'onto' noun              -> PutOn
-    * 'on' held                                 -> Wear
+    * 'on' multiheld                            -> Wear
     * 'down' multiheld                          -> Drop
     * multiheld 'down'                          -> Drop;
 
@@ -383,7 +393,7 @@ Verb 'read'
 
 Verb 'remove'
     * worn                                      -> Disrobe
-    * multi                                     -> Take
+    * multi                                     -> Remove
     * multiinside 'from' noun                   -> Remove;
 
 Verb 'rub' 'clean' 'dust' 'polish' 'scrub'
@@ -444,9 +454,9 @@ Verb 'switch'
     * 'on' noun                                 -> SwitchOn
     * 'off' noun                                -> SwitchOff;
 
-Verb 'take' 'carry' 'hold'
+Verb 'take'
     * multi                                     -> Take
-    * 'off' held                                -> Disrobe
+    * 'off' multiheld                           -> Disrobe
     * multiinside 'from'/'off' noun             -> Remove
     * 'inventory'                               -> Inv;
 
@@ -497,7 +507,7 @@ Verb 'wave'
     * 'at' noun                                 -> WaveHands;
 
 Verb 'wear' 'don'
-    * held                                      -> Wear;
+    * multiheld                                 -> Wear;
 
 Verb 'yes' 'y//'
     *                                           -> Yes;

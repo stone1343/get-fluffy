@@ -1499,7 +1499,7 @@ Object  InformParser "(Inform Parser)"
     i = (~~i);
     #Endif; ! TARGET_
     if (i == 0) {    L__M(##Miscellany, 7); return 0; }
-    L__M(##Miscellany, 1);
+    L__M(##Miscellany, 6);
     return 1;
 ];
 
@@ -2511,14 +2511,19 @@ Constant UNLIT_BIT  =  32;
     indef_nspec_at = 0;
 ];
 
-[ Descriptors  allows_multiple o x flag cto type m n;
+[ Descriptors  allows_multiple o x y flag cto type m n;
     ResetDescriptors();
     if (wn > num_words) return 0;
     m = wn;
     for (flag=true : flag :) {
         o = NextWordStopped(); flag = false;
-       for (x=1 : x<=LanguageDescriptors-->0 : x=x+4)
+       for (x=1 : x<=LanguageDescriptors-->0 : x=x+4) {
             if (o == LanguageDescriptors-->x) {
+                ! Attempt to compensate for her-her confusion.
+                for (y = 1 : y<=LanguagePronouns-->0 : y=y+2) {
+                    if (o == LanguagePronouns-->y)
+                        jump PersonalPronoun;
+                }
                 flag = true;
                 type = LanguageDescriptors-->(x+2);
                 if (type ~= DEFART_PK) indef_mode = true;
@@ -2537,6 +2542,9 @@ Constant UNLIT_BIT  =  32;
                 if (type == light)  indef_type = indef_type | LIT_BIT;
                 if (type == -light) indef_type = indef_type | UNLIT_BIT;
             }
+        }
+        .PersonalPronoun;
+
         if (o == OTHER1__WD or OTHER2__WD or OTHER3__WD) {
             indef_mode = 1; flag = 1;
             indef_type = indef_type | OTHER_BIT;
@@ -2849,12 +2857,6 @@ Constant UNLIT_BIT  =  32;
         #Endif; ! DEBUG
         l = NounDomain(actors_location, actor, token);
         if (l == REPARSE_CODE) return l;                  ! Reparse after Q&A
-        if ((metaclass(l) == Class || metaclass(l) == Object) && l ~= 1 && l notin actor && token == MULTIHELD_TOKEN or MULTIEXCEPT_TOKEN) {
-	    if (ImplicitTake(l)) {
-		etype = NOTHELD_PE;
-		jump FailToken;
-	    }
-	}
 
         if (indef_wanted == 100 && l == 0 && number_matched == 0)
             l = 1;  ! ReviseMulti if TAKE ALL FROM empty container

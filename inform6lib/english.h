@@ -883,6 +883,13 @@ Constant LIBRARYV__TX   = " Library v";
                          "didn't have");
             " ", (the) x1, ".";
         3:  "Dropped.";
+        4: CSubjectVerb(actor, false, false, "need to take", 0, 0, "had to take");
+           print " ", (the) x1, " ";
+           if (x2 has container)
+               print "out";
+           else
+               print "off";
+           " of ", (the) x2, " before dropping ", (ItOrThem) x1, ".";
     }
   Eat: switch (n) {
         1:  CSubjectIs(x1,true); " plainly inedible.";
@@ -1315,6 +1322,8 @@ Constant LIBRARYV__TX   = " Library v";
         2:  print "But ";
             CSubjectIsnt(x1,true,true); " there now.";
         3:  "Removed.";
+        4:  print "But ";
+            CSubjectIsnt(x1,true,true); " in or on anything.";
     }
   Restart: switch (n) {
         1:  print "Are you sure you want to restart? ";
@@ -1550,6 +1559,13 @@ Constant LIBRARYV__TX   = " Library v";
         2:  CSubjectIs  (actor,true); " not holding ", (ThatOrThose) x1, ".";
         3:  CSubjectIs  (actor,true); " already wearing ", (ThatOrThose) x1, ".";
         4:  CSubjectVerb(actor,false,false,"put on",0,"puts on","put on"); " ", (the) x1, ".";
+        5:  CSubjectVerb(actor, false, false, "need to take", 0, 0, "had to take");
+            print " ", (the) x1, " ";
+            if (x2 has container)
+                print "out";
+            else
+                print "off";
+            " of ", (the) x2, " before wearing ", (ItOrThem) x1, ".";
     }
 ! Yes:  see No.
 ];
