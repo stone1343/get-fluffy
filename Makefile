@@ -1,5 +1,4 @@
 
-INFORM = inform
 INF = get-fluffy.inf fluffy-classes.inf fluffy-rooms.inf fluffy-people.inf fluffy-objects.inf fluffy-routines.inf
 ULX = get-fluffy.ulx
 # If OS is defined, then it's Windows
@@ -16,8 +15,10 @@ endif
 all: $(ULX) $(JS)
 
 # Compile to .ulx
+#  During development, -SDGd2s
+#  For release to public -~S~DGd2w (2 warnings about i and o not used in DrawStatusLine (fluffy-routines.inf)
 $(ULX): $(INF) newflags.h smartcantgo.h
-	$(INFORM) get-fluffy.inf
+	inform -~S~DGd2w +language_name=english +.,inform6lib get-fluffy.inf
 
 # Convert to .js for Quixe
 $(JS): $(ULX)
@@ -25,3 +26,5 @@ $(JS): $(ULX)
 
 clean:
 	$(RM) $(ULX) $(JS)
+
+.PHONY: all clean
