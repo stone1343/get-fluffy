@@ -18,7 +18,7 @@ all: $(ULX) $(JS)
 #  During development, -SDGd2s
 #  For release to public -~S~DGd2w (2 warnings about i and o not used in DrawStatusLine (fluffy-routines.inf)
 $(ULX): $(INF) newflags.h smartcantgo.h
-	inform -~S~DGd2w +language_name=english +.,inform6lib get-fluffy.inf
+	inform -SDGd2s +language_name=english +.,inform6lib get-fluffy.inf
 
 # Convert to .js for Quixe
 $(JS): $(ULX)

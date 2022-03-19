@@ -464,7 +464,7 @@
 ];
 
 [ KnockSub;
- if (~~(noun ofclass Door)) "That doesn't make sense.";
+ if (~~(noun ofclass Basic_Door)) "That doesn't make sense.";
 ];
 
 [ PhotographSub o;

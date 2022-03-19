@@ -1,9 +1,9 @@
 ! ==============================================================================
 !   VERBLIB:  Front end to standard verbs library.
 !
-!   Supplied for use with Inform 6 -- Release 6.12.5 -- Serial number 210605
+!   Supplied for use with Inform 6 -- Release 6.12.6 -- Serial number 220219
 !
-!   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2021
+!   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2022
 !
 !   This code is licensed under either the traditional Inform license as
 !   described by the DM4 or the Artistic License version 2.0.  See the
@@ -2589,7 +2589,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     if (noun has open)       return L__M(##Open, 3, noun);
     give noun open;
 
-    if (keep_silent || AfterRoutines()) return;
+    if (AfterRoutines() || keep_silent) return;
 
     if (noun hasnt container)
 	return L__M(##Open, 5, noun);

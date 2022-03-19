@@ -6,6 +6,46 @@ to other semi-standard names get created upon installation (e.g.
 verblib.h gets symlinked to Verblib.h and VerbLib.h) -- except on
 systems where case doesn't matter.
 
+
+Version 6.12.6 (19 February 2022)
+=================================
+
+This is a maintenance release focusing almost entirely on bug fixes.
+
+Bugs fixed
+----------
+
+* Reenabled Infix mode for Z-machine.  Compiler still does not support
+  Infix for Glulx.
+
+* For V6, HDR_FONTHUNITS and HDR_FONTWUNITS offsets are reversed from
+  other versions of the Z-machine.  Now the Library knows about this.
+
+* Fixed ParseNoun() breakage.
+
+* Now the library checks if the interpreter supports UNDO to see if it's
+  okay to mention UNDO when the player has died.
+
+* Made sure OpenSub runs AfterRoutines() if keep_silent = true.
+
+* Fixed trouble with Z-machine header $26 versus $27 confusion.  For V5,
+  this is font width and font height in units.  For V6, this is reversed.
+
+
+Caveats
+-------
+
+* For the Z-machine: If the dictionary spans the $8000 mark and he first
+  word in the dictionary starts at address A where ($8000 - A) %
+  dict_entry_size == 0, then the value returned from a grammar property
+  can be troublesome.  If these conditions are met, the Z-machine cannot
+  tell the difference between a positive or negative value returned from
+  a Grammar property.  Among other things, commands given to a
+  non-player-character can fail.  Workaround code had been added to the
+  Library to mitigate the problem.  See the file "caveats.txt" for
+  details.
+
+
 Version 6.12.5 (5 June 2021)
 ============================
 
@@ -36,6 +76,7 @@ Bugs fixed
 
 * Fixed confusing messages and troublesome handling for DROP, WEAR,
   REMOVE, and DISROBE when containers or supporters are involved.
+
 
 Caveats
 -------

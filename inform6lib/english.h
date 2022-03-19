@@ -1,9 +1,9 @@
 ! ==============================================================================
 !   ENGLISH:  Language Definition File
 !
-!   Supplied for use with Inform 6 -- Release 6.12.5 -- Serial number 210605
+!   Supplied for use with Inform 6 -- Release 6.12.6 -- Serial number 220219
 !
-!   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2021
+!   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2022
 !
 !   This code is licensed under either the traditional Inform license as
 !   described by the DM4 or the Artistic License version 2.0.  See the
@@ -1119,7 +1119,8 @@ Constant LIBRARYV__TX   = " Library v";
             print " ";
         5:  print "^Would you like to RESTART, RESTORE a saved game";
             #Ifdef DEATH_MENTION_UNDO;
-            print ", UNDO your last move";
+	    if (undo_flag ~= 0)
+		print ", UNDO your last move";
             #Endif;
             if (TASKS_PROVIDED == 0) print ", give the FULL score for that game";
             if (deadflag == 2 && AMUSING_PROVIDED == 0)

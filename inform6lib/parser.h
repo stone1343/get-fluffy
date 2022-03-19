@@ -1,9 +1,9 @@
 ! ==============================================================================
 !   PARSER:  Front end to parser.
 !
-!   Supplied for use with Inform 6 -- Release 6.12.5 -- Serial number 210605
+!   Supplied for use with Inform 6 -- Release 6.12.6 -- Serial number 220219
 !
-!   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2021
+!   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2022
 !
 !   This code is licensed under either the traditional Inform license as
 !   described by the DM4 or the Artistic License version 2.0.  See the
@@ -105,8 +105,13 @@ Constant HDR_SCREENHLINES  $20;     ! byte
 Constant HDR_SCREENWCHARS  $21;     ! byte
 Constant HDR_SCREENWUNITS  $22;     ! word
 Constant HDR_SCREENHUNITS  $24;     ! word
+#Iftrue (#version_number == 6);
+Constant HDR_FONTHUNITS    $26;     ! byte
+Constant HDR_FONTWUNITS    $27;     ! byte
+#Ifnot;
 Constant HDR_FONTWUNITS    $26;     ! byte
 Constant HDR_FONTHUNITS    $27;     ! byte
+#Endif;
 Constant HDR_ROUTINEOFFSET $28;     ! word
 Constant HDR_STRINGOFFSET  $2A;     ! word
 Constant HDR_BGCOLOUR      $2C;     ! byte
@@ -1697,6 +1702,9 @@ Object  InformParser "(Inform Parser)"
 
     if (usual_grammar_after == 0) {
         j = verb_wordnum;
+        #Ifdef TARGET_ZCODE;
+		parser_one = 0;
+        #Endif;
         i = RunRoutines(actor, grammar);
         #Ifdef DEBUG;
         if (parser_trace >= 2 && actor.grammar ~= 0 or NULL)
@@ -1705,9 +1713,10 @@ Object  InformParser "(Inform Parser)"
 
         #Ifdef TARGET_ZCODE;
         if ((i ~= 0 or 1) &&
+	    (parser_one ~= 0 ||
             (UnsignedCompare(i, dict_start) < 0 ||
              UnsignedCompare(i, dict_end) >= 0 ||
-             (i - dict_start) % dict_entry_size ~= 0)) {
+             (i - dict_start) % dict_entry_size ~= 0))) {
             usual_grammar_after = j;
             i=-i;
         }
@@ -4551,22 +4560,29 @@ Constant SCORE__DIVISOR     = 20;
     #Ifdef DEBUG;
     if (threshold >= 0 && parser_trace >= 5) print "    ParseNoun returned ", threshold, "^";
     #Endif; ! DEBUG
-    if (threshold < 0) wn++;
-    if (threshold > 0) { k = threshold; jump MMbyPN; }
-
-    if (threshold == 0 || Refers(obj,wn-1) == 0) {
-      .NoWordsMatch;
-        if (indef_mode ~= 0) {
-            k = 0; parser_action = NULL;
-            jump MMbyPN;
-        }
-        rfalse;
+    ! Don't arbitrarily increase wn when ParseNoun() returns -1
+    if (threshold > 0) {
+	k = threshold;
+	wn = j + k;
+	jump MMbyPN;
+    }
+    ! Check wn instead of wn - 1
+    if (threshold == 0 || Refers(obj,wn) == 0) {
+	.NoWordsMatch;
+	if (indef_mode ~= 0) {
+		! Restore wn to pre-ParseNoun() state
+		k = 0; parser_action = NULL; wn = j;
+		jump MMbyPN;
+	}
+	rfalse;
     }
 
     if (threshold < 0) {
-        threshold = 1;
-        dict_flags_of_noun = (w->#dict_par1) & (DICT_X654+DICT_PLUR);!$$01110100;
-        w = NextWord();
+	! Set threshold to reflect any words consumed by ParseNoun()
+	threshold = wn - j;
+	w = NextWord();	! Ensure w contains actual first word of noun phrase
+			! if ParseNoun() moved wn.
+	dict_flags_of_noun = (w->#dict_par1) & (DICT_X654+DICT_PLUR);!$$01110100;
         while (Refers(obj, wn-1)) {
             threshold++;
             if (w)
@@ -4903,8 +4919,19 @@ Constant MAX_DECIMAL_BASE 214748364;
 
 #Ifdef TARGET_ZCODE;
 
-[ Dword__No w; return (w-(HDR_DICTIONARY-->0 + 7))/9; ];
-[ No__Dword n; return HDR_DICTIONARY-->0 + 7 + 9*n; ];
+[ Dword__No w dp dh;
+	dp = HDR_DICTIONARY-->0;
+	dh = dp->0 + 4;
+	dp = dp + dp->0 + 1;
+	return (w-(HDR_DICTIONARY-->0 + dh )) / (dp->0);
+];
+
+[ No__Dword n dp dh;
+	dp = HDR_DICTIONARY-->0;
+	dh = dp->0 + 4;
+	dp = dp + dp->0 + 1;
+	return HDR_DICTIONARY-->0 + dh + (dp->0 *n);
+];
 
 #Ifnot; ! TARGET_GLULX
 
@@ -6485,7 +6512,7 @@ Object  InformLibrary "(Inform Library)"
 #Endif; ! TARGET_ZCODE
 
 #Ifndef DrawStatusLine;
-[ DrawStatusLine width posa posb posc;
+[ DrawStatusLine width posa posb posc posd pose;
     #Ifdef TARGET_GLULX;
     ! If we have no status window, we must not try to redraw it.
     if (gg_statuswin == 0)
@@ -6500,9 +6527,13 @@ Object  InformLibrary "(Inform Library)"
     MoveCursor(1, 1);
 
     width = ScreenWidth();
-    posa = width-26;
+    posa = width-26;	! For standard move/score display.
     posb = width-13;
     posc = width-5;
+
+    posd = width-19;	! For time display.
+    pose = width-14;
+
     spaces width;
 
     MoveCursor(1, 2);
@@ -6516,13 +6547,17 @@ Object  InformLibrary "(Inform Library)"
         else
             print (The) visibility_ceiling;
     }
-
-    if (sys_statusline_flag && width > 53) {
-        MoveCursor(1, posa);
-        print (string) TIME__TX;
-        LanguageTimeOfDay(sline1, sline2);
-    }
-    else {
+    if (sys_statusline_flag) {
+	if (width > 29) {
+	    if (width > 39)
+		MoveCursor(1, posd);
+	    else
+		MoveCursor(1, pose);
+	    print (string) TIME__TX;
+	    LanguageTimeOfDay(sline1, sline2);
+	} else
+	    jump DSLContinue;
+    } else {
         if (width > 66) {
             #Ifndef NO_SCORE;
             MoveCursor(1, posa);
@@ -6548,7 +6583,7 @@ Object  InformLibrary "(Inform Library)"
 	   #Endif;
 	}
     }
-
+    .DSLContinue;
     MainWindow(); ! set_window
 ];
 #Endif;
