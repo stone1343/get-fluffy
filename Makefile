@@ -15,10 +15,10 @@ endif
 all: $(ULX) $(JS)
 
 # Compile to .ulx
-#  During development, -SDGd2s
-#  For release to public -~S~DGd2w (2 warnings about i and o not used in DrawStatusLine (fluffy-routines.inf)
+#  During development, -SDGd2
+#  For release to public -~S~DGd2
 $(ULX): $(INF) newflags.h smartcantgo.h
-	inform -SDGd2s +language_name=english +.,inform6lib get-fluffy.inf
+	inform -~S~DGd2 +language_name=english +.,inform6lib get-fluffy.inf
 
 # Convert to .js for Quixe
 $(JS): $(ULX)
