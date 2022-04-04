@@ -5,8 +5,33 @@
 
 [Play now on GitHub Pages](https://stone1343.github.io/get-fluffy/public/index.html) (Desktop browser recommended)
 
-*Get Fluffy!* seems to work on iOS or Android, but I think you'll have a better experience on a modern desktop browser.
-It is not designed to be played with Glulxe or Lectrote -- it will not work properly, but more importantly, you won't get the intended experience.
+*Get Fluffy!* should be played on a modern desktop browser such Firefox, Chrome or Edge. Android, iOS, Glulxe or Lectrote have
+not been tested and should not be used -- it will not work properly, but more importantly, you won't get the intended
+experience.
+
+Here's an example how to download *Get Fluffy!* from GitHub on Windows:
+
+```
+cd %USERPROFILE%\Downloads
+if exist get-fluffy-220404.zip del get-fluffy-220404.zip
+curl -L -o get-fluffy-220404.zip https://github.com/stone1343/get-fluffy/archive/refs/tags/220404.zip
+if exist get-fluffy-220404\. rmdir /s /q get-fluffy-220404
+7z x get-fluffy-220404.zip
+cd get-fluffy-220404
+play
+```
+
+or on Linux:
+
+```bash
+cd ~/Downloads
+[ -d get-fluffy ] && rm -rf get-fluffy
+git clone --depth 1 --branch 220404 https://github.com/stone1343/get-fluffy.git
+if [ -d "get-fluffy" ]; then
+  cd get-fluffy
+  ./play
+fi
+```
 
 If you've downloaded the project from GitHub, you don't need to compile or build anything, everything's provided, ready to go.
 
