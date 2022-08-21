@@ -1232,7 +1232,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     L__M(##Restore, 1);
 ];
 
-[ SaveSub res fref retval;
+[ SaveSub res fref;
     fref = glk_fileref_create_by_prompt($01, $01, 0);
     if (fref == 0) jump SFailed;
     gg_savestr = glk_stream_open_file(fref, $01, GG_SAVESTR_ROCK);
@@ -1251,7 +1251,6 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
             return LibraryExtensions.RunAll(ext_afterrestore);
         else
             return L__M(##Restore, 2);
-        return retval;
     }
     glk_stream_close(gg_savestr, 0);
     gg_savestr = 0;

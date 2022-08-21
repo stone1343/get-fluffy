@@ -379,7 +379,6 @@ Guy igor "Igor" lobby
           print_ret (IgorsVoice)"Yes, I told you what that means.";
          default: print_ret (IgorsVoice)"That's a nice photo.";
         }
-        break;
        }
       }
      }
