@@ -3,7 +3,7 @@
 > Welcome to the Timbuktu!<br>
 >    \- Igor
 
-[Play now on GitHub Pages](https://stone1343.github.io/get-fluffy/public/index.html) (Desktop browser recommended)
+[Play now on GitHub Pages](https://stone1343.github.io/get-fluffy/public/index.html) (Desktop browser strongly recommended)
 
 *Get Fluffy!* should be played on a modern desktop browser such Firefox, Chrome or Edge. Android, iOS, Glulxe or Lectrote have
 not been tested and should not be used -- it will not work properly, but more importantly, you won't get the intended
@@ -13,11 +13,11 @@ Here's an example how to download *Get Fluffy!* from GitHub on Windows:
 
 ```
 cd %USERPROFILE%\Downloads
-if exist get-fluffy-220404.zip del get-fluffy-220404.zip
-curl -L -o get-fluffy-220404.zip https://github.com/stone1343/get-fluffy/archive/refs/tags/220404.zip
-if exist get-fluffy-220404\. rmdir /s /q get-fluffy-220404
-7z x get-fluffy-220404.zip
-cd get-fluffy-220404
+if exist get-fluffy-220821.zip del get-fluffy-220821.zip
+curl -L -o get-fluffy-220821.zip https://github.com/stone1343/get-fluffy/archive/refs/tags/220821.zip
+if exist get-fluffy-220821\. rmdir /s /q get-fluffy-220821
+7z x get-fluffy-220821.zip
+cd get-fluffy-220821
 play
 ```
 
@@ -26,7 +26,7 @@ or on Linux:
 ```bash
 cd ~/Downloads
 [ -d get-fluffy ] && rm -rf get-fluffy
-git clone --depth 1 --branch 220404 https://github.com/stone1343/get-fluffy.git
+git clone --depth 1 --branch 220821 https://github.com/stone1343/get-fluffy.git
 if [ -d "get-fluffy" ]; then
   cd get-fluffy
   ./play
