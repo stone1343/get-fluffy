@@ -5,7 +5,7 @@ Public_Room street "Las Vegas Blvd."
   initial [;
    if (self hasnt visited) {
     DescribeDay();
-    if (FlagOff(PLAYER_HAS_SEEN_TEXT)) " and I'm in the middle of Las Vegas!  This is a statement.  This is bang!  I look up and down the street and think to myself how exciting it is to be here.";
+    if (FlagOff(PLAYER_HAS_SEEN_TEXT)) " and I'm in the middle of Las Vegas! I look up and down the street and think to myself how exciting it is to be here.";
     else " but I need to focus on getting Fluffy!";
    }
    rtrue;
