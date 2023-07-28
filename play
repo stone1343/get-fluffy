@@ -1,5 +1,4 @@
 #!/bin/sh
-
 # Attempt to detect when running under Windows Subsystem for Linux (WSL)
 if [ -f /proc/sys/fs/binfmt_misc/WSLInterop ]; then
   # Requires package wslu (e.g. sudo apt install wslu) 
