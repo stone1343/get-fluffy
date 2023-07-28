@@ -16,7 +16,7 @@ all: $(ULX) $(JS)
 
 # Compile to .ulx
 $(ULX): $(INF) newflags.h smartcantgo.h
-	inform +language_name=english +.,inform6lib get-fluffy.inf
+	inform get-fluffy.inf
 
 # Convert to .js for Quixe
 $(JS): $(ULX)
