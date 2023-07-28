@@ -16,7 +16,7 @@ cd %USERPROFILE%\Downloads
 if exist get-fluffy-230728.zip del get-fluffy-230728.zip
 curl -L -o get-fluffy-230728.zip https://github.com/stone1343/get-fluffy/archive/refs/tags/230728.zip
 if exist get-fluffy-230728\. rmdir /s /q get-fluffy-230728
-7z x get-fluffy-230728.zip
+tar -xf get-fluffy-230728.zip
 cd get-fluffy-230728
 play
 ```
