@@ -15,10 +15,8 @@ endif
 all: $(ULX) $(JS)
 
 # Compile to .ulx
-#  During development, -SDGd2
-#  For release to public -~S~DGd2
 $(ULX): $(INF) newflags.h smartcantgo.h
-	inform -~S~DGd2 +language_name=english +.,inform6lib get-fluffy.inf
+	inform +language_name=english +.,inform6lib get-fluffy.inf
 
 # Convert to .js for Quixe
 $(JS): $(ULX)

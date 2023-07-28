@@ -1,3 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
-xdg-open public/index.html
+# Attempt to detect when running under Windows Subsystem for Linux (WSL)
+if [ -f /proc/sys/fs/binfmt_misc/WSLInterop ]; then
+  # Requires package wslu (e.g. sudo apt install wslu) 
+  wslview public/index.html
+else
+  xdg-open public/index.html
+fi

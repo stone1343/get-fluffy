@@ -1,9 +1,9 @@
 ! ==============================================================================
 !   VERBLIB:  Front end to standard verbs library.
 !
-!   Supplied for use with Inform 6 -- Release 6.12.6 -- Serial number 220219
+!   Supplied for use with Inform 6 -- Release 6.12.7dev -- Serial number 230221
 !
-!   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2022
+!   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2023
 !
 !   This code is licensed under either the traditional Inform license as
 !   described by the DM4 or the Artistic License version 2.0.  See the
@@ -404,12 +404,6 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
                     if (c_style & ENGLISH_BIT) print " (";
                     if (c_style & INDENT_BIT)  print (string) COLON__TX, "^";
                 }
-                q = c_style;
-                if (k2 ~= String) {
-                    inventory_stage = 1;
-                    parser_one = j; parser_two = depth+wlf_indent;
-                    if (RunRoutines(j, list_together) == 1) jump Omit__Sublist2;
-                }
 
                 #Ifdef TARGET_ZCODE;
                 @push lt_value;    @push listing_together;    @push listing_size;
@@ -417,16 +411,16 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
                 @copy lt_value sp; @copy listing_together sp; @copy listing_size sp;
                 #Endif; ! TARGET_;
 
-                lt_value = j.list_together; listing_together = j; wlf_indent++;
-                WriteListR(j, depth, stack_pointer); wlf_indent--;
+                lt_value = j.list_together; listing_together = j;
+				q = c_style;
+                if (k2 ~= String) {
+                    inventory_stage = 1;
+                    parser_one = j; parser_two = depth+wlf_indent;
+                    if (RunRoutines(j, list_together) == 1) jump Omit__Sublist2;
+                }
 
-                #Ifdef TARGET_ZCODE;
-                @pull listing_size; @pull listing_together; @pull lt_value;
-                #Ifnot; ! TARGET_GLULX;
-                @copy sp listing_size;
-                @copy sp listing_together;
-                @copy sp lt_value;
-                #Endif; ! TARGET_;
+                wlf_indent++;
+                WriteListR(j, depth, stack_pointer); wlf_indent--;
 
                 if (k2 == String) {
                     if (q & ENGLISH_BIT) print ")";
@@ -438,6 +432,14 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
                 }
 
               .Omit__Sublist2;
+
+                #Ifdef TARGET_ZCODE;
+                @pull listing_size; @pull listing_together; @pull lt_value;
+                #Ifnot; ! TARGET_GLULX;
+                @copy sp listing_size;
+                @copy sp listing_together;
+                @copy sp lt_value;
+                #Endif; ! TARGET_;
 
                 if (q & NEWLINE_BIT && c_style & NEWLINE_BIT == 0) new_line;
                 c_style = q;
@@ -510,12 +512,6 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
                     if (c_style & ENGLISH_BIT) print " (";
                     if (c_style & INDENT_BIT) print (string) COLON__TX, "^";
                 }
-                q = c_style;
-                if (k ~= String) {
-                    inventory_stage = 1;
-                    parser_one = j; parser_two = depth+wlf_indent;
-                    if (RunRoutines(j, list_together) == 1) jump Omit__Sublist;
-                }
 
                 #Ifdef TARGET_ZCODE;
                 @push lt_value; @push listing_together; @push listing_size;
@@ -523,14 +519,16 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
                 @copy lt_value sp; @copy listing_together sp; @copy listing_size sp;
                 #Endif; ! TARGET_;
 
-                lt_value = j.list_together; listing_together = j; wlf_indent++;
-                WriteListR(j, depth, stack_pointer); wlf_indent--;
+                lt_value = j.list_together; listing_together = j; 
+                q = c_style;
+                if (k ~= String) {
+                    inventory_stage = 1;
+                    parser_one = j; parser_two = depth+wlf_indent;
+                    if (RunRoutines(j, list_together) == 1) jump Omit__Sublist;
+                }
 
-                #Ifdef TARGET_ZCODE;
-                @pull listing_size; @pull listing_together; @pull lt_value;
-                #Ifnot; ! TARGET_GLULX;
-                @copy sp listing_size; @copy sp listing_together; @copy sp lt_value;
-                #Endif; ! TARGET_;
+                wlf_indent++;
+                WriteListR(j, depth, stack_pointer); wlf_indent--;
 
                 if (k == String) {
                     if (q & ENGLISH_BIT) print ")";
@@ -542,6 +540,12 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
                 }
 
               .Omit__Sublist;
+
+                #Ifdef TARGET_ZCODE;
+                @pull listing_size; @pull listing_together; @pull lt_value;
+                #Ifnot; ! TARGET_GLULX;
+                @copy sp listing_size; @copy sp listing_together; @copy sp lt_value;
+                #Endif; ! TARGET_;
 
                 if (q & NEWLINE_BIT && c_style & NEWLINE_BIT == 0) new_line;
                 c_style = q;
@@ -1977,11 +1981,25 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 !   Empties and transfers are routed through the actions above
 ! ----------------------------------------------------------------------------
 
-[ TransferSub;
-    if (noun notin actor && AttemptToTakeObject(noun)) return;
-    if (second has supporter) <<PutOn noun second, actor>>;
-    if (second == d_obj) <<Drop noun, actor>>;
-    <<Insert noun second, actor>>;
+[ TransferSub ks;
+    ks = keep_silent;
+
+    if (noun notin actor) {
+	keep_silent = true;
+	AttemptToTakeObject(noun);
+    }
+
+    if (noun in actor) {
+	if (second has supporter) <PutOn noun second, actor>;
+	if (second == d_obj) <Drop noun, actor>;
+	<Insert noun second, actor>;
+    }
+
+    keep_silent = ks;
+
+    if (noun notin actor) rfalse;
+    rtrue;
+
 ];
 
 [ EmptySub; second = d_obj; EmptyTSub(); ];

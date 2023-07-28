@@ -4,7 +4,7 @@
  * Designed by Andrew Plotkin <erkyrath@eblong.com>
  * <http://eblong.com/zarf/glulx/quixe/>
  * 
- * This Javascript library is copyright 2010-2021 by Andrew Plotkin.
+ * This Javascript library is copyright 2010-2022 by Andrew Plotkin.
  * It is distributed under the MIT license; see the "LICENSE" file.
  *
  * For documentation, see the README.txt or the web page noted above.
@@ -854,11 +854,15 @@ function setup_operandlist_table() {
     var list_LL = new OperandList("LL");
     var list_LLL = new OperandList("LLL");
     var list_LLLL = new OperandList("LLLL");
+    var list_LLLLL = new OperandList("LLLLL");
+    var list_LLLLLLL = new OperandList("LLLLLLL");
     var list_LS = new OperandList("LS");
     var list_LLS = new OperandList("LLS");
     var list_LLLLLLS = new OperandList("LLLLLLS");
     var list_LLLLLLLS = new OperandList("LLLLLLLS");
+    var list_LSS = new OperandList("LSS");
     var list_LLSS = new OperandList("LLSS");
+    var list_LLLLSS = new OperandList("LLLLSS");
     var list_LC = new OperandList("LC");
     var list_LLC = new OperandList("LLC");
     var list_LLLC = new OperandList("LLLC");
@@ -946,6 +950,8 @@ function setup_operandlist_table() {
         0x125: list_C, /* saveundo */
         0x126: list_F, /* restoreundo */
         0x127: list_LL, /* protect */
+        0x128: list_S, /* hasundo */
+        0x129: list_none, /* discardundo */
         0x130: list_LLF, /* glk */
         0x140: list_S, /* getstringtbl */
         0x141: list_L, /* setstringtbl */
@@ -992,7 +998,39 @@ function setup_operandlist_table() {
         0x1C4: list_LLL, /* jfgt */
         0x1C5: list_LLL, /* jfge */
         0x1C8: list_LL, /* jisnan */
-        0x1C9: list_LL  /* jisinf */
+        0x1C9: list_LL, /* jisinf */
+        0x200: list_LSS, /* numtod */
+        0x201: list_LLS, /* dtonumz */
+        0x202: list_LLS, /* dtonumn */
+        0x203: list_LSS, /* ftod */
+        0x204: list_LLS, /* dtof */
+        0x208: list_LLSS, /* dceil */
+        0x209: list_LLSS, /* dfloor */
+        0x210: list_LLLLSS, /* dadd */
+        0x211: list_LLLLSS, /* dsub */
+        0x212: list_LLLLSS, /* dmul */
+        0x213: list_LLLLSS, /* ddiv */
+        0x214: list_LLLLSS, /* dmodr */
+        0x215: list_LLLLSS, /* dmodq */
+        0x218: list_LLSS, /* dsqrt */
+        0x219: list_LLSS, /* dexp */
+        0x21A: list_LLSS, /* dlog */
+        0x21B: list_LLLLSS, /* dpow */
+        0x220: list_LLSS, /* dsin */
+        0x221: list_LLSS, /* dcos */
+        0x222: list_LLSS, /* dtan */
+        0x223: list_LLSS, /* dasin */
+        0x224: list_LLSS, /* dacos */
+        0x225: list_LLSS, /* datan */
+        0x226: list_LLLLSS, /* datan2 */
+        0x230: list_LLLLLLL, /* jdeq */
+        0x231: list_LLLLLLL, /* jdne */
+        0x232: list_LLLLL, /* jdlt */
+        0x233: list_LLLLL, /* jdle */
+        0x234: list_LLLLL, /* jdgt */
+        0x235: list_LLLLL, /* jdge */
+        0x238: list_LLL, /* jdisnan */
+        0x239: list_LLL  /* jdisinf */
     }
 }
 
@@ -1231,8 +1269,14 @@ function oputil_flush_string(context) {
     if (context.buffer.length == 0)
         return;
 
+    /* The context.buffer is text that needs to be flushed to the
+       Glk stream. */
+    
     var str = context.buffer.join("");
     context.buffer.length = 0;
+
+    if (str.length == 0)
+        return;
 
     context.code.push("self.Glk.glk_put_jstring("+QuoteEscapeString(str)+");");
 }
@@ -1300,6 +1344,32 @@ function oputil_decode_float(context, operand, hold) {
     }
 }
 
+/* Return the float (really double) equivalent of two values (high word, low
+   word).
+*/
+function oputil_decode_double(context, ophi, oplo, hold) {
+    var val, valhi, vallo;
+    if (quot_isconstant(ophi) && quot_isconstant(oplo)) {
+        valhi = Number(ophi);
+        vallo = Number(oplo);
+        /* The standard toString rendering of -0 is "0", so we have to
+           handle that case specially. */
+        if (valhi == 0x80000000 && vallo == 0x0)
+            return "-0";
+        return ""+decode_double(valhi, vallo);
+    }
+
+    val = "self.decode_double("+ophi+","+oplo+")";
+    if (hold) {
+        var holdvar = alloc_holdvar(context);
+        context.code.push(holdvar+"="+val+";");
+        return holdvar;
+    }
+    else {
+        return val;
+    }
+}
+    
 /* Generate code for a branch to operand. This includes the usual branch
    hack; 0 or 1 return from the current function. 
    If unconditional is false, the offstack values are left in place,
@@ -2158,6 +2228,14 @@ var opcode_table = {
         context.code.push("}");
     },
 
+    0x128: function(context, operands) { /* hasundo */
+        context.code.push(operands[0]+"(self.vm_hasundo() ? 0 : 1));");
+    },
+
+    0x129: function(context, operands) { /* discardundo */
+        context.code.push("self.vm_discardundo();");
+    },
+
     0x170: function(context, operands) { /* mzero */
         context.varsused["maddr"] = true;
         context.varsused["mlen"] = true;
@@ -2616,6 +2694,362 @@ var opcode_table = {
     0x1C9: function(context, operands) { /* jisinf */
         context.code.push("if ("+operands[0]+" == 0xff800000 || "+operands[0]+" == 0x7f800000) {");
         oputil_perform_jump(context, operands[1]);
+        context.code.push("}");
+    },
+
+    0x200: function(context, operands) { /* numtod */
+        var sign0 = oputil_signify_operand(context, operands[0]);
+        if (quot_isconstant(operands[0])) {
+            var val = Number(sign0);
+            var valpair = encode_double(val);
+            context.code.push(operands[1]+valpair.lo+");");
+            context.code.push(operands[2]+valpair.hi+");");
+        }
+        else {
+            context.varsused["dbl"] = true;
+            context.code.push("dbl=self.encode_double("+sign0+");");
+            context.code.push(operands[1]+"dbl.lo);");
+            context.code.push(operands[2]+"dbl.hi);");
+        }
+    },
+
+    0x201: function(context, operands) { /* dtonumz */
+        context.varsused["vald"] = true;
+        context.varsused["res"] = true;
+        context.code.push("vald = "+oputil_decode_double(context, operands[0], operands[1])+";");
+        context.code.push("if (!("+operands[0]+" & 0x80000000)) {");
+        context.code.push("  if (isNaN(vald) || !isFinite(vald) || (vald > 0x7fffffff))");
+        context.code.push("    res = 0x7fffffff;");
+        context.code.push("  else");
+        context.code.push("    res = Math.floor(vald);");
+        context.code.push("} else {");
+        context.code.push("  if (isNaN(vald) || !isFinite(vald) || (vald < -0x80000000))");
+        context.code.push("    res = -0x80000000;");
+        context.code.push("  else");
+        context.code.push("    res = Math.ceil(vald);");
+        context.code.push("}");
+        context.code.push(operands[2]+"res>>>0);");
+    },
+
+    0x202: function(context, operands) { /* dtonumn */
+        context.varsused["vald"] = true;
+        context.varsused["res"] = true;
+        context.code.push("vald = "+oputil_decode_double(context, operands[0], operands[1])+";");
+        context.code.push("if (!("+operands[0]+" & 0x80000000)) {");
+        context.code.push("  if (isNaN(vald) || !isFinite(vald))");
+        context.code.push("    res = 0x7fffffff;");
+        context.code.push("  else");
+        context.code.push("    res = Math.round(vald);");
+        context.code.push("  if (res > 0x7fffffff) res = 0x7fffffff;");
+        context.code.push("} else {");
+        context.code.push("  if (isNaN(vald) || !isFinite(vald))");
+        context.code.push("    res = -0x80000000;");
+        context.code.push("  else");
+        context.code.push("    res = Math.round(vald);");
+        context.code.push("  if (res < -0x80000000) res = -0x80000000;");
+        context.code.push("}");
+        context.code.push(operands[2]+"res>>>0);");
+    },
+
+    0x203: function(context, operands) { /* ftod */
+        var valf = oputil_decode_float(context, operands[0]);
+        context.varsused["dbl"] = true;
+        context.code.push("dbl=self.encode_double("+valf+");");
+        context.code.push(operands[1]+"dbl.lo);");
+        context.code.push(operands[2]+"dbl.hi);");
+    },
+
+    0x204: function(context, operands) { /* dtof */
+        var vald = oputil_decode_double(context, operands[0], operands[1]);
+        context.code.push(operands[2]+"self.encode_float("+vald+"));");
+    },
+
+    0x208: function(context, operands) { /* dceil */
+        var vald = oputil_decode_double(context, operands[0], operands[1]);
+        context.varsused["dbl"] = true;
+        context.code.push("dbl=self.encode_double(Math.ceil("+vald+"));");
+        context.code.push(operands[2]+"dbl.lo);");
+        context.code.push(operands[3]+"dbl.hi);");
+    },
+
+    0x209: function(context, operands) { /* dfloor */
+        var vald = oputil_decode_double(context, operands[0], operands[1]);
+        context.varsused["dbl"] = true;
+        context.code.push("dbl=self.encode_double(Math.floor("+vald+"));");
+        context.code.push(operands[2]+"dbl.lo);");
+        context.code.push(operands[3]+"dbl.hi);");
+    },
+
+    0x210: function(context, operands) { /* dadd */
+        var vald1 = oputil_decode_double(context, operands[0], operands[1]);
+        var vald2 = oputil_decode_double(context, operands[2], operands[3]);
+        context.varsused["dbl"] = true;
+        context.code.push("dbl=self.encode_double("+vald1+" + "+vald2+");");
+        context.code.push(operands[4]+"dbl.lo);");
+        context.code.push(operands[5]+"dbl.hi);");
+    },
+
+    0x211: function(context, operands) { /* dsub */
+        var vald1 = oputil_decode_double(context, operands[0], operands[1]);
+        var vald2 = oputil_decode_double(context, operands[2], operands[3]);
+        context.varsused["dbl"] = true;
+        context.code.push("dbl=self.encode_double("+vald1+" - "+vald2+");");
+        context.code.push(operands[4]+"dbl.lo);");
+        context.code.push(operands[5]+"dbl.hi);");
+    },
+
+    0x212: function(context, operands) { /* dmul */
+        var vald1 = oputil_decode_double(context, operands[0], operands[1]);
+        var vald2 = oputil_decode_double(context, operands[2], operands[3]);
+        context.varsused["dbl"] = true;
+        context.code.push("dbl=self.encode_double("+vald1+" * "+vald2+");");
+        context.code.push(operands[4]+"dbl.lo);");
+        context.code.push(operands[5]+"dbl.hi);");
+    },
+
+    0x213: function(context, operands) { /* ddiv */
+        var vald1 = oputil_decode_double(context, operands[0], operands[1]);
+        var vald2 = oputil_decode_double(context, operands[2], operands[3]);
+        context.varsused["dbl"] = true;
+        context.code.push("dbl=self.encode_double("+vald1+" / "+vald2+");");
+        context.code.push(operands[4]+"dbl.lo);");
+        context.code.push(operands[5]+"dbl.hi);");
+    },
+
+    0x214: function(context, operands) { /* dmodr */
+        var vald1 = oputil_decode_double(context, operands[0], operands[1]);
+        var vald2 = oputil_decode_double(context, operands[2], operands[3]);
+        context.varsused["dbl"] = true;
+        context.code.push("dbl=self.encode_double("+vald1+" % "+vald2+");");
+        context.code.push(operands[4]+"dbl.lo);");
+        context.code.push(operands[5]+"dbl.hi);");
+    },
+
+    0x215: function(context, operands) { /* dmodq */
+        context.varsused["vald1"] = true;
+        context.varsused["vald2"] = true;
+        context.code.push("vald1 = "+oputil_decode_double(context, operands[0], operands[1])+";");
+        context.code.push("vald2 = "+oputil_decode_double(context, operands[2], operands[3])+";");
+        context.varsused["dbl"] = true;
+        context.varsused["modv"] = true;
+        context.varsused["quov"] = true;
+        context.code.push("modv=(vald1 % vald2);");
+        context.code.push("dbl=self.encode_double((vald1 - modv) / vald2);");
+        context.code.push("if ((dbl.hi == 0x0 || dbl.hi == 0x80000000) && dbl.lo == 0x0) {");
+        /* When the quotient is zero, the sign has been lost in the
+           shuffle. We'll set that by hand, based on the original
+           arguments. */
+        context.code.push("  dbl.hi = (("+operands[0]+" ^ "+operands[2]+") & 0x80000000) >>>0;");
+        context.code.push("}");
+        context.code.push(operands[4]+"dbl.lo);");
+        context.code.push(operands[5]+"dbl.hi);");
+    },
+
+    0x218: function(context, operands) { /* dsqrt */
+        var vald = oputil_decode_double(context, operands[0], operands[1]);
+        context.varsused["dbl"] = true;
+        context.code.push("dbl=self.encode_double(Math.sqrt("+vald+"));");
+        context.code.push(operands[2]+"dbl.lo);");
+        context.code.push(operands[3]+"dbl.hi);");
+    },
+
+    0x219: function(context, operands) { /* dexp */
+        var vald = oputil_decode_double(context, operands[0], operands[1]);
+        context.varsused["dbl"] = true;
+        context.code.push("dbl=self.encode_double(Math.exp("+vald+"));");
+        context.code.push(operands[2]+"dbl.lo);");
+        context.code.push(operands[3]+"dbl.hi);");
+    },
+
+    0x21A: function(context, operands) { /* dlog */
+        var vald = oputil_decode_double(context, operands[0], operands[1]);
+        context.varsused["dbl"] = true;
+        context.code.push("dbl=self.encode_double(Math.log("+vald+"));");
+        context.code.push(operands[2]+"dbl.lo);");
+        context.code.push(operands[3]+"dbl.hi);");
+    },
+
+    0x21B: function(context, operands) { /* dpow */
+        context.varsused["dbl"] = true;
+        var vald0 = oputil_decode_double(context, operands[0], operands[1], true);
+        var vald1 = oputil_decode_double(context, operands[2], operands[3], true);
+        context.code.push("if ("+operands[0]+" == 0x3ff00000 && "+operands[1]+" == 0x0) {");
+        /* pow(1, anything) is 1 */
+        context.code.push("  dbl = { hi:0x3ff00000, lo:0x0 };");
+        context.code.push("} else if ("+operands[0]+" == 0xbff00000 && "+operands[1]+" == 0x0 && ("+operands[2]+" == 0xfff00000 || "+operands[2]+" == 0x7ff00000) && "+operands[3]+" == 0x0) {");
+        /* pow(-1, infinity) is 1 */
+        context.code.push("  dbl = { hi:0x3ff00000, lo:0x0 };");
+        context.code.push("} else {");
+        context.code.push("  dbl=self.encode_double(Math.pow("+vald0+", "+vald1+"));");
+        context.code.push("}");
+        context.code.push(operands[4]+"dbl.lo);");
+        context.code.push(operands[5]+"dbl.hi);");
+    },
+
+    0x220: function(context, operands) { /* dsin */
+        var vald = oputil_decode_double(context, operands[0], operands[1]);
+        context.varsused["dbl"] = true;
+        context.code.push("dbl=self.encode_double(Math.sin("+vald+"));");
+        context.code.push(operands[2]+"dbl.lo);");
+        context.code.push(operands[3]+"dbl.hi);");
+    },
+
+    0x221: function(context, operands) { /* dcos */
+        var vald = oputil_decode_double(context, operands[0], operands[1]);
+        context.varsused["dbl"] = true;
+        context.code.push("dbl=self.encode_double(Math.cos("+vald+"));");
+        context.code.push(operands[2]+"dbl.lo);");
+        context.code.push(operands[3]+"dbl.hi);");
+    },
+
+    0x222: function(context, operands) { /* dtan */
+        var vald = oputil_decode_double(context, operands[0], operands[1]);
+        context.varsused["dbl"] = true;
+        context.code.push("dbl=self.encode_double(Math.tan("+vald+"));");
+        context.code.push(operands[2]+"dbl.lo);");
+        context.code.push(operands[3]+"dbl.hi);");
+    },
+
+    0x223: function(context, operands) { /* dasin */
+        var vald = oputil_decode_double(context, operands[0], operands[1]);
+        context.varsused["dbl"] = true;
+        context.code.push("dbl=self.encode_double(Math.asin("+vald+"));");
+        context.code.push(operands[2]+"dbl.lo);");
+        context.code.push(operands[3]+"dbl.hi);");
+    },
+
+    0x224: function(context, operands) { /* dacos */
+        var vald = oputil_decode_double(context, operands[0], operands[1]);
+        context.varsused["dbl"] = true;
+        context.code.push("dbl=self.encode_double(Math.acos("+vald+"));");
+        context.code.push(operands[2]+"dbl.lo);");
+        context.code.push(operands[3]+"dbl.hi);");
+    },
+
+    0x225: function(context, operands) { /* datan */
+        var vald = oputil_decode_double(context, operands[0], operands[1]);
+        context.varsused["dbl"] = true;
+        context.code.push("dbl=self.encode_double(Math.atan("+vald+"));");
+        context.code.push(operands[2]+"dbl.lo);");
+        context.code.push(operands[3]+"dbl.hi);");
+    },
+
+    0x226: function(context, operands) { /* datan2 */
+        var vald1 = oputil_decode_double(context, operands[0], operands[1]);
+        var vald2 = oputil_decode_double(context, operands[2], operands[3]);
+        context.varsused["dbl"] = true;
+        context.code.push("dbl=self.encode_double(Math.atan2("+vald1+", "+vald2+"));");
+        context.code.push(operands[4]+"dbl.lo);");
+        context.code.push(operands[5]+"dbl.hi);");
+    },
+
+    0x230: function(context, operands) { /* jdeq */
+        var val, valhi, vallo, vald0, vald1, vald2;
+        context.varsused["dequal"] = true;
+        context.varsused["ddiff"] = true;
+        context.code.push("if (("+operands[4]+" & 0x7ff00000) == 0x7ff00000 && (("+operands[4]+" & 0xfffff) != 0x0 || "+operands[5]+" != 0x0)) {");
+        /* The delta is NaN, which can never match. */
+        context.code.push("  dequal = 0;");
+        context.code.push("} else if (("+operands[0]+" == 0xfff00000 || "+operands[0]+" == 0x7ff00000) && ("+operands[1]+" == 0x0) && ("+operands[2]+" == 0xfff00000 || "+operands[2]+" == 0x7ff00000) && ("+operands[3]+" == 0x0)) {");
+        /* Both are infinite. Opposite infinities are never equal,
+           even if the difference is infinite, so this is easy. */
+        context.code.push("  dequal = ("+operands[0]+" == "+operands[2]+" && "+operands[1]+" == "+operands[3]+");");
+        context.code.push("} else {");
+        /* The other case: the values are not both infinite. */
+        if (quot_isconstant(operands[4]) && quot_isconstant(operands[5])) {
+            valhi = Number(operands[4]);
+            vallo = Number(operands[5]);
+            vald2 = "" + decode_double((valhi & 0x7fffffff), (vallo & 0x7fffffff));
+        }
+        else {
+            val = "self.decode_double((("+operands[4]+") & 0x7fffffff), ("+operands[5]+"))";
+            vald2 = alloc_holdvar(context);
+            context.code.push(vald2+"="+val+";");
+        }
+        vald0 = oputil_decode_double(context, operands[0], operands[1]);
+        vald1 = oputil_decode_double(context, operands[2], operands[3]);
+        context.code.push("  ddiff = "+vald1+" - "+vald0+";");
+        context.code.push("  dequal = (ddiff <= "+vald2+" && ddiff >= -("+vald2+"));");
+        context.code.push("}");
+        context.code.push("if (dequal) {");
+        oputil_perform_jump(context, operands[6]);
+        context.code.push("}");
+    },
+
+    0x231: function(context, operands) { /* jdne */
+        var val, valhi, vallo, vald0, vald1, vald2;
+        context.varsused["dequal"] = true;
+        context.varsused["ddiff"] = true;
+        context.code.push("if (("+operands[4]+" & 0x7ff00000) == 0x7ff00000 && (("+operands[4]+" & 0xfffff) != 0x0 || "+operands[5]+" != 0x0)) {");
+        /* The delta is NaN, which can never match. */
+        context.code.push("  dequal = 0;");
+        context.code.push("} else if (("+operands[0]+" == 0xfff00000 || "+operands[0]+" == 0x7ff00000) && ("+operands[1]+" == 0x0) && ("+operands[2]+" == 0xfff00000 || "+operands[2]+" == 0x7ff00000) && ("+operands[3]+" == 0x0)) {");
+        /* Both are infinite. Opposite infinities are never equal,
+           even if the difference is infinite, so this is easy. */
+        context.code.push("  dequal = ("+operands[0]+" == "+operands[2]+" && "+operands[1]+" == "+operands[3]+");");
+        context.code.push("} else {");
+        /* The other case: the values are not both infinite. */
+        if (quot_isconstant(operands[4]) && quot_isconstant(operands[5])) {
+            valhi = Number(operands[4]);
+            vallo = Number(operands[5]);
+            vald2 = "" + decode_double((valhi & 0x7fffffff), (vallo & 0x7fffffff));
+        }
+        else {
+            val = "self.decode_double((("+operands[4]+") & 0x7fffffff), ("+operands[5]+"))";
+            vald2 = alloc_holdvar(context);
+            context.code.push(vald2+"="+val+";");
+        }
+        vald0 = oputil_decode_double(context, operands[0], operands[1]);
+        vald1 = oputil_decode_double(context, operands[2], operands[3]);
+        context.code.push("  ddiff = "+vald1+" - "+vald0+";");
+        context.code.push("  dequal = (ddiff <= "+vald2+" && ddiff >= -("+vald2+"));");
+        context.code.push("}");
+        context.code.push("if (!dequal) {");
+        oputil_perform_jump(context, operands[6]);
+        context.code.push("}");
+    },
+
+    0x232: function(context, operands) { /* jdlt */
+        var vald1 = oputil_decode_double(context, operands[0], operands[1]);
+        var vald2 = oputil_decode_double(context, operands[2], operands[3]);
+        context.code.push("if ("+vald1+" < "+vald2+") {");
+        oputil_perform_jump(context, operands[4]);
+        context.code.push("}");
+    },
+
+    0x233: function(context, operands) { /* jdle */
+        var vald1 = oputil_decode_double(context, operands[0], operands[1]);
+        var vald2 = oputil_decode_double(context, operands[2], operands[3]);
+        context.code.push("if ("+vald1+" <= "+vald2+") {");
+        oputil_perform_jump(context, operands[4]);
+        context.code.push("}");
+    },
+
+    0x234: function(context, operands) { /* jdgt */
+        var vald1 = oputil_decode_double(context, operands[0], operands[1]);
+        var vald2 = oputil_decode_double(context, operands[2], operands[3]);
+        context.code.push("if ("+vald1+" > "+vald2+") {");
+        oputil_perform_jump(context, operands[4]);
+        context.code.push("}");
+    },
+
+    0x235: function(context, operands) { /* jdge */
+        var vald1 = oputil_decode_double(context, operands[0], operands[1]);
+        var vald2 = oputil_decode_double(context, operands[2], operands[3]);
+        context.code.push("if ("+vald1+" >= "+vald2+") {");
+        oputil_perform_jump(context, operands[4]);
+        context.code.push("}");
+    },
+
+    0x238: function(context, operands) { /* jdisnan */
+        context.code.push("if ((("+operands[0]+" & 0x7ff00000) == 0x7ff00000) && (("+operands[0]+" & 0xfffff) != 0x0 || "+operands[1]+" != 0x0)) {");
+        oputil_perform_jump(context, operands[2]);
+        context.code.push("}");
+    },
+
+    0x239: function(context, operands) { /* jdisinf */
+        context.code.push("if (("+operands[0]+" == 0xfff00000 || "+operands[0]+" == 0x7ff00000) && "+operands[1]+" == 0x0) {");
+        oputil_perform_jump(context, operands[2]);
         context.code.push("}");
     },
 
@@ -3956,6 +4390,15 @@ self.accel_funcnum_map = accel_funcnum_map;
 var accel_params = [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
 self.accel_params = accel_params;
 
+function accel_print_error(msg) {
+    if (self.iosysmode == 2) {
+        self.Glk.glk_put_jstring(msg);
+    };
+    /* If we're in iosys_Filter, there's no way to validly call the filter
+       function, and the Glk printing path might throw a fatal error.
+       Just give up. */
+}
+    
 /* The code for all the functions we can accelerate. Unrecognized indexes,
    including zero, map to undefined.
 
@@ -3992,7 +4435,7 @@ var accel_func_map = {
 
         /* func_1_z__region(obj) */
         if (accel_func_map[1](argc, argv) != 1) { 
-            self.Glk.glk_put_jstring("\n[** Programming error: tried to find the \".\" of (something) **]\n");
+            accel_print_error("\n[** Programming error: tried to find the \".\" of (something) **]\n");
             return 0;
         }
 
@@ -4073,7 +4516,7 @@ var accel_func_map = {
             return 0;
     
         if (!accel_helper_obj_in_class(cla)) {
-            self.Glk.glk_put_jstring("\n[** Programming error: tried to apply 'ofclass' with non-class **]\n");
+            accel_print_error("\n[** Programming error: tried to apply 'ofclass' with non-class **]\n");
             return 0;
         }
     
@@ -4107,7 +4550,7 @@ var accel_func_map = {
                 return Mem4(accel_params[8] + (4 * id));
             }
 
-            self.Glk.glk_put_jstring("\n[** Programming error: tried to read (something) **]\n");
+            accel_print_error("\n[** Programming error: tried to read (something) **]\n");
             return 0;
         }
 
@@ -4153,7 +4596,7 @@ var accel_func_map = {
 
         /* func_1_z__region(obj) */
         if (accel_func_map[1](argc, argv) != 1) { 
-            self.Glk.glk_put_jstring("\n[** Programming error: tried to find the \".\" of (something) **]\n");
+            accel_print_error("\n[** Programming error: tried to find the \".\" of (something) **]\n");
             return 0;
         }
 
@@ -4235,7 +4678,7 @@ var accel_func_map = {
             return 0;
     
         if (!accel_helper_obj_in_class(cla)) {
-            self.Glk.glk_put_jstring("\n[** Programming error: tried to apply 'ofclass' with non-class **]\n");
+            accel_print_error("\n[** Programming error: tried to apply 'ofclass' with non-class **]\n");
             return 0;
         }
     
@@ -4269,7 +4712,7 @@ var accel_func_map = {
                 return Mem4(accel_params[8] + (4 * id));
             }
 
-            self.Glk.glk_put_jstring("\n[** Programming error: tried to read (something) **]\n");
+            accel_print_error("\n[** Programming error: tried to read (something) **]\n");
             return 0;
         }
 
@@ -4659,7 +5102,10 @@ function stream_string(nextcp, addr, inmiddle, bitnum) {
         //qlog("### strop(" + addrkey + (substring?":[sub]":"") + "): " + strop);
     
         if (!(strop instanceof Function)) {
-            self.Glk.glk_put_jstring(strop);
+            /* We're being a little lax here. Printing the empty string
+               to an unset Glk stream is an error. We'll let it pass. */
+            if (strop.length != 0)
+                self.Glk.glk_put_jstring(strop);
             if (!substring)
                 return false;
         }
@@ -5142,7 +5588,7 @@ function compile_string(curiosys, startaddr, inmiddle, startbitnum) {
 
     if (!retval) {
         /* The simple case; retval is false or undefined. Equivalent to a
-           function that prints text and returns false. */
+           function that prints text (to Glk) and returns false. */
         ;;;if (context.code.length > 1) {
         ;;;    fatal_error("Simple-case string generated code."); //assert
         ;;;}
@@ -5160,10 +5606,10 @@ function do_gestalt(val, val2) {
 
     switch (val) {
     case 0: /* GlulxVersion */
-        return 0x00030102; /* Glulx spec version 3.1.2 */
+        return 0x00030103; /* Glulx spec version 3.1.3 */
 
     case 1: /* TerpVersion */
-        return 0x00020200; /* Quixe version 2.2.0 */
+        return 0x00020201; /* Quixe version 2.2.1 */
 
     case 2: /* ResizeMem */
         return 1; /* Memory resizing works. */
@@ -5207,6 +5653,12 @@ function do_gestalt(val, val2) {
 
     case 11: /* Float */
         return 1; /* We can handle the floating-point opcodes. */
+
+    case 12: /* ExtUndo */
+        return 1; /* We can handle hasundo/discardundo. */
+
+    case 13: /* Double */
+        return 1; /* We can handle the double-precision opcodes. */
 
 
     default:
@@ -5495,8 +5947,150 @@ function encode_float(val) {
         return (expo << 23) | (fbits);
 }
 
+/* Convert a pair of integers (in double-precision format) into a
+   Javascript number.
+*/
+function decode_double(valhi, vallo) {
+    var sign, res, expo, manthi, mantlo;
+
+    if (valhi & 0x80000000) {
+        sign = true;
+        valhi = valhi & 0x7fffffff;
+    }
+    else {
+        sign = false;
+    }
+
+    if (valhi == 0 && vallo == 0) {
+        return (sign ? -0.0 : 0.0);
+    }
+
+    expo = (valhi >> 20) & 0x7ff;
+    manthi = valhi & 0xfffff;
+    mantlo = vallo;
+    
+    if (expo == 2047) {
+        /* Either an infinity or a NaN. */
+        if (manthi == 0 && mantlo == 0) {
+            return (sign ? -Infinity : Infinity);
+        }
+        else {
+            return (sign ? -NaN : NaN);
+        }
+    }
+
+    res = mantlo / 4503599627370496.0 + manthi / 1048576.0;
+    
+    if (expo) {
+        res = (res+1) * Math.pow(2, (expo - 1023));
+    }
+    else {
+        res = res * Math.pow(2, -1022);
+    }
+
+    return (sign ? -res : res);
+}
+
+/* Convert a Javascript number into IEEE-754 double-precision format.
+   The result will be a pair of 32-bit integers.
+*/
+function encode_double(val) {
+    var absval, fhi, flo;
+    var mant, expo, sign;
+    var valhi, vallo;
+
+    if (isNaN(val)) {
+        return { hi:0x7FF80000, lo:0x00000001 };
+    }
+    if (!isFinite(val)) {
+        if (val < 0)
+            return { hi:0xFFF00000, lo:0x0 };
+        else
+            return { hi:0x7FF00000, lo:0x0 };
+    }
+    if (val == 0) {
+        /* We have to deal with zeroes separately, because you can't test
+           (-0 < 0) -- it ain't so. You have to turn the thing into an
+           infinity and test that. */
+        if (1 / val < 0)
+            return { hi:0x80000000, lo:0x0 };
+        else
+            return { hi:0x00000000, lo:0x0 };
+    }
+
+    if (val < 0) {
+        sign = true;
+        absval = -val;
+    }
+    else {
+        sign = false;
+        absval = val;
+    }
+
+    expo = Math.floor(Math.log(absval) / Math.log(2));
+    if (expo == 1024) {
+        expo--;
+    }
+    else if (expo >= 1024) {
+        /* Oops, overflow */
+        return (sign ? 0xff800000 : 0x7f800000); /* infinity */
+    }
+    
+    mant = absval / Math.pow(2, expo);
+
+    /* Normalize mantissa to be in the range [1.0, 2.0) */
+    if (0.5 <= mant && mant < 1.0) {
+        mant *= 2.0;
+        expo--;
+    }
+    else if (mant >= 2.0) {
+        mant *= 0.5;
+        expo++;
+    }
+    else if (mant == 0.0) {
+        expo = 0;
+    }
+    
+    if (expo < -1022) {
+        /* Denormalized (very small) number */
+        mant = mant * Math.pow(2, 1022 + expo);
+        expo = 0;
+    }
+    else if (!(expo == 0 && mant == 0.0)) {
+        expo += 1023;
+        mant -= 1.0; /* Get rid of leading 1 */
+    }
+
+    /* fhi receives the high 28 bits; flo the low 24 bits (total 52 bits) */
+    mant *= 268435456.0;          /* 2^28 */
+    fhi = mant << 0;              /* Truncate */
+    mant -= fhi;
+    mant *= 16777216.0;           /* 2^24 */
+    flo = (mant+0.5) << 0;        /* Round */
+    
+    if (flo >> 24) {
+        /* The carry propagated out of a string of 24 1 bits. */
+        flo = 0;
+        fhi++;
+        if (fhi >> 28) {
+            /* And it also propagated out of the next 28 bits. */
+            fhi = 0;
+            expo++;
+            if (expo >= 255) {
+                return (sign ? 0xff800000 : 0x7f800000); /* infinity */
+            }
+        }
+    }
+
+    valhi = ((sign ? 0x80000000 : 0x00000000) | (expo << 20) | (fhi >> 8)) >>>0;
+    vallo = (((fhi & 0xFF) << 24) | (flo)) >>>0;
+    return { hi:valhi, lo:vallo };
+}
+
 self.decode_float = decode_float;
 self.encode_float = encode_float;
+self.decode_double = decode_double;
+self.encode_double = encode_double;
 
 /* ----------------------------------------------------------------- */
 
@@ -6242,10 +6836,31 @@ function vm_restoreundo() {
     return true;
 }
 
+/* Checks whether there's a snapshot on the undo stack.
+   Returns true if there is.
+*/
+function vm_hasundo() {
+    if (undostack.length == 0) {
+        return false;
+    }
+    return true;
+}
+
+/* Pops the most recent snapshot off the undo stack, if there are any.
+*/
+function vm_discardundo() {
+    if (undostack.length == 0) {
+        return;
+    }
+    var snapshot = undostack.pop();
+}
+
 self.vm_save = vm_save;
 self.vm_restore = vm_restore;
 self.vm_saveundo = vm_saveundo;
 self.vm_restoreundo = vm_restoreundo;
+self.vm_hasundo = vm_hasundo;
+self.vm_discardundo = vm_discardundo;
 
 /* Change the size of the memory map. The internal flag should be true 
    only when the heap-allocation system is calling.
@@ -6776,7 +7391,7 @@ function execute_loop() {
    become the Quixe global. */
 return {
     classname: 'Quixe',
-    version: '2.2.0', /* Quixe version */
+    version: '2.2.1', /* Quixe version */
     init: quixe_init,
     inited: quixe_inited,
     getlibrary: quixe_getlibrary,
