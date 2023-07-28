@@ -6,7 +6,7 @@
 [Play now on GitHub Pages](https://stone1343.github.io/get-fluffy/public/index.html) (Desktop browser strongly recommended)
 
 *Get Fluffy!* should be played on a modern desktop browser such Firefox, Chrome or Edge. Android, iOS, Glulxe or Lectrote have
-not been tested and should not be used -- it will not work properly, but more importantly, you won't get the intended
+not been tested and should not be used -- it probably won't work properly, but more importantly, you won't get the intended
 experience.
 
 Here's an example how to download *Get Fluffy!* from GitHub on Windows:

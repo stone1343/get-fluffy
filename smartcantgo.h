@@ -39,6 +39,7 @@
 !       ChangeDefault(cant_go, SmartCantGo);
 !
 !==============================================================================!
+!
 !   NOTES
 !
 !   1.  If the room is dark, it prints just "You can't go that way."

@@ -6,7 +6,7 @@
 -- character table string
 local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
 
--- encoding
+-- encode
 function enc(data)
   return ((data:gsub('.', function(x)
     local r,b='',x:byte()
@@ -20,7 +20,7 @@ function enc(data)
   end)..({ '', '==', '=' })[#data%3+1])
 end
 
--- decoding
+-- decode
 function dec(data)
   data = string.gsub(data, '[^'..b..'=]', '')
   return (data:gsub('.', function(x)

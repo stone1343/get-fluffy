@@ -1,4 +1,5 @@
 ! NEWFLAGS.H by Fredrik Ramsberg, adapted from FLAGS.H by Adam Cadre.
+
 ! NEWFLAGS.H is meant to be more efficient with system resources and
 ! more convenient to use than FLAGS.H.
 

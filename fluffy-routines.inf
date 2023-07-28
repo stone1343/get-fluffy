@@ -1,4 +1,3 @@
-
 ! Glk and customization routines
 
 ! For no status window, GG_STATUSWIN_ROCK should just rtrue;
