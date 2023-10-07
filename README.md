@@ -13,7 +13,6 @@ Here's an example how to download *Get Fluffy!* from GitHub on Windows:
 
 ```
 cd %USERPROFILE%\Downloads
-if exist get-fluffy-231007\. rmdir /s /q get-fluffy-231007
 if exist get-fluffy-231007.zip del get-fluffy-231007.zip
 curl -L -o get-fluffy-231007.zip https://github.com/stone1343/get-fluffy/archive/refs/tags/231007.zip
 if exist get-fluffy-231007\. rmdir /s /q get-fluffy-231007
