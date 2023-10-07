@@ -1,6 +1,6 @@
 Quixe -- a Glulx VM interpreter written in Javascript
 
-Quixe Library: version 2.2.1.
+Quixe Library: version 2.2.2.
 Designed by Andrew Plotkin <erkyrath@eblong.com>.
 (Storage and heap-management code contributed by Iain Merrick.)
 <http://eblong.com/zarf/glulx/quixe/>
@@ -98,6 +98,9 @@ If you have no idea what I just said, ignore lib/elkote.min.js.
 
 
 * Version History
+
+- 2.2.2 (September 1, 2023)
+  - Fixed an obscure scrolling bug in Firefox.
 
 - 2.2.1 (July 4, 2022)
   - Added @hasundo and @discardundo opcodes. (Glulx spec 3.1.3.)
@@ -255,7 +258,7 @@ If you have no idea what I just said, ignore lib/elkote.min.js.
 * Permissions
 
 The Quixe, GiDispa, and GiLoad Javascript libraries are copyright
-2010-2022 by Andrew Plotkin. They are distributed under the MIT license;
+2010-2023 by Andrew Plotkin. They are distributed under the MIT license;
 see the "LICENSE" file.
 
 This package includes the GlkOte, GlkAPI, and Dialog libraries, also
