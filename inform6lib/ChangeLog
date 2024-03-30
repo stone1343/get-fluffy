@@ -7,18 +7,6 @@ verblib.h gets symlinked to Verblib.h and VerbLib.h) -- except on
 systems where case doesn't matter.
 
 
-Version 6.12.7 (xx xxx 202x)
-=================================
-
-This is a maintenance release focusing almost entirely on bug fixes.
-
-Bugs fixed
-----------
-
-* Removed spurious complaint of an unreachable statement when compiling
-  to Glulx.
-
-
 Version 6.12.6 (19 February 2022)
 =================================
 

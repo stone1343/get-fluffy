@@ -1,9 +1,9 @@
 ! ==============================================================================
 !   LINKLPA:  Link declarations of common properties and attributes.
 !
-!   Supplied for use with Inform 6 -- Release 6.12.7dev -- Serial number 230221
+!   Supplied for use with Inform 6 -- Release 6.12.6 -- Serial number 220219
 !
-!   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2023
+!   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2022
 !
 !   This code is licensed under either the traditional Inform license as
 !   described by the DM4 or the Artistic License version 2.0.  See the

@@ -1,9 +1,9 @@
 ! ==============================================================================
 !   PARSER:  Front end to parser.
 !
-!   Supplied for use with Inform 6 -- Release 6.12.7dev -- Serial number 230221
+!   Supplied for use with Inform 6 -- Release 6.12.6 -- Serial number 220219
 !
-!   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2023
+!   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2022
 !
 !   This code is licensed under either the traditional Inform license as
 !   described by the DM4 or the Artistic License version 2.0.  See the
@@ -760,12 +760,9 @@ Constant DEFART_PK   = $101;
 Constant INDEFART_PK = $102;
 Global short_name_case;
 
-! These are set in ZZInitialise().  No equivalent needed for Glulx.
-#Ifdef TARGET_ZCODE;
 Global dict_start;
 Global dict_entry_size;
 Global dict_end;
-#Endif;
 
 ! ----------------------------------------------------------------------------
 
@@ -4921,10 +4918,23 @@ Constant MAX_DECIMAL_BASE 214748364;
 ! ----------------------------------------------------------------------------
 
 #Ifdef TARGET_ZCODE;
-[ Dword__No w; return (w-dict_start)/dict_entry_size; ];
-[ No__Dword n; return dict_start + dict_entry_size*n; ];
+
+[ Dword__No w dp dh;
+	dp = HDR_DICTIONARY-->0;
+	dh = dp->0 + 4;
+	dp = dp + dp->0 + 1;
+	return (w-(HDR_DICTIONARY-->0 + dh )) / (dp->0);
+];
+
+[ No__Dword n dp dh;
+	dp = HDR_DICTIONARY-->0;
+	dh = dp->0 + 4;
+	dp = dp + dp->0 + 1;
+	return HDR_DICTIONARY-->0 + dh + (dp->0 *n);
+];
 
 #Ifnot; ! TARGET_GLULX
+
 ! In Glulx, dictionary entries *are* addresses.
 [ Dword__No w; return w; ];
 [ No__Dword n; return n; ];

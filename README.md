@@ -13,11 +13,11 @@ Here's an example how to download *Get Fluffy!* from GitHub on Windows:
 
 ```
 cd %USERPROFILE%\Downloads
-if exist get-fluffy-231007.zip del get-fluffy-231007.zip
-curl -L -o get-fluffy-231007.zip https://github.com/stone1343/get-fluffy/archive/refs/tags/231007.zip
-if exist get-fluffy-231007\. rmdir /s /q get-fluffy-231007
-tar -xf get-fluffy-231007.zip
-cd get-fluffy-231007
+if exist get-fluffy-240330.zip del get-fluffy-240330.zip
+curl -L -o get-fluffy-240330.zip https://github.com/stone1343/get-fluffy/archive/refs/tags/240330.zip
+if exist get-fluffy-240330\. rmdir /s /q get-fluffy-240330
+tar -xf get-fluffy-240330.zip
+cd get-fluffy-240330
 play
 ```
 
@@ -25,10 +25,10 @@ or on Linux:
 
 ```bash
 cd ~/Downloads
-[ -d get-fluffy-231007 ] && rm -rf get-fluffy-231007
-git clone --depth 1 --branch 231007 https://github.com/stone1343/get-fluffy.git get-fluffy-231007
-if [ -d "get-fluffy-231007" ]; then
-  cd get-fluffy-231007
+[ -d get-fluffy-240330 ] && rm -rf get-fluffy-240330
+git clone --depth 1 --branch 240330 https://github.com/stone1343/get-fluffy.git get-fluffy-240330
+if [ -d "get-fluffy-240330" ]; then
+  cd get-fluffy-240330
   ./play
 fi
 ```

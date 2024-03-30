@@ -1,9 +1,9 @@
 ! ==============================================================================
 !   VERBLIB:  Front end to standard verbs library.
 !
-!   Supplied for use with Inform 6 -- Release 6.12.7dev -- Serial number 230221
+!   Supplied for use with Inform 6 -- Release 6.12.6 -- Serial number 220219
 !
-!   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2023
+!   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2022
 !
 !   This code is licensed under either the traditional Inform license as
 !   described by the DM4 or the Artistic License version 2.0.  See the
@@ -404,6 +404,12 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
                     if (c_style & ENGLISH_BIT) print " (";
                     if (c_style & INDENT_BIT)  print (string) COLON__TX, "^";
                 }
+                q = c_style;
+                if (k2 ~= String) {
+                    inventory_stage = 1;
+                    parser_one = j; parser_two = depth+wlf_indent;
+                    if (RunRoutines(j, list_together) == 1) jump Omit__Sublist2;
+                }
 
                 #Ifdef TARGET_ZCODE;
                 @push lt_value;    @push listing_together;    @push listing_size;
@@ -411,16 +417,16 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
                 @copy lt_value sp; @copy listing_together sp; @copy listing_size sp;
                 #Endif; ! TARGET_;
 
-                lt_value = j.list_together; listing_together = j;
-				q = c_style;
-                if (k2 ~= String) {
-                    inventory_stage = 1;
-                    parser_one = j; parser_two = depth+wlf_indent;
-                    if (RunRoutines(j, list_together) == 1) jump Omit__Sublist2;
-                }
-
-                wlf_indent++;
+                lt_value = j.list_together; listing_together = j; wlf_indent++;
                 WriteListR(j, depth, stack_pointer); wlf_indent--;
+
+                #Ifdef TARGET_ZCODE;
+                @pull listing_size; @pull listing_together; @pull lt_value;
+                #Ifnot; ! TARGET_GLULX;
+                @copy sp listing_size;
+                @copy sp listing_together;
+                @copy sp lt_value;
+                #Endif; ! TARGET_;
 
                 if (k2 == String) {
                     if (q & ENGLISH_BIT) print ")";
@@ -432,14 +438,6 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
                 }
 
               .Omit__Sublist2;
-
-                #Ifdef TARGET_ZCODE;
-                @pull listing_size; @pull listing_together; @pull lt_value;
-                #Ifnot; ! TARGET_GLULX;
-                @copy sp listing_size;
-                @copy sp listing_together;
-                @copy sp lt_value;
-                #Endif; ! TARGET_;
 
                 if (q & NEWLINE_BIT && c_style & NEWLINE_BIT == 0) new_line;
                 c_style = q;
@@ -512,14 +510,6 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
                     if (c_style & ENGLISH_BIT) print " (";
                     if (c_style & INDENT_BIT) print (string) COLON__TX, "^";
                 }
-
-                #Ifdef TARGET_ZCODE;
-                @push lt_value; @push listing_together; @push listing_size;
-                #Ifnot; ! TARGET_GLULX;
-                @copy lt_value sp; @copy listing_together sp; @copy listing_size sp;
-                #Endif; ! TARGET_;
-
-                lt_value = j.list_together; listing_together = j; 
                 q = c_style;
                 if (k ~= String) {
                     inventory_stage = 1;
@@ -527,8 +517,20 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
                     if (RunRoutines(j, list_together) == 1) jump Omit__Sublist;
                 }
 
-                wlf_indent++;
+                #Ifdef TARGET_ZCODE;
+                @push lt_value; @push listing_together; @push listing_size;
+                #Ifnot; ! TARGET_GLULX;
+                @copy lt_value sp; @copy listing_together sp; @copy listing_size sp;
+                #Endif; ! TARGET_;
+
+                lt_value = j.list_together; listing_together = j; wlf_indent++;
                 WriteListR(j, depth, stack_pointer); wlf_indent--;
+
+                #Ifdef TARGET_ZCODE;
+                @pull listing_size; @pull listing_together; @pull lt_value;
+                #Ifnot; ! TARGET_GLULX;
+                @copy sp listing_size; @copy sp listing_together; @copy sp lt_value;
+                #Endif; ! TARGET_;
 
                 if (k == String) {
                     if (q & ENGLISH_BIT) print ")";
@@ -540,12 +542,6 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
                 }
 
               .Omit__Sublist;
-
-                #Ifdef TARGET_ZCODE;
-                @pull listing_size; @pull listing_together; @pull lt_value;
-                #Ifnot; ! TARGET_GLULX;
-                @copy sp listing_size; @copy sp listing_together; @copy sp lt_value;
-                #Endif; ! TARGET_;
 
                 if (q & NEWLINE_BIT && c_style & NEWLINE_BIT == 0) new_line;
                 c_style = q;
@@ -1236,7 +1232,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
     L__M(##Restore, 1);
 ];
 
-[ SaveSub res fref;
+[ SaveSub res fref retval;
     fref = glk_fileref_create_by_prompt($01, $01, 0);
     if (fref == 0) jump SFailed;
     gg_savestr = glk_stream_open_file(fref, $01, GG_SAVESTR_ROCK);
@@ -1255,6 +1251,7 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
             return LibraryExtensions.RunAll(ext_afterrestore);
         else
             return L__M(##Restore, 2);
+        return retval;
     }
     glk_stream_close(gg_savestr, 0);
     gg_savestr = 0;
@@ -1981,25 +1978,11 @@ Constant ID_BIT        $2000;       ! Print object id after each entry
 !   Empties and transfers are routed through the actions above
 ! ----------------------------------------------------------------------------
 
-[ TransferSub ks;
-    ks = keep_silent;
-
-    if (noun notin actor) {
-	keep_silent = true;
-	AttemptToTakeObject(noun);
-    }
-
-    if (noun in actor) {
-	if (second has supporter) <PutOn noun second, actor>;
-	if (second == d_obj) <Drop noun, actor>;
-	<Insert noun second, actor>;
-    }
-
-    keep_silent = ks;
-
-    if (noun notin actor) rfalse;
-    rtrue;
-
+[ TransferSub;
+    if (noun notin actor && AttemptToTakeObject(noun)) return;
+    if (second has supporter) <<PutOn noun second, actor>>;
+    if (second == d_obj) <<Drop noun, actor>>;
+    <<Insert noun second, actor>>;
 ];
 
 [ EmptySub; second = d_obj; EmptyTSub(); ];
