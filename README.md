@@ -16,7 +16,7 @@ cd %USERPROFILE%\Downloads
 if exist get-fluffy-240330.zip del get-fluffy-240330.zip
 curl -L -o get-fluffy-240330.zip https://github.com/stone1343/get-fluffy/archive/refs/tags/240330.zip
 if exist get-fluffy-240330\. rmdir /s /q get-fluffy-240330
-tar -xf get-fluffy-240330.zip
+"C:\Program Files\7-Zip\7z" x get-fluffy-240330.zip
 cd get-fluffy-240330
 play
 ```
