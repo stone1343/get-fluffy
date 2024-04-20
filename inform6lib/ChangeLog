@@ -7,6 +7,29 @@ verblib.h gets symlinked to Verblib.h and VerbLib.h) -- except on
 systems where case doesn't matter.
 
 
+Version 6.12.7 (10 April 2024)
+==============================
+
+This is a maintenance release focusing almost entirely on bug fixes.
+
+Bugs fixed
+----------
+
+* Reworked list of verbs.  Some game verbs did not respect the
+  alphabetical order (the verb 'throw' in particular).
+
+* Fixed problem with lt_value is set too late for list_together.
+
+* Fixed TRANSFER aborting if a custom LetGo routine is involved.
+
+* Removed useless "retval" that caused unreachable code warnings when
+  compiling to Glulx.
+
+* Optimized Dword__No() and No__Dword() to avoid needless recomputing.
+
+* This release is dedicated to the memory of Archturiat Baumann.
+  (April 10, 1970 - April 3, 2024)
+
 Version 6.12.6 (19 February 2022)
 =================================
 

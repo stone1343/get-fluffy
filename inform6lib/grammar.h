@@ -1,9 +1,9 @@
 ! ==============================================================================
 !   GRAMMAR:  Grammar table entries for the standard verbs library.
 !
-!   Supplied for use with Inform 6 -- Release 6.12.5 -- Serial number 220219
+!   Supplied for use with Inform 6 -- Release 6.12.7dev -- Serial number 240409
 !
-!   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2022
+!   Copyright Graham Nelson 1993-2004 and David Griffith 2012-2024
 !   This code is licensed under either the traditional Inform license as
 !   described by the DM4 or the Artistic License version 2.0.  See the
 !   file COPYING in the distribution archive or at
@@ -17,9 +17,9 @@
 
 System_file;
 
-#Ifdef		LIBRARY_STAGE;
-#Iffalse	LIBRARY_STAGE >= AFTER_GRAMMAR;	! if not already included
-#Iftrue		LIBRARY_STAGE == AFTER_VERBLIB;	! if okay to include it
+#Ifdef      LIBRARY_STAGE;
+#Iffalse    LIBRARY_STAGE >= AFTER_GRAMMAR;  ! if not already included
+#Iftrue     LIBRARY_STAGE == AFTER_VERBLIB;  ! if okay to include it
 
 ! ------------------------------------------------------------------------------
 !  The "meta-verbs", commands to the game rather than in the game, come first:
@@ -211,14 +211,14 @@ Verb 'burn' 'light'
 Verb 'buy' 'purchase'
     * noun                                      -> Buy;
 
-Verb 'climb' 'scale'
-    * noun                                      -> Climb
-    * 'up'/'over' noun                          -> Climb;
-
 Verb 'carry'
     * multi                                     -> Take
     * multiinside 'from'/'off' noun             -> Remove
     * 'inventory'                               -> Inv;
+
+Verb 'climb' 'scale'
+    * noun                                      -> Climb
+    * 'up'/'over' noun                          -> Climb;
 
 Verb 'close' 'cover' 'shut'
     * noun                                      -> Close
@@ -249,10 +249,6 @@ Verb 'drop' 'discard'
     * multiheld                                 -> Drop
     * multiexcept 'in'/'into'/'down' noun       -> Insert
     * multiexcept 'on'/'onto' noun              -> PutOn;
-
-Verb 'throw'
-    * noun					-> ThrowAt
-    * held 'at'/'against'/'on'/'onto' noun      -> ThrowAt;
 
 Verb 'eat'
     * held                                      -> Eat;
@@ -407,13 +403,13 @@ Verb 'set' 'adjust'
     * noun                                      -> Set
     * noun 'to' special                         -> SetTo;
 
-Verb 'show' 'display' 'present'
-    * creature held                             -> Show reverse
-    * held 'to' creature                        -> Show;
-
 Verb 'shit' 'damn' 'fuck' 'sod'
     *                                           -> Strong
     * topic                                     -> Strong;
+
+Verb 'show' 'display' 'present'
+    * creature held                             -> Show reverse
+    * held 'to' creature                        -> Show;
 
 Verb 'sing'
     *                                           -> Sing;
@@ -469,6 +465,10 @@ Verb 'tell'
 
 Verb 'think'
     *                                           -> Think;
+
+Verb 'throw'
+    * noun                                      -> ThrowAt
+    * held 'at'/'against'/'on'/'onto' noun      -> ThrowAt;
 
 Verb 'tie' 'attach' 'connect' 'fasten' 'fix'
     * noun                                      -> Tie
@@ -536,10 +536,10 @@ Verb 'yes' 'y//'
 !  Final task: provide trivial routines if the user hasn't already:
 ! ------------------------------------------------------------------------------
 
-Default Story           0;
-Default Headline        0;
-Default d_obj           NULL;
-Default u_obj           NULL;
+Default Story          0;
+Default Headline       0;
+Default d_obj          NULL;
+Default u_obj          NULL;
 
 Stub AfterLife         0;
 Stub AfterPrompt       0;
@@ -586,15 +586,15 @@ Include "infix";
 
 Undef LIBRARY_STAGE; Constant LIBRARY_STAGE = AFTER_GRAMMAR;
 
-#Ifnot;		! LIBRARY_STAGE < AFTER_GRAMMAR but ~= AFTER_VERBLIB
+#Ifnot;     ! LIBRARY_STAGE < AFTER_GRAMMAR but ~= AFTER_VERBLIB
 Message "Error: 'verblib' needs to be correctly included before including 'grammar'. This will cause a big number of errors!";
 #Endif;
 
-#Ifnot;		! LIBRARY_STAGE >= AFTER_GRAMMAR : already included
+#Ifnot;     ! LIBRARY_STAGE >= AFTER_GRAMMAR : already included
 Message "Warning: 'grammar' included twice; ignoring second inclusion. (Ignore this if this is on purpose.)";
 #Endif;
 
-#Ifnot;		! LIBRARY_STAGE is not defined
+#Ifnot;     ! LIBRARY_STAGE is not defined
 Message "Error: 'parser', then 'verblib' need to be correctly included before including 'grammar'. This will cause a big number of errors!";
 #Endif;
 
