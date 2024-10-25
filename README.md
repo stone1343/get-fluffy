@@ -13,22 +13,25 @@ Here's an example how to download *Get Fluffy!* from GitHub on Windows:
 
 ```
 cd %USERPROFILE%\Downloads
-if exist get-fluffy-240420.zip del get-fluffy-240420.zip
-curl -L -o get-fluffy-240420.zip https://github.com/stone1343/get-fluffy/archive/refs/tags/240420.zip
-if exist get-fluffy-240420\. rmdir /s /q get-fluffy-240420
-"C:\Program Files\7-Zip\7z" x get-fluffy-240420.zip
-cd get-fluffy-240420
+if exist get-fluffy.zip del get-fluffy.zip
+curl -L -o get-fluffy.zip https://github.com/stone1343/get-fluffy/archive/refs/heads/main.zip
+if exist get-fluffy\. rmdir /s /q get-fluffy
+"C:\Program Files\7-Zip\7z" x get-fluffy.zip
+cd get-fluffy
 play
+
+inform6 get-fluffy.inf
+python public\quixe\tools\game2js.py --giload get-fluffy.ulx>public/get-fluffy.ulx.js
 ```
 
 or on Linux:
 
 ```bash
 cd ~/Downloads
-[ -d get-fluffy-240420 ] && rm -rf get-fluffy-240420
-git clone --depth 1 --branch 240420 https://github.com/stone1343/get-fluffy.git get-fluffy-240420
-if [ -d "get-fluffy-240420" ]; then
-  cd get-fluffy-240420
+[ -d get-fluffy ] && rm -rf get-fluffy
+git clone --depth 1 https://github.com/stone1343/get-fluffy.git
+if [ -d "get-fluffy" ]; then
+  cd get-fluffy
   ./play
 fi
 ```
