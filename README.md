@@ -17,7 +17,7 @@ if exist get-fluffy.zip del get-fluffy.zip
 curl -L -o get-fluffy.zip https://github.com/stone1343/get-fluffy/archive/refs/heads/main.zip
 if exist get-fluffy\. rmdir /s /q get-fluffy
 "C:\Program Files\7-Zip\7z" x get-fluffy.zip
-cd get-fluffy
+cd get-fluffy-main
 play
 
 inform6 get-fluffy.inf
