@@ -4,7 +4,7 @@
  * Designed by Andrew Plotkin <erkyrath@eblong.com>
  * <http://eblong.com/zarf/glulx/quixe/>
  * 
- * This Javascript library is copyright 2010-2023 by Andrew Plotkin.
+ * This Javascript library is copyright 2010-2024 by Andrew Plotkin.
  * It is distributed under the MIT license; see the "LICENSE" file.
  *
  * For documentation, see the README.txt or the web page noted above.
@@ -2113,30 +2113,8 @@ var opcode_table = {
 
     0x110: function(context, operands) { /* random */
         var expr;
-        /* Note that we don't trust Math.random() to be absolutely random.
-           On Chrome, the last few bits aren't. That's why random(0) is
-           done in two chunks. */
-        if (quot_isconstant(operands[0])) {
-            var val = Number(operands[0]) & 0xffffffff; /* signed */
-            if (val == 0)
-                expr = "(Math.floor(self.random_func() * 0x10000) | (Math.floor(self.random_func() * 0x10000) << 16)) >>>0";
-            else if (val > 0)
-                expr = "Math.floor(self.random_func() * "+val+")";
-            else
-                expr = "-Math.floor(self.random_func() * "+(-val)+")";
-        }
-        else {
-            var sign0 = oputil_signify_operand(context, operands[0], true);
-            var holdvar = alloc_holdvar(context);
-            expr = holdvar;
-            context.code.push("if ("+sign0+" > 0)");
-            context.code.push(holdvar+" = Math.floor(self.random_func() * "+sign0+");");
-            context.code.push("else if ("+sign0+" < 0)");
-            context.code.push(holdvar+" = -Math.floor(self.random_func() * -"+sign0+");");
-            context.code.push("else");
-            context.code.push(holdvar+" = (Math.floor(self.random_func() * 0x10000) | (Math.floor(self.random_func() * 0x10000) << 16)) >>>0;");
-        }
-        context.code.push(operands[1]+expr+");");
+        var sign0 = oputil_signify_operand(context, operands[0], true);
+        context.code.push(operands[1]+"self.random_func("+sign0+") >>>0);");
     },
 
     0x111: function(context, operands) { /* setrandom */
@@ -4325,55 +4303,93 @@ function parse_partial_operand()
    Math.random), or a seeded deterministic RNG.
 */
 function set_random(val) {
+    /* random_func(arg) must follow the Glulx spec: a random integer from
+       0 to arg, or a full-range 32-bit random integer if arg is 0. */
     if (val == 0) {
-        self.random_func = Math.random;
+        self.random_func = native_random_func;
     }
     else {
-        srand_set_seed(val);
-        self.random_func = srand_get_random;
+        xo_set_seed(val);
+        self.random_func = xo_random_func;
     }
 }
 self.set_random = set_random;
 
-/* Here is a pretty standard random-number generator and seed function.
+           
+/* Note that xo_get_random() returns a 32-bit unsigned int.
+   Math.random() returns a float from 0 to 1. We'll need a bit of
+   glue to make either of these fit the spec. */
+
+function native_random_func(arg) {
+    if (arg > 0) 
+        return Math.floor(Math.random() * arg);
+    else if (arg < 0)
+        return -Math.floor(Math.random() * -arg);
+    else
+        return (Math.floor(Math.random() * 0x10000) | (Math.floor(Math.random() * 0x10000) << 16)) >>>0;
+    /* Note that we don't trust Math.random() to be absolutely random.
+       On Chrome, the last few bits aren't. Or weren't at one point
+       long ago, anyhow. We do the arg=0 case in two chunks just in
+       case. */
+}
+    
+function xo_random_func(arg) {
+    if (arg > 0)
+        return xo_get_random() % arg;
+    else if (arg < 0)
+        return -(xo_get_random() % -arg);
+    else
+        return xo_get_random();
+}
+    
+/* Here is the "xoshiro128**" random-number generator and seed function.
    It is used for the deterministic mode of the Glulx RNG. (In the
    normal, non-deterministic mode, we rely on Math.random() -- hopefully
    that pulls some nice juicy entropy from the OS.)
 */
-var srand_table = undefined; /* Array[0..54] */
-var srand_index1, srand_index2;
+var xo_table = undefined; /* Uint32Array[0..3] */
 
-function srand_set_seed(seed) {
-    var i, ii, k, val, loop;
+function xo_set_seed(seed) {
+    /* Set up the 128-bit state from a single 32-bit integer. We rely
+       on a different RNG, SplitMix32. This isn't high-quality, but we
+       just need to get a bunch of bits into xo_table. */
+    var ix, s;
 
-    if (srand_table === undefined)
-        srand_table = Array(55);
+    if (xo_table === undefined)
+        xo_table = new Uint32Array(4);
 
-    srand_table[54] = seed;
-    srand_index1 = 0;
-    srand_index2 = 31;
+    seed = (seed>>>0);
     
-    k = 1;
-
-    for (i = 0; i < 55; i++) {
-        ii = (21 * i) % 55;
-        srand_table[ii] = k;
-        k = (seed - k) >>>0;
-        seed = srand_table[ii];
-    }
-    for (loop = 0; loop < 4; loop++) {
-        for (i = 0; i < 55; i++) {
-            val = srand_table[i] - srand_table[ (1 + i + 30) % 55];
-            srand_table[i] = val >>>0;
-        }
+    for (ix=0; ix<4; ix++) {
+        seed = (seed + 0x9E3779B9) >>>0;
+        s = seed;
+        s = (s ^ (s >>> 15)) >>>0;
+        s = Math.imul(s, 0x85EBCA6B) >>>0;
+        s = (s ^ (s >>> 13)) >>>0;
+        s = Math.imul(s, 0xC2B2AE35) >>>0;
+        s = (s ^ (s >>> 16)) >>>0;
+        xo_table[ix] = s;
     }
 }
 
-function srand_get_random() {
-    srand_index1 = (srand_index1 + 1) % 55;
-    srand_index2 = (srand_index2 + 1) % 55;
-    srand_table[srand_index1] = (srand_table[srand_index1] - srand_table[srand_index2]) >>>0;
-    return srand_table[srand_index1] / 0x100000000;
+function xo_get_random() {
+    /* Return a random number in the 32-bit unsigned integer range. */
+    var t1x5 = Math.imul(xo_table[1], 5) >>>0;
+    var result = Math.imul(((t1x5 << 7) | (t1x5 >>> (32-7))), 9) >>>0;
+
+    var t1s9 = (xo_table[1] << 9) >>>0;
+
+    xo_table[2] = (xo_table[2] ^ xo_table[0]);
+    xo_table[3] = (xo_table[3] ^ xo_table[1]);
+    xo_table[1] = (xo_table[1] ^ xo_table[2]);
+    xo_table[0] = (xo_table[0] ^ xo_table[3]);
+
+    xo_table[2] = (xo_table[2] ^ t1s9);
+
+    var t3 = xo_table[3];
+    xo_table[3] =  ((t3 << 11) | (t3 >>> (32-11)));
+
+    return result >>>0;
 }
 
 /* accel_funcnum_map maps VM addresses to the index number of the (native)
@@ -5609,7 +5625,7 @@ function do_gestalt(val, val2) {
         return 0x00030103; /* Glulx spec version 3.1.3 */
 
     case 1: /* TerpVersion */
-        return 0x00020202; /* Quixe version 2.2.2 */
+        return 0x00020204; /* Quixe version 2.2.4 */
 
     case 2: /* ResizeMem */
         return 1; /* Memory resizing works. */
@@ -6663,10 +6679,8 @@ function vm_autosave(eventaddr) {
     snapshot.iosysrock = self.iosysrock;
     snapshot.protectstart = self.protectstart;
     snapshot.protectend = self.protectend;
-    if (self.random_func == srand_get_random && srand_table) {
-        snapshot.srand_table = srand_table.slice(0);
-        snapshot.srand_index1 = srand_index1;
-        snapshot.srand_index2 = srand_index2;
+    if (self.random_func == xo_random_func && xo_table) {
+        snapshot.xo_table = [ xo_table[0], xo_table[1], xo_table[2], xo_table[3] ];
     }
     snapshot.accel_params = accel_params.slice(0);
     snapshot.accel_funcnum_map = {};
@@ -6756,14 +6770,18 @@ function vm_autorestore(snapshot) {
     self.protectstart = snapshot.protectstart;
     self.protectend = snapshot.protectend;
 
-    if (snapshot.srand_table === undefined) {
+    if (snapshot.xo_table === undefined && snapshot.srand_table !== undefined) {
+        /* This is an old save file (before 2.2.3). Grab the old RNG state.
+           We won't produce the same RNG sequence as the old interpreter,
+           but we'll be in deterministic mode at least. */
+        snapshot.xo_table = new Uint32Array(snapshot.srand_table.slice(0, 4));
+    }
+    if (snapshot.xo_table === undefined) {
         set_random(0);
     }
     else {
         set_random(1);
-        srand_table = snapshot.srand_table.slice(0);
-        srand_index1 = snapshot.srand_index1;
-        srand_index2 = snapshot.srand_index2;
+        xo_table = new Uint32Array(snapshot.xo_table);
     }
 
     accel_params = snapshot.accel_params.slice(0);
@@ -7391,7 +7409,7 @@ function execute_loop() {
    become the Quixe global. */
 return {
     classname: 'Quixe',
-    version: '2.2.2', /* Quixe version */
+    version: '2.2.4', /* Quixe version */
     init: quixe_init,
     inited: quixe_inited,
     getlibrary: quixe_getlibrary,
