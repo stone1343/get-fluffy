@@ -21,7 +21,7 @@ cd get-fluffy-main
 play
 
 inform6 get-fluffy.inf
-python public\quixe\tools\game2js.py --giload get-fluffy.ulx>public/get-fluffy.ulx.js
+python public\quixe\tools\game2js.py --giload get-fluffy.ulx>public\get-fluffy.ulx.js
 ```
 
 or on Linux:
