@@ -27,7 +27,7 @@ git clone --depth 1 https://github.com/stone1343/get-fluffy.git
 wslview get-fluffy/public/index.html
 ```
 
-You can also download the .zip file from GitHub, unzip and open get-fluffy\public\index.html my double-clicking.
+You can also download the .zip file from GitHub, unzip and open get-fluffy\public\index.html by double-clicking.
 
 If you've cloned the project from GitHub, you don't need to compile or build anything, everything's provided, ready to go.
 
