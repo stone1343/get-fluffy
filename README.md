@@ -37,7 +37,7 @@ If you do want to build *Get Fluffy!*, you'll need the Inform 6 compiler and eit
 rem To compile, from Downloads\get-fluffy
 inform6 get-fluffy.inf
 rem Create get-fluffy.ulx.js using Python...
-python public/quixe/tools/game2js.py --giload get-fluffy.ulx>public/get-fluffy.ulx.js
+python public\quixe\tools\game2js.py --giload get-fluffy.ulx>public\get-fluffy.ulx.js
 rem ... or Lua...
-lua game2js.lua get-fluffy.ulx>public\get-fluffy-l.ulx.js
+lua game2js.lua get-fluffy.ulx>public\get-fluffy.ulx.js
 ```
