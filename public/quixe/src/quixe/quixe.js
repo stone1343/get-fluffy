@@ -98,8 +98,8 @@ function quixe_init(image, all_options) {
     self.GiDispa = all_options.GiDispa;
     self.GiLoad = all_options.GiLoad;
     self.Glk = all_options.io;
-    
-    game_image = image;
+
+    game_image = new Uint8Array(image);
 
     var ls = game_image.slice(0, 64);
     var ix, val;
@@ -354,18 +354,18 @@ function MemSlice(addr, length) {
 }
 function MemW1(addr, val) {
     // ignore high bytes if necessary
-    memmap[addr] = val & 0xFF;
+    memmap[addr] = val;
 }
 function MemW2(addr, val) {
     // ignore high bytes if necessary
-    memmap[addr] = (val >> 8) & 0xFF;
-    memmap[addr+1] = val & 0xFF;
+    memmap[addr] = (val >> 8);
+    memmap[addr+1] = val;
 }
 function MemW4(addr, val) {
-    memmap[addr]   = (val >> 24) & 0xFF;
-    memmap[addr+1] = (val >> 16) & 0xFF;
-    memmap[addr+2] = (val >> 8) & 0xFF;
-    memmap[addr+3] = val & 0xFF;
+    memmap[addr]   = (val >> 24);
+    memmap[addr+1] = (val >> 16);
+    memmap[addr+2] = (val >> 8);
+    memmap[addr+3] = val;
 }
 
 self.Mem1 = Mem1;
@@ -3818,7 +3818,7 @@ function compile_func(funcaddr) {
     /* We also copy the raw format list. This will be handy later on,
        when we need to serialize the stack. Note that it might be
        padded with extra zeroes to a four-byte boundary. */
-    var rawformat = memmap.slice(rawstart, addr);
+    var rawformat = Array.from(memmap.slice(rawstart, addr));
     while (rawformat.length % 4)
         rawformat.push(0);
 
@@ -5625,7 +5625,7 @@ function do_gestalt(val, val2) {
         return 0x00030103; /* Glulx spec version 3.1.3 */
 
     case 1: /* TerpVersion */
-        return 0x00020204; /* Quixe version 2.2.4 */
+        return 0x00020205; /* Quixe version 2.2.5 */
 
     case 2: /* ResizeMem */
         return 1; /* Memory resizing works. */
@@ -6298,7 +6298,7 @@ function vm_restart() {
 
     /* Build (or rebuild) main memory array. */
     memmap = null; // garbage-collect old memmap
-    memmap = game_image.slice(0, endgamefile);
+    memmap = new Uint8Array(game_image);
     self.endmem = memmap.length;
     change_memsize(origendmem, false);
     /* endmem is now origendmem */
@@ -6322,7 +6322,8 @@ function vm_restart() {
 }
 self.vm_restart = vm_restart;
 
-/* Run-length-encode an array, for Quetzal. */
+/* Run-length-encode an array, for Quetzal.
+   This can take an Array or Uint8Array; it returns an Array. */
 function compress_bytes(arr) {
     var result = [];
     var i = 0;
@@ -6436,13 +6437,13 @@ function vm_save(streamid) {
     
     var chunks = [];
     
-    chunks.push({ key:"IFhd", chunk:game_image.slice(0, 128) });
+    chunks.push({ key:"IFhd", chunk:Array.from(game_image.slice(0, 128)) });
     
     var cmem = memmap.slice(ramstart);
     for (var i = ramstart; i < game_image.length; i++) {
         cmem[i - ramstart] ^= game_image[i];
     }
-    cmem = compress_bytes(cmem);
+    cmem = compress_bytes(cmem); // now a regular Array
     cmem.splice(0, 0, 0,0,0,0); // prepend four zeroes
     // Write in the endmem value
     ByteWrite4(cmem, 0, self.endmem);
@@ -6540,7 +6541,10 @@ function vm_restore(streamid) {
     while (ram_xor.length < newendmem - ramstart)
         ram_xor.push(0);
     change_memsize(newendmem, false);
-    memmap = game_image.slice(0, ramstart).concat(ram_xor);
+    memmap = null; // garbage-collect old memmap
+    memmap = new Uint8Array(ramstart+ram_xor.length);
+    memmap.set(game_image.slice(0, ramstart));
+    memmap.set(ram_xor, ramstart);
     for (var i = ramstart; i < game_image.length; i++) {
         memmap[i] ^= game_image[i];
     }
@@ -6652,7 +6656,7 @@ function vm_autosave(eventaddr) {
 
     /* Save the RAM, stack, and heap. */
 
-    snapshot.ram = memmap.slice(ramstart);
+    snapshot.ram = Array.from(memmap.slice(ramstart));
     snapshot.endmem = self.endmem;
     snapshot.pc = self.pc;
     snapshot.stack = [];
@@ -6703,9 +6707,10 @@ function vm_autosave(eventaddr) {
    vm_setup, replacing the vm_restart call.
 */
 function vm_autorestore(snapshot) {
-
-    memmap = game_image.slice(0, endgamefile);
-    memmap = memmap.slice(0, ramstart).concat(snapshot.ram);
+    memmap = null; // garbage-collect old memmap
+    memmap = new Uint8Array(ramstart+snapshot.ram.length);
+    memmap.set(game_image.slice(0, ramstart));
+    memmap.set(snapshot.ram, ramstart);
     self.endmem = snapshot.endmem;
     self.pc = snapshot.pc;
 
@@ -6806,7 +6811,7 @@ function vm_saveundo() {
     ;;;}
 
     var snapshot = {};
-    snapshot.ram = memmap.slice(ramstart);
+    snapshot.ram = memmap.slice(ramstart); // undo snapshots use Uint8Array for ram
     snapshot.endmem = self.endmem;
     snapshot.pc = self.pc;
     snapshot.stack = [];
@@ -6834,7 +6839,13 @@ function vm_restoreundo() {
     var snapshot = undostack.pop();
     var protect = copy_protected_range();
 
-    memmap = memmap.slice(0, ramstart).concat(snapshot.ram);
+    var oldrom = memmap.slice(0, ramstart);
+    memmap = null; // garbage-collect old memmap
+    memmap = new Uint8Array(ramstart+snapshot.ram.length);
+    memmap.set(oldrom);
+    memmap.set(snapshot.ram, ramstart);
+    oldrom = null;
+
     self.endmem = snapshot.endmem;
     stack = snapshot.stack;
     self.frame = stack[stack.length - 1];
@@ -6896,12 +6907,10 @@ function change_memsize(newlen, internal) {
     if (newlen & 0xFF)
         fatal_error("Can only resize Glulx memory space to a 256-byte boundary.");
 
-    memmap.length = newlen;
-    if (newlen > self.endmem) {
-        for (lx=self.endmem; lx<newlen; lx++) {
-            memmap[lx] = 0;
-        }
-    }
+    var oldmem = memmap.slice(0, newlen); // might not include all of memmap
+    memmap = null; // garbage-collect old memmap
+    memmap = new Uint8Array(newlen); // automatically zero-padded
+    memmap.set(oldmem)
 
     self.endmem = newlen;    
 }
@@ -6924,7 +6933,7 @@ function copy_protected_range() {
         end: self.protectend,
         len: len
     };
-    var arr = memmap.slice(self.protectstart, self.protectend);
+    var arr = Array.from(memmap.slice(self.protectstart, self.protectend));
 
     /* It is legal to protect a range that falls outside of memory; the
        extra bits are presumed to be zero. */
@@ -7409,7 +7418,7 @@ function execute_loop() {
    become the Quixe global. */
 return {
     classname: 'Quixe',
-    version: '2.2.4', /* Quixe version */
+    version: '2.2.5', /* Quixe version */
     init: quixe_init,
     inited: quixe_inited,
     getlibrary: quixe_getlibrary,

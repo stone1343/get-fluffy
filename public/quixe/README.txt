@@ -1,6 +1,6 @@
 Quixe -- a Glulx VM interpreter written in Javascript
 
-Quixe Library: version 2.2.4.
+Quixe Library: version 2.2.5.
 Designed by Andrew Plotkin <erkyrath@eblong.com>.
 (Storage and heap-management code contributed by Iain Merrick.)
 <http://eblong.com/zarf/glulx/quixe/>
@@ -99,8 +99,18 @@ If you have no idea what I just said, ignore lib/elkote.min.js.
 
 * Version History
 
+- 2.2.5 (November 23, 2024)
+  - Fix bug in 2.2.4 that could cause scrollbar flashing.
+  - Pageup/pagedown/home/end now work consistently when the input line is
+    focused. (Wasn't working in Firefox.)
+  - Avoid spurious recording stanza sent (with spurious sessionId) before
+    autorestore. (Thanks curiousdannii.)
+  - Recording sessionIds are now UUIDs (hexdigits and hyphens).
+  - Change the internal representation of VM memory to Uint8Array.
+
 - 2.2.4 (July 26, 2024)
   - Support GlkOte localization system.
+  - Improved window appearance during resizing.
   - Fixed mobile browser bug with OneColumn layout.
   
 - 2.2.3 (July 20, 2024)
